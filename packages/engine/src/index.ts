@@ -114,6 +114,7 @@ export {
   ANCHOR_PHRASE_TH,
   ANCHOR_PHRASE_EN,
   anchorPhraseFor,
+  anchorWhisperText,
   anchorPhraseKey,
   type SignatureEnvelope,
   type SignatureTimbre,
@@ -121,6 +122,7 @@ export {
   makeSignature,
   midiToHz,
   renderSignaturePcm,
+  renderSignatureShortPcm,
 } from './signature';
 
 export {
