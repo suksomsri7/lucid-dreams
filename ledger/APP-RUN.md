@@ -28,7 +28,8 @@
 6. **ข้อสอบต้องคืนสภาพใน finally** และไม่พึ่งเวลาจริง (ฉีด `now()` ทุกที่ · ห้ามฮาร์ดโค้ดวันที่)
 7. **ทุกสตริงที่ผู้ใช้เห็นอยู่ใน i18n TH+EN** ตั้งแต่ใบแรก · fitness `scripts/fitness.mts` ตรวจ: ไม่มีสตริงไทยในไฟล์ .tsx นอกโฟลเดอร์ i18n · engine ไม่ import RN · ไม่มี secret ในโค้ด (gitleaks) · ทุก op เซิร์ฟเวอร์มี auth + rate limit + zod
 8. **รองรับ Android ในอนาคต** (มติ 24 ก.ย.): โค้ดแตะแพลตฟอร์มอยู่หลัง interface (`SensorSource` · `AudioPlayer` · `LiveStatus` · `HealthImport` · `SpeechToText`) + stub `android/` ตั้งแต่ L1.1 · fitness ห้าม import โมดูล iOS-only นอกโฟลเดอร์ `platform/ios/` · ไม่ต้องทดสอบ Android ใน Phase 1
-9. **ค่าเริ่มต้นเอียงทาง "การนอนมาก่อน"** (DESIGN §2.1) — ข้อสอบมี "ไม่มีทางยิงเสียงก่อนหมด guard" "ไม่มีทางยิงหลังตื่น" เป็นข้อบังคับทุกใบที่แตะเครื่องยนต์
+9. **UI ต้องตรงแบบ** (เจ้าของสั่ง 24 ก.ย.): builder UI ต้องเปิดภาพ mockup ด้วย Read ก่อนเขียน · ทำเสร็จต้องถ่ายภาพจอตัวเองเทียบ mockup ใน prompt · เกณฑ์ตรง = โครงเดียวกัน (ลำดับ/จำนวนองค์ประกอบ) · ข้อความตรง i18n · สี/รัศมี/ระยะจากโทเคน · ไอคอนตรงชนิด · ต่างได้เฉพาะสิ่งที่ Fable บันทึกว่า "ยอมรับ+เหตุผล" (เช่น glass จริงเห็นได้แค่บนเครื่อง)
+10. **ค่าเริ่มต้นเอียงทาง "การนอนมาก่อน"** (DESIGN §2.1) — ข้อสอบมี "ไม่มีทางยิงเสียงก่อนหมด guard" "ไม่มีทางยิงหลังตื่น" เป็นข้อบังคับทุกใบที่แตะเครื่องยนต์
 
 ### 0.3 มติที่ต้องได้ก่อนเริ่ม (นอกเหนือ DESIGN-APP §10)
 1. ✅ **GitHub repo** `suksomsri7/lucid-dreams` — push แล้ว 24 ก.ย. (origin/main)
@@ -44,7 +45,7 @@
 | 2 | Fable | อัปเดต `ledger/RUN-STATE.json` (wo · step=building · branch · agent) → commit+push → เขียน prompt (อ่านก่อน · ขอบเขตไฟล์ · ห้าม · ส่งมอบ) → spawn builder ใน **worktree** `/root/projects/lucid-dreams-<wo>` branch `wo/<wo>` | prompt ใน transcript · Telegram "▶ เริ่ม <wo>" |
 | 3 | builder | ทำโค้ด · รันข้อสอบของใบจนผ่าน · tsc · vitest ทั้งชุด (ผ่าน heavy.sh) · fitness · เขียน `ledger/wo-notes/<wo>.md` (ไฟล์ · ผล · ข้อแย้ง+หลักฐาน · หนี้ · สิ่งที่ต้องทดสอบบนเครื่องจริง) | JSON_SUMMARY · ห้ามแก้ข้อสอบ/commit/build |
 | 4 | Fable | อ่านโน้ต → ตัดสินข้อแย้ง → **รันข้อสอบ+ทั้งชุดซ้ำเอง** → **code review ทุกไฟล์ที่เปลี่ยน** (บั๊ก · กรณีขอบ · เวลา/โซนเวลา · async race · leak) → **เช็กลิสต์ความปลอดภัย §0.5** → ใบ 🔒 spawn ผู้ตรวจอิสระ | รายการบั๊กที่จับได้ในโน้ต Fable · แก้เล็กเอง / ส่งกลับ builder |
-| 5 | Fable | `expo export --platform web` (heavy.sh) → ถ่ายภาพจอที่ใบนั้นแตะ (TH+EN) → **เปิดดูทุกภาพเทียบ mockup** → ระบุจุดต่าง | ภาพใน `.qc-shots/<wo>/` |
+| 5 | Fable | `expo export --platform web` (heavy.sh) → `scripts/visual.sh` ถ่ายภาพจอที่ใบนั้นแตะ (TH+EN) → **`scripts/parity.sh` สร้างภาพคู่ "MOCKUP | RENDER" ทุกจอ** → Fable เปิดดูภาพคู่ทุกใบ → เขียน **ตารางจุดต่าง** (องค์ประกอบ · ใน mockup · ของจริง · ตัดสิน: แก้/ยอมรับ+เหตุผล) ลงโน้ต → ส่งกลับ builder จนตรง · **ใบ UI ห้าม merge ถ้ายังมีจุดต่างที่ไม่ได้ตัดสิน** (เจ้าของสั่ง 24 ก.ย.: UI ต้องออกมาตามแบบ) | ภาพคู่ใน `.qc-shots/<wo>/parity-*.png` + ตารางจุดต่างใน wo-notes |
 | 6 | Fable | merge `wo/<wo>` → `main` (squash · ระบุไฟล์) → push → ลบ worktree → RUN-STATE step=done | commit hash ใน §3.1 |
 | 7 | Fable | อัปเดต §3.1 + RESUME §0 + memory → Telegram % (ฟีเจอร์ที่ได้ · บั๊ก/ช่องโหว่ที่จับได้ · สิ่งที่รอเครื่องจริง) | ข้อความ TG |
 | 8 | Fable | ใบถัดไปตาม §3 · ถ้าครบ "รอบ build" (§4) → แจ้งเจ้าของ "พร้อม build Rn" แล้ว**รอ** | — |
