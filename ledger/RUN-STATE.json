@@ -14,16 +14,16 @@
     "เจ้าของ: รุ่น iPhone/Watch/หูฟัง",
     "เจ้าของ: สั่ง build",
     "owner: confirm anchor sound v2-C (TG 3478)",
-    "owner: pick icon G/H/I"
+    "owner: pick icon J/K/L (Zzz)"
   ],
   "icons": {
-    "status": "round-3 minimal clean, distinct structures (G/H/I)",
+    "status": "round-4 Zzz idea (J/K/L)",
     "files": [
-      "ledger/design-icon/icon-G-two-lenses.png",
-      "ledger/design-icon/icon-H-mask-zoom.png",
-      "ledger/design-icon/icon-I-face-mask.png"
+      "ledger/design-icon/icon-J-zzz-rise.png",
+      "ledger/design-icon/icon-K-z-single.png",
+      "ledger/design-icon/icon-L-zzz-night.png"
     ],
-    "waitingOwner": "pick G/H/I (rounds 1-2 rejected: not minimal / only colour changed)",
-    "tg": "3510-3513"
+    "waitingOwner": "pick J/K/L or redirect",
+    "tg": "3514-3517"
   }
 }
