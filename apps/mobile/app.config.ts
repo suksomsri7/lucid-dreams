@@ -24,8 +24,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: 'luciddream',
   userInterfaceStyle: 'automatic',
   // `newArchEnabled` หายไปจากสคีมาของ SDK 57 — New Architecture เป็นทางเดียวแล้ว ไม่มีสวิตช์
-  // พื้นแอปไล่สีอ่อนมาก (DESIGN §2.8) — ค่าจริงของโทเคนมาที่ L1.2
-  backgroundColor: '#F4F1FB',
+  // พื้นแอปไล่สีอ่อนมาก (DESIGN §2.8) — ค่าตรงกับ `appBackground.linearFrom` ใน
+  // `src/ui/tokens.ts` (L1.2) นี่คือค่าที่เห็นแวบเดียวตอนโหลด ก่อน `AppBackground` ขึ้นทับ
+  backgroundColor: '#f6f5fb',
 
   ios: {
     bundleIdentifier: IOS_BUNDLE_ID,

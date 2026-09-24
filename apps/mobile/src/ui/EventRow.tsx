@@ -1,4 +1,4 @@
-/** `.ev` — one line of the night's event list (mockup 07: "23:10 · เริ่มคืนนี้ · เสียงพื้น…"). */
+/** `.ev` — one line of the night's event list (mockup 07: time · title · sub, e.g. "23:10 · Night started · Bed audio…"). */
 
 import { StyleSheet, Text, View } from 'react-native';
 

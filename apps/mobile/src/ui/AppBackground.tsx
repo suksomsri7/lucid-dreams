@@ -23,7 +23,7 @@ interface BackgroundSurfaceProps {
 function BackgroundSurface({ spec, children, style, testID }: BackgroundSurfaceProps) {
   return (
     <View style={[styles.fill, style]} testID={testID}>
-      <Svg style={StyleSheet.absoluteFillObject} width="100%" height="100%" preserveAspectRatio="none">
+      <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
         <Defs>
           <LinearGradient id="base" x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor={spec.linearFrom} stopOpacity={1} />

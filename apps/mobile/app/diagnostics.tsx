@@ -30,7 +30,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useT, type TranslationKey } from '../src/i18n';
 import { getPlatform, hasRealGlass, type AudioSessionState, type SensorStatus } from '../src/platform';
-import { ActionButton, Card, Note, Row, Screen, Subtitle, Title } from '../src/ui/kit';
+import { Button, GlassCard, Row, Screen, Sub, Title, Subtitle } from '../src/ui';
 
 const MAX_KEPT_EVENTS = 500;
 const BED_START_VOLUME = 0.12;
@@ -232,7 +232,7 @@ export default function DiagnosticsScreen() {
       <Title>{t('diagnostics.title')}</Title>
       <Subtitle>{t('diagnostics.subtitle')}</Subtitle>
 
-      <Card title={t('diagnostics.section.device')} testID="card-device">
+      <GlassCard title={t('diagnostics.section.device')} testID="card-device">
         <Row label={t('diagnostics.platform')} value={device?.platform ?? t('common.loading')} />
         <Row
           label={t('diagnostics.model')}
@@ -248,9 +248,9 @@ export default function DiagnosticsScreen() {
           label={t('diagnostics.batteryPhone')}
           value={phoneBattery === null ? t('common.none') : percent(phoneBattery.level)}
         />
-      </Card>
+      </GlassCard>
 
-      <Card title={t('diagnostics.section.sensors')} testID="card-sensors">
+      <GlassCard title={t('diagnostics.section.sensors')} testID="card-sensors">
         <Row label={t('diagnostics.watchPaired')} value={yesNo(sensorStatus.connected)} />
         <Row label={t('diagnostics.watchReachable')} value={yesNo(sensorStatus.reachable)} />
         <Row
@@ -263,44 +263,48 @@ export default function DiagnosticsScreen() {
           label={t('diagnostics.batteryWatch')}
           value={sensorStatus.battery === null ? t('common.none') : percent(sensorStatus.battery)}
         />
-        <ActionButton
+        <Button
           testID="toggle-sensors"
           label={sensorsRunning ? t('diagnostics.stopSensors') : t('diagnostics.startSensors')}
-          tone={sensorsRunning ? 'ghost' : 'primary'}
+          tone={sensorsRunning ? 'gh' : 'pri'}
+          block
           onPress={() => void toggleSensors()}
         />
-      </Card>
+      </GlassCard>
 
-      <Card title={t('diagnostics.section.audio')} testID="card-audio">
+      <GlassCard title={t('diagnostics.section.audio')} testID="card-audio">
         <Row label={t('diagnostics.audioSession')} value={t(AUDIO_STATE_KEY[audioState])} />
         <Row
           label={t('diagnostics.audioRoute')}
           value={platform.audioPlayer.getStatus().route ?? t('common.unknown')}
         />
         <Row label={t('diagnostics.audioEvents')} value={String(audioEvents.length)} />
-        <ActionButton
+        <Button
           testID="toggle-bed"
           label={bedPlaying ? t('diagnostics.stopBed') : t('diagnostics.startBed')}
-          tone={bedPlaying ? 'ghost' : 'primary'}
+          tone={bedPlaying ? 'gh' : 'pri'}
+          block
           onPress={() => void toggleBed()}
         />
-      </Card>
+      </GlassCard>
 
-      <Card title={t('diagnostics.section.export')} testID="card-export">
-        <ActionButton
+      <GlassCard title={t('diagnostics.section.export')} testID="card-export">
+        <Button
           testID="export-diagnostics"
           label={t('diagnostics.export')}
+          tone="pri"
+          block
           onPress={() => void exportDiagnostics()}
         />
-        {message === null ? null : <Note>{message}</Note>}
-      </Card>
+        {message === null ? null : <Sub>{message}</Sub>}
+      </GlassCard>
 
       {warnings.length === 0 ? null : (
-        <Card title={t('diagnostics.warnings')} testID="card-warnings">
+        <GlassCard title={t('diagnostics.warnings')} testID="card-warnings">
           {warnings.map((warning) => (
-            <Note key={warning}>{warning}</Note>
+            <Sub key={warning}>{warning}</Sub>
           ))}
-        </Card>
+        </GlassCard>
       )}
     </Screen>
   );

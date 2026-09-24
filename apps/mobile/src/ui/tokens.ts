@@ -51,7 +51,7 @@ export const colors = {
 /**
  * `.night` cascade, resolved: `_base.part` defines the night overrides for
  * `.card`/`.btn`/`.chip` twice (once near the frame rules, once at the bottom
- * under "จอกลางคืน") — the later block wins in CSS, so these are the
+ * under the "night screen" comment block) — the later block wins in CSS, so these are the
  * bottom-block values, which is what actually renders.
  */
 export const night = {
