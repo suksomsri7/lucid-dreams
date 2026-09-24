@@ -34,6 +34,13 @@ function tabBarTopClearance(safeAreaBottom: number): number {
   return Math.max(safeAreaBottom, 12) + 14 + 64 + spacing.sm;
 }
 
+/**
+ * `styles.top`'s content width (390 frame − `spacing.xl` on each side) × 92% (Fable
+ * parity review round 3 — mockup 03's user voice bubble stays on one line at this
+ * width; narrower and the fixture's whale-shark sentence wraps to a second line).
+ */
+const BUBBLE_MAX_WIDTH = Math.round((390 - spacing.xl * 2) * 0.92);
+
 export interface AdvisorRoomProps {
   night?: boolean;
   testID?: string;
@@ -195,15 +202,17 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
             />
           )}
           ListHeaderComponent={
-            // Top-anchored now, so the "AI header pill" sits exactly where it renders —
-            // right above the very first message (mockup 02) — with no inverted-list
-            // header/footer swap to reason about.
-            <View style={styles.aiHeader}>
-              <View style={styles.aiHeaderAvatar}>
-                <Icon name="spark" size={13} color={colors.acc} />
+            // Fable parity review round 3: mockup 03 (conversation already started) has
+            // no "AI header pill" at all — it only appears on the empty room (mockup 02).
+            // Also recovers ~30px toward the mockup-03 fitting target.
+            advisor.state === 'ASK' ? (
+              <View style={styles.aiHeader}>
+                <View style={styles.aiHeaderAvatar}>
+                  <Icon name="spark" size={13} color={colors.acc} />
+                </View>
+                <Text style={[typeScale.sub, { color: isNight ? night.mut : colors.mut }]}>{t('advisor.aiName')}</Text>
               </View>
-              <Text style={[typeScale.sub, { color: isNight ? night.mut : colors.mut }]}>{t('advisor.aiName')}</Text>
-            </View>
+            ) : null
           }
         />
       </View>
@@ -248,7 +257,7 @@ function MessageRow({ message, plan, night: isNight, t, onChipPress, onStart }: 
 
   return (
     <View style={styles.messageBlock}>
-      <Bubble role={message.kind} text={message.text} voice={message.fromVoice} night={isNight} />
+      <Bubble role={message.kind} text={message.text} voice={message.fromVoice} night={isNight} maxWidth={BUBBLE_MAX_WIDTH} />
       {message.chips ? (
         <View style={styles.chipsRow}>
           {message.chips.map((chip) => (
@@ -280,10 +289,10 @@ const styles = StyleSheet.create({
   navTitle: { flex: 1 },
   navLink: { color: colors.acc, fontWeight: '500' },
   list: { flex: 1 },
-  // 10px between items (Fable parity review round 2 — `_base.part`'s `.chat{gap:10px}`,
-  // the non-"tight" value; `spacing.smd`). Top/bottom padding kept minimal (chrome, not
-  // one of the asked density values) so the mockup-03 state has as much room as possible.
-  listContent: { gap: spacing.smd, paddingVertical: spacing.xs },
+  // 8px between items (Fable parity review round 3 — tighter than round 2's 10). Top/
+  // bottom padding kept minimal (chrome, not one of the asked density values) so the
+  // mockup-03 state has as much room as possible.
+  listContent: { gap: spacing.sm, paddingVertical: spacing.xs },
   aiHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingBottom: spacing.xs },
   aiHeaderAvatar: {
     width: 22,
@@ -293,7 +302,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.accSurfaceSoft,
   },
-  messageBlock: { gap: spacing.smd },
+  messageBlock: { gap: spacing.sm },
   // No `maxWidth` cap: the row already lives inside `styles.top`'s `paddingHorizontal`,
   // so it naturally can't exceed the frame width — capping it further than that made the
   // 6 theme chips wrap 2-per-row instead of 3-per-row like mockup 02's `.opts.wide`.

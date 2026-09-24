@@ -43,7 +43,10 @@ export function PlanCardCompact({ plan, night: isNight = false, onPlayAnchor, te
       </View>
 
       <Row label={t('advisor.plan.seedLabel')} night={isNight}>
-        <Text style={[typeScale.sub, styles.rowValueText, { color: isNight ? night.text : colors.ink }]}>
+        <Text
+          style={[typeScale.sub, styles.rowValueText, { color: isNight ? night.text : colors.ink }]}
+          numberOfLines={2}
+        >
           “{plan.seedLines[0]} · {plan.seedLines[1]}”
         </Text>
       </Row>
@@ -102,22 +105,20 @@ function Row({ label, night: isNight, last = false, children }: RowProps) {
 
 const styles = StyleSheet.create({
   surface: { paddingBottom: 2 },
-  // Header padding trimmed a touch below the card's default `spacing.lg` (chrome, not
-  // one of the asked 12×18 row values) — same fitting goal as `row`/`rowLast` below.
-  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: 18, paddingTop: spacing.sm, paddingBottom: spacing.xs },
+  // 12×16 (Fable parity review round 3 — was 18×sm/xs in round 2).
+  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: 16, paddingVertical: 12 },
   emoji: { fontSize: 28, lineHeight: 32 },
   headerText: { flex: 1, minWidth: 0 },
-  // 12×18 (Fable parity review round 2 — tighter than the card's default `spacing.lg`
-  // padding, so mockup 03's full plan-state conversation fits without cropping).
+  // 10×16 (Fable parity review round 3 — was 12×18 in round 2).
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.md,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
-  rowLast: { paddingBottom: 12 },
+  rowLast: { paddingBottom: 10 },
   rowLabel: { width: 84, flexShrink: 0, flexGrow: 0, paddingTop: 1 },
   rowValue: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minWidth: 0 },
   rowValueText: { flex: 1, lineHeight: 17 },
