@@ -113,6 +113,13 @@ export interface WakeReading {
   since: number | null;
   /** This epoch carried movement above the threshold — used by the cue gate. */
   motionHigh: boolean;
+  /**
+   * This epoch carried *wake-sized* movement (≥ {@link WAKE_MOTION_LEVEL}). The night
+   * controller counts its "still for 15 min" from this, not from `motionHigh`: a sleeping
+   * body twitches over 0.05 g every ~7 min in light sleep, so 15 min without a single
+   * twitch is a condition normal sleep rarely meets (notes §4.3).
+   */
+  motionWake: boolean;
   /** This epoch's heart rate is ≥ 20 % over the sleeping baseline (cue gate `hrSpike`). */
   hrSpike: boolean;
   /** Sleeping heart-rate baseline in bpm, `null` until enough epochs arrived. */
@@ -257,6 +264,7 @@ export function createWakeDetector(options: WakeDetectorOptions = {}): WakeDetec
         cause,
         since,
         motionHigh: motionHighNow,
+        motionWake: motion != null && motion >= motionLevel,
         hrSpike: hrSpikeNow,
         baselineHr: base,
       };
@@ -400,30 +408,35 @@ export function timerCueWindows(
   const cycleSec = Math.max(30, tuning.cycleMin) * 60;
   const half = Math.round(TIMER_WINDOW_SEC / 2);
 
-  // Best point of every cycle, whether or not it survives the guard.
+  // Local maxima of the prior, found by walking the night — never "the best point of a
+  // 90 min bucket": the last bucket of a night is a *partial* cycle, and its best point is
+  // wherever the walk happened to stop, which produced a spurious second window 10 min
+  // after the real one (found by the fuzz of this WO — notes §4.4). A peak is a peak only
+  // when the prior rose into it and falls out of it again.
   const peaks: { peakT: number; prior: number }[] = [];
-  for (let cycleStart = onsetT; cycleStart < endT; cycleStart += cycleSec) {
-    const cycleEnd = Math.min(cycleStart + cycleSec, endT);
-    let bestT: number | null = null;
-    let best = Number.NEGATIVE_INFINITY;
-    for (let t = cycleStart; t < cycleEnd; t += TIMER_SCAN_STEP_SEC) {
-      const p = remTimePrior(t, ctx, tuning);
-      if (p > best) {
-        best = p;
-        bestT = t;
-      }
-    }
-    if (bestT == null) continue;
+  const scan: { t: number; p: number }[] = [];
+  for (let t = onsetT; t <= endT; t += TIMER_SCAN_STEP_SEC) {
+    scan.push({ t, p: remTimePrior(t, ctx, tuning) });
+  }
+  for (let i = 1; i < scan.length - 1; i += 1) {
+    const here = scan[i] as { t: number; p: number };
+    const before = scan[i - 1] as { t: number; p: number };
+    const after = scan[i + 1] as { t: number; p: number };
+    if (!(here.p > before.p && here.p >= after.p)) continue;
     // Drop a peak whose window cannot exist after the guard, or would not fit the night.
-    if (bestT < guardEnd || bestT + half > endT) continue;
-    peaks.push({ peakT: bestT, prior: best });
+    if (here.t < guardEnd || here.t + half > endT) continue;
+    peaks.push({ peakT: here.t, prior: here.p });
   }
 
-  const chosen = peaks
-    .slice()
-    .sort((a, b) => b.prior - a.prior || a.peakT - b.peakT)
-    .slice(0, Math.max(0, Math.round(maxWindows)))
-    .sort((a, b) => a.peakT - b.peakT);
+  // Strongest prior first (late cycles hold most of the REM — DESIGN §5.2), at most one
+  // window per cycle, then back into time order for the caller.
+  const kept: { peakT: number; prior: number }[] = [];
+  for (const peak of peaks.slice().sort((a, b) => b.prior - a.prior || a.peakT - b.peakT)) {
+    if (kept.length >= Math.max(0, Math.round(maxWindows))) break;
+    if (kept.some((k) => Math.abs(k.peakT - peak.peakT) < cycleSec / 2)) continue;
+    kept.push(peak);
+  }
+  const chosen = kept.sort((a, b) => a.peakT - b.peakT);
 
   const windows: TimerCueWindow[] = [];
   for (const peak of chosen) {

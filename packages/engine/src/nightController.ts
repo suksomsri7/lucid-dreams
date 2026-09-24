@@ -112,6 +112,8 @@ export const VOLUME_STEP_UP = 0.03;
 export const SLEEP_SCORE_NIGHTS = 3;
 /** Below this mean score over those nights the night's cue budget is halved (§5.3). */
 export const SLEEP_SCORE_POOR = 5;
+/** Epochs with no readable sensor at all after which the night falls back to the prior (10 min). */
+export const SENSOR_LOST_EPOCHS = 20;
 /** Delay between `REM_LIKELY` and the cue is tunable inside this range (§5.3). */
 export const CUE_DELAY_MIN_SEC = 30;
 export const CUE_DELAY_MAX_SEC = 180;
@@ -227,8 +229,10 @@ export interface NightController {
   readonly startedAtIso: string;
   /** Cue budget in force tonight after the timer-mode and poor-sleep reductions. */
   readonly maxCuesTonight: number;
-  /** Windows of a timer-mode night, empty otherwise (L2.7). */
+  /** Windows of a timer-mode night (or of a sensor-loss fallback), empty otherwise. */
   readonly timerWindows: readonly TimerCueWindow[];
+  /** `true` while the night runs on the time prior because every sensor went away. */
+  readonly timerFallback: boolean;
   /** Why the gate last refused, for the report's "why it stayed quiet". */
   readonly lastGateReason: CueGateReason | null;
   /** `true` once the Sleep Guard stopped the night's cues (2 cue-caused wakes). */
@@ -333,8 +337,22 @@ export function createNightController(options: NightControllerOptions = {}): Nig
   let remLikelyT: number | null = null;
   let cooldownUntilT = Number.NEGATIVE_INFINITY;
 
-  /** `t` of the last epoch that carried movement (or was unreadable — see below). */
+  /**
+   * Two stillness clocks, on purpose — they answer two different questions and a single
+   * clock gets one of them dangerously wrong:
+   *
+   *   • `lastMoveT` (**gate clock**, conservative): an unreadable epoch counts as movement,
+   *     because "I cannot see the wrist" must never unlock a whisper (`cueGate` docs).
+   *   • `lastActiveT` (**evidence clock**): only *wake-sized* movement the sensors reported.
+   *     "Is the sleeper still awake?" must be answered from evidence — a missing epoch is
+   *     not proof that somebody is thrashing around (same principle as oracle W5).
+   *
+   * Using the gate clock for the 15 min rule deadlocks the night: on a watch that drops
+   * 15 % of its epochs, 30 unbroken readable epochs never arrive and `AWAKE` never exits
+   * (found by the fuzz of this WO — `ledger/wo-notes/L2.6-2.7.md` §4.3).
+   */
   let lastMoveT = Number.NEGATIVE_INFINITY;
+  let lastActiveT = Number.NEGATIVE_INFINITY;
   /** Stillness for the 15 min rule is counted from here, never from before the wake. */
   let awakeQuietFromT = Number.NEGATIVE_INFINITY;
 
@@ -346,6 +364,15 @@ export function createNightController(options: NightControllerOptions = {}): Nig
   let timerWindows: TimerCueWindow[] = [];
   let timerWindowIndex = -1;
   const timerWindowFired = new Set<number>();
+  /** Consecutive epochs with neither a heart rate nor a motion value. */
+  let sensorLostEpochs = 0;
+  /** `true` while the night is running on the time prior because the sensors went away. */
+  let timerFallback = false;
+
+  /** Is the *moment* of the cue currently chosen by a prior window instead of `p_REM`? */
+  function timerScheduling(): boolean {
+    return mode === 'TIMER' || timerFallback;
+  }
 
   /** Wall-clock stamp of the moment the night started — the only use of the clock here. */
   const startedAtIso = clock.nowIso();
@@ -392,7 +419,7 @@ export function createNightController(options: NightControllerOptions = {}): Nig
     const event: WakeEvent = { t, durationSec: 0, cause, cueWoke };
     wakes.push(event);
     currentWake = event;
-    awakeQuietFromT = Math.max(t, lastMoveT + EPOCH_SECONDS);
+    awakeQuietFromT = Math.max(t, lastActiveT + EPOCH_SECONDS);
 
     stopAudio(actions, 'WAKE');
     to(actions, 'AWAKE');
@@ -524,7 +551,7 @@ export function createNightController(options: NightControllerOptions = {}): Nig
     lastCueT = t;
     lastCueId = cueId;
     cooldownUntilT = t + spacingSec;
-    if (mode === 'TIMER' && timerWindowIndex >= 0) timerWindowFired.add(timerWindowIndex);
+    if (timerScheduling() && timerWindowIndex >= 0) timerWindowFired.add(timerWindowIndex);
 
     // State first: §0.5 S7 — the player may only make a cue sound while state is `CUE`.
     to(actions, 'CUE');
@@ -541,7 +568,7 @@ export function createNightController(options: NightControllerOptions = {}): Nig
 
   /** `WATCHING` → `REM_LIKELY`? */
   function tryArm(actions: NightAction[], t: number): boolean {
-    if (mode === 'TIMER') {
+    if (timerScheduling()) {
       const i = timerWindowAt(t);
       if (i < 0 || timerWindowFired.has(i)) return false;
       timerWindowIndex = i;
@@ -582,7 +609,7 @@ export function createNightController(options: NightControllerOptions = {}): Nig
         return tryArm(actions, t);
 
       case 'REM_LIKELY': {
-        if (mode === 'TIMER') {
+        if (timerScheduling()) {
           const i = timerWindowIndex;
           const window = i >= 0 ? timerWindows[i] : undefined;
           if (window == null || t > window.endT) {
@@ -660,6 +687,9 @@ export function createNightController(options: NightControllerOptions = {}): Nig
     get timerWindows() {
       return timerWindows;
     },
+    get timerFallback() {
+      return timerFallback;
+    },
     get lastGateReason() {
       return lastGateReason;
     },
@@ -679,25 +709,41 @@ export function createNightController(options: NightControllerOptions = {}): Nig
 
       // --- sensors --------------------------------------------------------
       const motion = value(epoch.motion);
+      const hr = value(epoch.hrMean);
+
+      // Sensor lost mid-night (APP-RUN §2 L2.7 "เซนเซอร์หายกลางคืน → สลับโหมดตัวจับเวลา"):
+      // after 10 min with nothing readable the night keeps working off the time prior — the
+      // same windows `TIMER` mode uses, and the same `fired` set, so no window can fire
+      // twice across the switch, in either direction.
+      if (hr == null && motion == null) sensorLostEpochs += 1;
+      else sensorLostEpochs = 0;
+      const wasFallback = timerFallback;
+      timerFallback = mode !== 'CONTROL' && sensorLostEpochs >= SENSOR_LOST_EPOCHS;
+
       // An unreadable epoch is treated as movement: on this side of the engine a wrong
-      // "still" costs the user their sleep (`cueGate` docs). Timer mode is the exception —
-      // there the motion channel is *known* to be absent, see `onset.ts` "no sensor".
-      const moved = motion == null ? mode !== 'TIMER' : motion > motionHigh;
+      // "still" costs the user their sleep (`cueGate` docs). Timer scheduling is the
+      // exception — there the motion channel is *known* to be absent (`onset.ts` "no sensor").
+      const moved = motion == null ? !timerScheduling() : motion > motionHigh;
       if (moved) lastMoveT = t;
 
       const reading = wakeDetector.feed(epoch);
       lastHrSpike = reading.hrSpike;
+      // Wake-sized movement only (see `WakeReading.motionWake`): counting every 0.05 g
+      // twitch here left ~2 % of fuzzed nights stuck in `AWAKE` for an hour and a half,
+      // because light sleep simply is not that still (notes §4.3).
+      const active = reading.motionWake || reading.hrSpike;
+      if (active) lastActiveT = t;
 
       if (onsetT == null) {
         const onsetReading = onsetDetector.feed(epoch);
         if (onsetReading.onsetT != null) {
           onsetT = onsetReading.onsetT;
           guardUntilT = guardUntil(onsetT, params.guardHours);
-          if (mode === 'TIMER') {
-            const endT = options.expectedEndT ?? start + 8 * 3600;
-            timerWindows = timerCueWindows(onsetT, endT, params, maxCuesTonight);
-          }
         }
+      }
+      if (onsetT != null && timerWindows.length === 0 && (mode === 'TIMER' || (timerFallback && !wasFallback))) {
+        const endT = options.expectedEndT ?? start + 8 * 3600;
+        timerWindows = timerCueWindows(onsetT, endT, params, Math.max(1, maxCuesTonight));
       }
 
       // --- p_REM run counters (§5.1: two epochs above, two below) ----------
@@ -721,7 +767,7 @@ export function createNightController(options: NightControllerOptions = {}): Nig
         enterAwake(actions, reading.cause ?? 'MOTION', t);
       } else if (state === 'AWAKE' && currentWake != null) {
         currentWake.durationSec = Math.max(0, t - currentWake.t);
-        if (moved) awakeQuietFromT = Math.max(awakeQuietFromT, t + EPOCH_SECONDS);
+        if (active) awakeQuietFromT = Math.max(awakeQuietFromT, t + EPOCH_SECONDS);
       }
 
       // Several transitions can be due in one epoch (guard ends and REM is already
