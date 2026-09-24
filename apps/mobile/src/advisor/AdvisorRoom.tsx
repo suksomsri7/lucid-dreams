@@ -5,9 +5,9 @@
  * engine (wired at the L1.5 merge, per the WO header comment in `adapter.ts`).
  */
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getPlatform } from '../platform';
@@ -50,7 +50,24 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
   const [micActive, setMicActive] = useState(false);
   const [micUnavailable, setMicUnavailable] = useState(false);
   const inputRef = useRef<TextInput>(null);
+  const listRef = useRef<FlatList<Message>>(null);
   const unsubscribers = useRef<Array<() => void>>([]);
+
+  // Fable parity review round 2: top-anchored per mockup 02 (AI pill + first bubble +
+  // theme chips start right under the nav, empty space below, composer pinned at the
+  // bottom) — a plain top-anchored list, not `inverted`. Scroll to the newest content
+  // ourselves instead, same as any normal chat UI without an inverted list.
+  useEffect(() => {
+    const timer = setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+    return () => clearTimeout(timer);
+  }, [advisor.messages.length]);
+
+  useEffect(() => {
+    const subscription = Keyboard.addListener('keyboardDidShow', () => {
+      listRef.current?.scrollToEnd({ animated: true });
+    });
+    return () => subscription.remove();
+  }, []);
 
   const editing = advisor.state === 'PLAN' || advisor.state === 'STARTED';
   const composerPlaceholder = editing ? t('advisor.composer.editPlaceholder') : t('advisor.composer.placeholder');
@@ -131,14 +148,10 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
   }
 
   const Background = isNight ? NightBackground : AppBackground;
-  // Newest-first: with `inverted`, index 0 renders at the bottom of the screen (RN's
-  // standard chat-list ordering — see `ledger/wo-notes/L1.4.md` for why over `flatlist-swipeable`
-  // or a manually-scrolled `ScrollView`, both considered and rejected).
-  const data = [...advisor.messages].reverse();
 
   return (
     <Background style={styles.fill} testID={testID}>
-      <View style={[styles.top, { paddingTop: insets.top + spacing.lg }]}>
+      <View style={[styles.top, { paddingTop: insets.top + spacing.sm }]}>
         <View style={styles.nav}>
           <Text style={[typeScale.h2, styles.navTitle, { color: isNight ? night.text : colors.ink }]} numberOfLines={1}>
             {t('tabs.tonight')}
@@ -149,8 +162,13 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
         </View>
 
         <FlatList
-          data={data}
-          inverted
+          ref={listRef}
+          data={advisor.messages}
+          // inverted: false — top-anchored per mockup 02 (Fable parity review round 2):
+          // the conversation starts right under the nav and grows downward, same as any
+          // normal top-anchored chat list; `useEffect` above calls `scrollToEnd` on every
+          // new message and when the keyboard opens, so the newest content is still what
+          // the user sees without needing an inverted list at all.
           keyExtractor={(item) => item.id}
           style={styles.list}
           contentContainerStyle={styles.listContent}
@@ -166,15 +184,10 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
               onStart={handleStart}
             />
           )}
-          ListFooterComponent={
-            // Inverted lists swap header/footer visually — the footer is what renders at
-            // the *top* of the screen, which is where the "AI header pill" belongs
-            // (mockup 02: it sits above the very first message, and scrolls off the top
-            // as the conversation grows, same as any other item above it would). No manual
-            // counter-transform needed: RN's `inverted` FlatList already applies (and
-            // cancels) the flip per cell/header/footer itself — see
-            // `VirtualizedListCellRenderer.js`'s `inversionStyle` — an extra one here would
-            // triple-flip the content into actually rendering upside down.
+          ListHeaderComponent={
+            // Top-anchored now, so the "AI header pill" sits exactly where it renders —
+            // right above the very first message (mockup 02) — with no inverted-list
+            // header/footer swap to reason about.
             <View style={styles.aiHeader}>
               <View style={styles.aiHeaderAvatar}>
                 <Icon name="spark" size={13} color={colors.acc} />
@@ -257,8 +270,11 @@ const styles = StyleSheet.create({
   navTitle: { flex: 1 },
   navLink: { color: colors.acc, fontWeight: '500' },
   list: { flex: 1 },
-  listContent: { gap: spacing.sm, paddingVertical: spacing.sm },
-  aiHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingBottom: spacing.sm },
+  // 10px between items (Fable parity review round 2 — `_base.part`'s `.chat{gap:10px}`,
+  // the non-"tight" value; `spacing.smd`). Top/bottom padding kept minimal (chrome, not
+  // one of the asked density values) so the mockup-03 state has as much room as possible.
+  listContent: { gap: spacing.smd, paddingVertical: spacing.xs },
+  aiHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingBottom: spacing.xs },
   aiHeaderAvatar: {
     width: 22,
     height: 22,
@@ -267,7 +283,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.accSurfaceSoft,
   },
-  messageBlock: { gap: spacing.sm },
+  messageBlock: { gap: spacing.smd },
   // No `maxWidth` cap: the row already lives inside `styles.top`'s `paddingHorizontal`,
   // so it naturally can't exceed the frame width — capping it further than that made the
   // 6 theme chips wrap 2-per-row instead of 3-per-row like mockup 02's `.opts.wide`.

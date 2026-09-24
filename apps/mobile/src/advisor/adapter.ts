@@ -218,8 +218,10 @@ export function createMockAdvisorAdapter(
   if (options.seed === 'plan') {
     const def = findTheme('whale');
     plan = buildThemePlan('whale', lang, 'turtle');
+    // Mockup 03 starts straight from the user's voice bubble — the theme-chips intro
+    // question isn't shown (it reads as already asked and answered off-screen), so the
+    // fixture must not carry the `messages[0]` intro over from the default constructor.
     messages = [
-      messages[0] as Message,
       { id: nextId('me'), kind: 'me', text: translate(lang, 'advisor.fixture.userText'), fromVoice: true, at: now() },
       { id: nextId('ai'), kind: 'ai', text: translate(lang, 'advisor.restate', { label: restateLabel(lang, def) }), at: now() },
       { id: nextId('ai'), kind: 'ai', text: translate(lang, 'advisor.clarify.question'), at: now(), chips: clarifyChips(lang, 'turtle') },

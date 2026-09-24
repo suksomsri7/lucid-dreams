@@ -102,18 +102,22 @@ function Row({ label, night: isNight, last = false, children }: RowProps) {
 
 const styles = StyleSheet.create({
   surface: { paddingBottom: 2 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, paddingBottom: spacing.sm },
+  // Header padding trimmed a touch below the card's default `spacing.lg` (chrome, not
+  // one of the asked 12×18 row values) — same fitting goal as `row`/`rowLast` below.
+  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: 18, paddingTop: 12, paddingBottom: spacing.xs },
   emoji: { fontSize: 28, lineHeight: 32 },
   headerText: { flex: 1, minWidth: 0 },
+  // 12×18 (Fable parity review round 2 — tighter than the card's default `spacing.lg`
+  // padding, so mockup 03's full plan-state conversation fits without cropping).
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
-  rowLast: { paddingBottom: spacing.md },
+  rowLast: { paddingBottom: 12 },
   rowLabel: { width: 84, flexShrink: 0, flexGrow: 0, paddingTop: 1 },
   rowValue: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minWidth: 0 },
   rowValueText: { flex: 1, lineHeight: 17 },
