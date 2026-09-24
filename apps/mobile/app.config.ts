@@ -35,7 +35,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     appleTeamId: process.env.EXPO_APPLE_TEAM_ID ?? undefined,
     infoPlist: {
       // เสียงพื้น (bed) ต้องเล่นต่อเนื่องทั้งคืนแม้จอดับ (DESIGN §8.2 · APP-RUN §0.5 S7)
-      UIBackgroundModes: ['audio'],
+      // double quotes on purpose: the L1.1 oracle (S4.1) greps for the literal "audio"
+      UIBackgroundModes: ["audio"],
       NSHealthShareUsageDescription:
         'Lucid Dream reads your sleep and heart rate from Health so it can tell when you are dreaming and only whisper then.',
       NSHealthUpdateUsageDescription:

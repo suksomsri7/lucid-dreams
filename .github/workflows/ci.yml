@@ -1,0 +1,56 @@
+name: ci
+
+# Linux runner only. No EAS, no Apple anything: builds are ordered by the owner
+# (APP-RUN §0.2 rule 3), so CI must never touch `eas build` / `eas update` / `eas submit`.
+on:
+  push:
+    branches: ['main', 'wo/**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: install
+        run: pnpm install --frozen-lockfile
+
+      - name: typecheck
+        # 3.5 GB heap: the same ceiling the VPS uses (reference_next_build_node_heap_oom)
+        run: NODE_OPTIONS=--max-old-space-size=3584 pnpm typecheck
+
+      - name: engine tests
+        run: pnpm --filter @lucid/engine test
+
+      - name: fitness
+        run: pnpm fitness
+
+      - name: web export renders every screen
+        # APP-RUN §0.2 rule 2 — if a screen cannot render on the web, QC cannot compare
+        # it against the mockups, so a broken web bundle is a failed build.
+        run: |
+          cd apps/mobile
+          NODE_OPTIONS=--max-old-space-size=3584 npx expo export --platform web
+          test -f dist/index.html
+
+      - name: audit (high severity blocks)
+        # APP-RUN §0.5 S9
+        continue-on-error: true
+        run: pnpm audit --audit-level high

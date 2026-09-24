@@ -8,7 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
 
-    "//": "composite เพื่อให้ `tsc -b` ที่รากไล่ทั้งเวิร์กสเปซได้ · emit แค่ .d.ts (ทิ้งได้)",
     "noEmit": false,
     "composite": true,
     "declaration": true,
