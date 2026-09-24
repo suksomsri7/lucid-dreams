@@ -1,12 +1,12 @@
 {
  "run": "APP-RUN Phase 1",
- "wo": "L3ui+L2.3",
+ "wo": "L2.3",
  "step": "L3ui parity round 2 · L2.3 building",
- "branch": "wo/L3ui + wo/L2.3",
- "worktree": "/root/projects/lucid-dreams-L3ui · -L2.3",
- "builder": "sonnet+opus",
+ "branch": "wo/L2.3",
+ "worktree": "/root/projects/lucid-dreams-L2.3",
+ "builder": "opus",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T22:45Z",
- "lastCommit": "L2.2n merged",
+ "lastCheckpoint": "2026-09-24T23:10Z",
+ "lastCommit": "L3ui merged",
  "blockedOn": []
 }
