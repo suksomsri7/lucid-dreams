@@ -1,13 +1,13 @@
 {
  "run": "APP-RUN Phase 1",
- "wo": "L1.7ui(resume)+L3e(restart)+L1.6s",
+ "wo": "L2.8ui+L3e+L1.6s",
  "step": "building",
- "branch": "wo/L1.7ui + wo/L3e + wo/L1.6s",
- "worktree": "/root/projects/lucid-dreams-L1.7ui · -L3e · -L1.6s",
+ "branch": "wo/L2.8ui + wo/L3e + wo/L1.6s",
+ "worktree": "/root/projects/lucid-dreams-L2.8ui · -L3e · -L1.6s",
  "builder": "sonnet+opus+opus",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T13:10Z",
- "lastCommit": "L2.6/2.7 merged",
+ "lastCheckpoint": "2026-09-24T14:40Z",
+ "lastCommit": "L1.7ui merged",
  "blockedOn": [
   "เจ้าของ: DNS lucid → 72.62.196.201",
   "เจ้าของ: OpenRouter key"
