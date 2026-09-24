@@ -26,15 +26,23 @@ export default function SettingsScreen() {
         <Row
           label={t('settings.language')}
           right={
-            <Seg
-              testID="locale-seg"
-              options={[
-                { value: 'th', label: t('settings.language.th') },
-                { value: 'en', label: t('settings.language.en') },
-              ]}
-              value={locale}
-              onChange={(next) => setLocale(next === 'th' ? 'th' : 'en')}
-            />
+            // `Row`'s `label` is `flex: 1` — it shrinks to make room for whatever sits
+            // in `right`, but `Seg` itself has no opinion on how much room it's owed.
+            // `minWidth` here (belt) plus `Seg`'s own per-item `minWidth: 72` (suspenders,
+            // `Seg.tsx`) is what actually stops the two language options from ever being
+            // squeezed narrower than readable — found via `/settings` screenshot review,
+            // see `ledger/wo-notes/L1.2.md` §5 B-3.
+            <View style={{ minWidth: 160 }}>
+              <Seg
+                testID="locale-seg"
+                options={[
+                  { value: 'th', label: t('settings.language.th') },
+                  { value: 'en', label: t('settings.language.en') },
+                ]}
+                value={locale}
+                onChange={(next) => setLocale(next === 'th' ? 'th' : 'en')}
+              />
+            </View>
           }
           last
         />

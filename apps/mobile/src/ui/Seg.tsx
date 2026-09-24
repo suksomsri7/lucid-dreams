@@ -37,7 +37,10 @@ export function Seg({ options, value, onChange, night: isNight = false, testID }
             testID={testID ? `${testID}-${option.value}` : undefined}
             style={[styles.item, on ? styles.itemOn : undefined]}
           >
-            <Text style={[typeScale.chip, { color: on ? colors.ink : isNight ? night.sub : colors.ink2, fontWeight: on ? '600' : '400' }]}>
+            <Text
+              numberOfLines={1}
+              style={[typeScale.chip, { color: on ? colors.ink : isNight ? night.sub : colors.ink2, fontWeight: on ? '600' : '400' }]}
+            >
               {option.label}
             </Text>
           </Pressable>
@@ -54,13 +57,20 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     padding: 3,
     gap: spacing.xs,
+    // Never let a flex:1 sibling (e.g. `Row`'s label) squeeze this below a readable
+    // width — each `item` below carries its own `minWidth: 72`, and Yoga folds a
+    // child's minWidth into its parent's own minimum, so this is really "2 × 72 + gaps
+    // + padding" made explicit for anyone reading the style, not a magic number.
+    minWidth: 2 * 72 + spacing.xs + 6,
   },
   item: {
     flex: 1,
+    minWidth: 72,
     height: 34,
     borderRadius: radius.segItem,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
   },
   itemOn: {
     backgroundColor: 'rgba(255,255,255,0.95)',
