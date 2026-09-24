@@ -71,6 +71,42 @@ export {
 export { type Rng, mulberry32, clamp, round } from './rng';
 
 export {
+  AMBIENCE_KEYS,
+  type AmbienceKey,
+  ANCHOR_PHRASE_MAX_WORDS,
+  wordCount,
+  ThemeSchema,
+  type DreamTheme,
+  ClarifySchema,
+  type Clarify,
+  DreamPlanSchema,
+  type DreamPlan,
+  parseDreamPlan,
+  withWatermark,
+  THEME_CHIP_KEYS,
+  type ThemeChipKey,
+  offlineThemeChips,
+  isThemeChipKey,
+  guessChipFromText,
+  chipLabel,
+  offlinePlanFromChip,
+  offlinePlanFromText,
+} from './dreamPlan';
+
+export {
+  type AdvisorState,
+  type AdvisorMessage,
+  type PlanRequest,
+  type PlanProvider,
+  type ThemeChip,
+  type AdvisorOptions,
+  type AdvisorTurn,
+  type Advisor,
+  MAX_CLARIFY_PER_NIGHT,
+  createAdvisor,
+} from './advisor';
+
+export {
   ANCHOR_VOLUME_MIN,
   ANCHOR_VOLUME_MAX,
   clampAnchorVolume,
