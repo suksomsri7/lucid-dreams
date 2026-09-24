@@ -9,9 +9,10 @@ import { useNightState } from '../../src/store/night';
 /**
  * Tab 1 — the dream advisor room (DESIGN §3.3, mockups 02/03), *or*, when last night's
  * session ended and nobody has told the morning room about it yet, the morning flow
- * instead (DESIGN §3.2 "ตอนเช้า 2 ขั้น" · mockup `06-morning.png` — WO L3.1). Both live in
- * this exact same tab slot on purpose ("เช้าในห้องเดียวกัน") — this file is the one place
- * that decides which of the two the sleeper is looking at right now.
+ * instead (DESIGN §3.2's "morning, two steps" · mockup `06-morning.png` — WO L3.1). Both
+ * live in this exact same tab slot on purpose — DESIGN's own name for it is "the morning,
+ * in the same room" — this file is the one place that decides which of the two the
+ * sleeper is looking at right now.
  *
  * `night.tsx`'s hold-to-stop already lands back here (`router.replace('/(tabs)')`) the
  * moment a night ends; `useFocusEffect` (not a plain mount effect) is what actually

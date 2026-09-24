@@ -1,13 +1,13 @@
 /**
- * The four fixed morning questions (WO L3.1 · DESIGN §3.2 "ตอนเช้า 2 ขั้น" step 2 ·
- * mockup `06-morning.png` frame b) plus the fifth, conditional one — pure data, no
+ * The four fixed morning questions (WO L3.1 · DESIGN §3.2's "morning, two steps", step 2
+ * · mockup `06-morning.png` frame b) plus the fifth, conditional one — pure data, no
  * `DreamPlan`/`useMorning` import, so `MorningFlow.tsx` and any future test can both
  * build the exact same order without duplicating it.
  *
  * `themeMatch`'s question text is the one exception: it needs the night's own theme
- * ("ตรงกับ 🐋 ฉลามวาฬ แค่ไหน"), which this file has no way to know — its `questionKey` is
- * `null` and the caller (`useMorning.ts`) builds that one sentence itself from the
- * plan it already loaded.
+ * ("how close to 🐋 the whale shark?"), which this file has no way to know — its
+ * `questionKey` is `null` and the caller (`useMorning.ts`) builds that one sentence
+ * itself from the plan it already loaded.
  */
 
 import type { TranslationKey } from '../i18n';
@@ -22,7 +22,7 @@ export interface MorningQuestionDef {
   questionKey: TranslationKey | null;
 }
 
-/** DESIGN §4-06 frame b's fixed order: ฝันไหม → ตรงธีม → รู้ตัว → หลับดี. */
+/** DESIGN §4-06 frame b's fixed order: dreamed? → theme match → lucid? → slept well? */
 export const MORNING_QUESTIONS: readonly MorningQuestionDef[] = [
   { key: 'dreamed', kind: 'scale10', questionKey: 'morning.q.dreamed' },
   { key: 'themeMatch', kind: 'scale10', questionKey: null },
@@ -32,8 +32,8 @@ export const MORNING_QUESTIONS: readonly MorningQuestionDef[] = [
 
 /**
  * Only asked on a night that actually played a whisper (APP-RUN §2 L3.1's own line:
- * "'เสียงเมื่อคืนปลุกคุณไหม' only on cue nights" · oracle M1.6). A control night, or a cue
- * night where nothing actually fired, has nothing to ask this about.
+ * "'did the whisper wake you?' only on cue nights" · oracle M1.6). A control night, or a
+ * cue night where nothing actually fired, has nothing to ask this about.
  */
 export const CUE_WOKE_QUESTION: MorningQuestionDef = {
   key: 'cueWoke',

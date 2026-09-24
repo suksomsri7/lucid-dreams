@@ -130,9 +130,9 @@ async function requestScore(request: ScoreRequest, token: string): Promise<Respo
 /**
  * Unlike {@link requestDreamPlan}, this **never throws** — `/ai/score` does not exist on
  * `apps/api` yet (L3.2 builds the server side; this WO only wires the phone's half), so
- * every call fails today, and DESIGN §6 is explicit about what a failure means: "ไม่เปิด →
- * ใช้คะแนนผู้ใช้อย่างเดียว" (schema-broken/unreachable/501/404 all fall back to the user's
- * own score, not a crashed morning screen). `src/api/score.ts#requestAiScore` is the only
+ * every call fails today, and DESIGN §6 is explicit about what a failure means: no score
+ * on — fall back to the user's own score alone (schema-broken/unreachable/501/404 all
+ * read the same way), not a crashed morning screen. `src/api/score.ts#requestAiScore` is the only
  * caller and is what actually gates this on `consentAi` — this function itself has no
  * opinion on consent, same layering as `requestDreamPlan` having no opinion on offline
  * fallback (that is `createAdvisor()`'s job one layer up).

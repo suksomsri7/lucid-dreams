@@ -1,14 +1,14 @@
 /**
- * The morning flow (WO L3.1 · DESIGN §3.2 "ตอนเช้า 2 ขั้น" · §3.3's last bullet · mockup
- * `06-morning.png`) — rendered by `app/(tabs)/index.tsx` **in place of** `AdvisorRoom`
- * whenever a session ended and nobody has told the morning room about it yet
- * (`useMorning.ts#isMorningPending`). Same tab shell (nav row, `AppBackground`, the
- * floating tab bar's clearance) as `AdvisorRoom.tsx` on purpose — DESIGN's own words are
- * "เช้าในห้องเดียวกัน" (morning, in the same room): the sleeper should not be able to tell
- * this is a different screen from the one they talked to before bed.
+ * The morning flow (WO L3.1 · DESIGN §3.2's "morning, two steps" · §3.3's last bullet ·
+ * mockup `06-morning.png`) — rendered by `app/(tabs)/index.tsx` **in place of**
+ * `AdvisorRoom` whenever a session ended and nobody has told the morning room about it
+ * yet (`useMorning.ts#isMorningPending`). Same tab shell (nav row, `AppBackground`, the
+ * floating tab bar's clearance) as `AdvisorRoom.tsx` on purpose — DESIGN's own name for
+ * this whole flow is "the morning, in the same room": the sleeper should not be able to
+ * tell this is a different screen from the one they talked to before bed.
  *
  * All state lives in `useMorning.ts`; this file only turns `state`/`messages` into
- * frame a (`GREET`/`RECORD` — mic or the composer, plus the "▶ เปิดเสียงเมื่อคืนช่วยนึก"
+ * frame a (`GREET`/`RECORD` — mic or the composer, plus the "play last night's ambience"
  * replay pill) or frame b (`QUESTIONS`/`RESULT` — the transcript bubble, one question at a
  * time, the result bubble) exactly like `AdvisorRoom.tsx` turns `useAdvisor()`'s state
  * into the advisor's own two frames.
@@ -96,7 +96,7 @@ export function MorningFlow({ sessionId, testID }: MorningFlowProps) {
                 accessibilityRole="button"
                 accessibilityLabel={morning.micLabel}
                 onPress={morning.onMicPress}
-                style={[styles.micButton, morning.listening && styles.micButtonActive]}
+                style={styles.micButton}
                 testID="morning-mic-button"
               >
                 <Icon name="mic" size={30} color={colors.acc} />
@@ -110,17 +110,19 @@ export function MorningFlow({ sessionId, testID }: MorningFlowProps) {
                 <Text style={[typeScale.sub, styles.micIdleLabel]}>{morning.micLabel}</Text>
               )}
               <Waveform active={morning.listening} />
+              {/* Mockup 06 frame a: the "type instead" link sits right under the waveform
+                  regardless of whether a live partial is already on screen — it is not a
+                  replacement for the live bubble below, the two coexist. */}
+              <Pressable accessibilityRole="button" onPress={() => inputRef.current?.focus()} testID="morning-type-instead">
+                <Text style={[typeScale.sub, styles.typeInsteadLabel]}>{morning.typeInsteadLabel}</Text>
+              </Pressable>
 
               {morning.listening && morning.liveText !== '' ? (
                 <View style={styles.liveBubbleWrap}>
                   <Bubble role="me" text={morning.liveText} voice maxWidth={BUBBLE_MAX_WIDTH} testID="morning-live-bubble" />
                   <Text style={[typeScale.sub, styles.transcribingLabel]}>{morning.transcribingLabel}</Text>
                 </View>
-              ) : (
-                <Pressable accessibilityRole="button" onPress={() => inputRef.current?.focus()} testID="morning-type-instead">
-                  <Text style={[typeScale.sub, styles.typeInsteadLabel]}>{morning.typeInsteadLabel}</Text>
-                </Pressable>
-              )}
+              ) : null}
             </View>
 
             <Pressable accessibilityRole="button" onPress={morning.onToggleReplay} testID="morning-replay-pill" style={styles.replayWrap}>
@@ -231,7 +233,6 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.glassLine,
   },
-  micButtonActive: { backgroundColor: colors.accSurface },
   micPill: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   micDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.rem },
   micPillText: { color: colors.ink2 },

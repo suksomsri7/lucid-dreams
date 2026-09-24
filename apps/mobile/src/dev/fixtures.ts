@@ -197,7 +197,7 @@ export type MorningFixture = 'morning-record' | 'morning-result';
 /**
  * `?fixture=morning-record` — frame a: greeted, mic listening, a live partial transcript
  * bubble on screen. `?fixture=morning-result` — frame b: transcript already given, all
- * questions answered (8/7/ใช่/7 — `dreamed`/`themeMatch`/`lucid`/`sleepQuality`, the exact
+ * questions answered (8/7/YES/7 — `dreamed`/`themeMatch`/`lucid`/`sleepQuality`, the exact
  * numbers mockup 06 frame b shows), result bubble shown. Both drive `useMorning.ts`
  * straight to the target state instead of walking the mic/composer/chip taps a real
  * screenshot script would otherwise have to script — same convention as `?fixture=night`

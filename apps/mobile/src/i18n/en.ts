@@ -172,6 +172,10 @@ export const en: Translations = {
   'morning.result.loading': 'Working it out…',
   'morning.result.viewReport': "See last night's report",
   'morning.result.sameTheme': 'Same dream tonight {emoji}',
+  // `?fixture=morning-record` / `?fixture=morning-result` seed data (mockup 06) — QC fixture only, see th.ts's own note.
+  'morning.fixture.transcript':
+    'I was underwater, the water was so clear … something huge and grey swam right past me, then I realised I could breathe underwater',
+  'morning.fixture.liveText': 'I was underwater, the water was so clear … something huge and grey swam slowly past me',
 
   // Night screen (work order L2.8) — mockup 05(a)
   'night.stub.title': 'Tonight',

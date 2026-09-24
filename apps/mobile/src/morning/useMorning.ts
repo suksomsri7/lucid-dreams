@@ -1,6 +1,6 @@
 /**
- * The morning flow's state machine (WO L3.1 · DESIGN §3.2 "ตอนเช้า 2 ขั้น" · §3.3's own
- * last bullet · mockup `06-morning.png`). `MorningFlow.tsx` only renders whatever this
+ * The morning flow's state machine (WO L3.1 · DESIGN §3.2's "morning, two steps" ·
+ * §3.3's own last bullet · mockup `06-morning.png`). `MorningFlow.tsx` only renders whatever this
  * hook returns — every async step (loading last night, the mic, saving partial answers,
  * scoring, building the result sentence) lives here, the same split `useAdvisor.ts` /
  * `AdvisorRoom.tsx` already use.
@@ -32,7 +32,7 @@ import type { DreamPlan } from '../advisor/types';
 import { fetchNightReport } from '../data/report';
 import { saveMorningAiScore, saveMorningReport } from '../data/morning';
 import { morningFixturePlan, morningFixtureRequested } from '../dev/fixtures';
-import { useT, type Locale } from '../i18n';
+import { translate, useT, type Locale } from '../i18n';
 import { ambienceSource } from '../audio/ambience';
 import { getPlatform } from '../platform';
 import { planFromSessionParams } from '../report/format';
@@ -40,8 +40,8 @@ import { saveTonightPlan } from '../store/night';
 import { useOnboardingState } from '../store/onboarding';
 import { EMPTY_MORNING_ANSWERS, morningAnswersComplete, morningQuestionOrder, type MorningAnswers } from './questions';
 
-/** Ambience-while-recalling volume (DESIGN §4-06's "▶ เปิดเสียงเมื่อคืนช่วยนึก" pill) — quiet
- * enough to hum under the user's own voice, not the full night's `BED_VOLUME_FULL`. */
+/** Ambience-while-recalling volume (DESIGN §4-06's "play last night's ambience" pill) —
+ * quiet enough to hum under the user's own voice, not the full night's `BED_VOLUME_FULL`. */
 const REPLAY_VOLUME = 0.12;
 /** `earTestScreen.tsx`'s own fallback, kept in sync — `nextNightVolume`'s starting rail when a night somehow had no cues. */
 const DEFAULT_VOLUME_START = 0.15;
@@ -162,10 +162,12 @@ export function useMorning({ sessionId }: UseMorningOptions): UseMorningResult {
   const [context, setContext] = useState<MorningContext | null>(null);
   const [draft, setDraft] = useState('');
   const [listening, setListening] = useState(fixture === 'morning-record');
-  const [liveText, setLiveText] = useState(fixture === 'morning-record' ? FIXTURE_LIVE_TEXT[locale] : '');
+  const [liveText, setLiveText] = useState(fixture === 'morning-record' ? translate(locale, 'morning.fixture.liveText') : '');
   const [micUnavailable, setMicUnavailable] = useState(false);
   const [elapsedSec, setElapsedSec] = useState(fixture === 'morning-record' ? 42 : 0);
-  const [transcript, setTranscript] = useState<string | null>(fixture === 'morning-result' ? FIXTURE_TRANSCRIPT[locale] : null);
+  const [transcript, setTranscript] = useState<string | null>(
+    fixture === 'morning-result' ? translate(locale, 'morning.fixture.transcript') : null,
+  );
   const [transcriptVoice, setTranscriptVoice] = useState(true);
   const [answers, setAnswers] = useState<MorningAnswers>(
     fixture === 'morning-result' ? FIXTURE_ANSWERS : EMPTY_MORNING_ANSWERS,
@@ -532,18 +534,10 @@ export function useMorning({ sessionId }: UseMorningOptions): UseMorningResult {
 
 // ---------------------------------------------------------------------------
 // `?fixture=morning-result` seed data — mockup 06 frame b's exact numbers (WO L3.1: "the
-// answers 8/7/ใช่/7 and a result bubble"). `?fixture=morning-record`'s live-partial text
-// is frame a's own mid-sentence transcript.
+// answers 8/7/YES/7 and a result bubble"). The transcript itself and `?fixture=morning-
+// record`'s live-partial text are translation keys (`morning.fixture.*`, `src/i18n/
+// th.ts`/`en.ts`) rather than literals here — fitness rule B (no Thai outside `src/i18n`)
+// applies to fixture seed data exactly as much as to anything a real user sees.
 // ---------------------------------------------------------------------------
 
 const FIXTURE_ANSWERS: MorningAnswers = { dreamed: 8, themeMatch: 7, lucid: 'YES', sleepQuality: 7, cueWoke: false };
-
-const FIXTURE_TRANSCRIPT: Record<Locale, string> = {
-  th: 'ผมอยู่ใต้น้ำ น้ำใสมาก … มีตัวใหญ่สีเทาว่ายผ่านข้างผมไป แล้วผมนึกได้ว่าผมหายใจใต้น้ำอยู่',
-  en: 'I was underwater, the water was so clear … something huge and grey swam right past me, then I realised I could breathe underwater',
-};
-
-const FIXTURE_LIVE_TEXT: Record<Locale, string> = {
-  th: 'ผมอยู่ใต้น้ำ น้ำใสมาก … ตัวใหญ่สีเทาว่ายผ่านข้างผมไปช้า ๆ',
-  en: 'I was underwater, the water was so clear … something huge and grey swam slowly past me',
-};

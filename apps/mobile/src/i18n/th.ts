@@ -172,6 +172,9 @@ export const th = {
   'morning.result.loading': 'กำลังประมวลผล…',
   'morning.result.viewReport': 'ดูรายงานเมื่อคืน',
   'morning.result.sameTheme': 'คืนนี้ฝันเรื่องเดิม {emoji}',
+  // `?fixture=morning-record` / `?fixture=morning-result` seed data (mockup 06) — not shown to real users, exists only so the QC fixtures never embed Thai literals outside this folder (fitness rule B).
+  'morning.fixture.transcript': 'ผมอยู่ใต้น้ำ น้ำใสมาก … มีตัวใหญ่สีเทาว่ายผ่านข้างผมไป แล้วผมนึกได้ว่าผมหายใจใต้น้ำอยู่',
+  'morning.fixture.liveText': 'ผมอยู่ใต้น้ำ น้ำใสมาก … ตัวใหญ่สีเทาว่ายผ่านข้างผมไปช้า ๆ',
 
   // จอกลางคืน (ใบ L2.8) — mockup 05(ก)
   'night.stub.title': 'คืนนี้',
