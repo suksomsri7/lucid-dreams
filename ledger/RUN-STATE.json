@@ -6,10 +6,11 @@
  "worktree": "/root/projects/lucid-dreams-L1.4",
  "builder": "sonnet",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T13:00Z",
+ "lastCheckpoint": "2026-09-24T11:30Z",
  "lastCommit": "L1.5 merged",
  "blockedOn": [
-  "OpenRouter key (L1.5 ยิงจริง + deploy)",
-  "TTS provider decision"
+  "เจ้าของ: DNS A record lucid.suksomsri.cloud → 72.62.196.201 (Hostinger token เดิมหมดอายุ)",
+  "เจ้าของ: OpenRouter API key",
+  "เจ้าของ: เลือก TTS (Azure whisper / ElevenLabs)"
  ]
 }
