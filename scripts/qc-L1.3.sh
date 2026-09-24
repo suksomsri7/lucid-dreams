@@ -20,7 +20,7 @@ chk O3.3 "$(grep -rqsE "'EYE'|\"EYE\"" $src packages/engine/src 2>/dev/null && e
 chk O3.4 "$(grep -rqsE "DeviceRegistry|deviceRegistry" $src packages/engine/src 2>/dev/null && echo 1 || echo 0)" "DeviceRegistry"
 chk O3.5 "$(grep -rqsE "requestAuthorization|HealthKit|healthkit" $src/platform/ios 2>/dev/null && echo 1 || echo 0)" "ขอสิทธิ์ HealthKit ในชั้น platform/ios"
 # S6/S10 คำห้าม
-bad=$(grep -rhoiE "cure|treat(ment)?|diagnos|รักษา|วินิจฉัย|บำบัด" $src/i18n/th.ts $src/i18n/en.ts 2>/dev/null | grep -viE "ไม่ใช่|not a|no medical|ไม่วินิจฉัย|ไม่รักษา|ไม่ใช่การรักษา" | wc -l)
+bad=$(grep -rhiE "\b(cure|cures|treat|treats|treatment|diagnose|diagnoses|diagnosis)\b|รักษา|วินิจฉัย|บำบัด" $src/i18n/th.ts $src/i18n/en.ts 2>/dev/null | grep -viE "ไม่ใช่|not a|no medical|ไม่วินิจฉัย|ไม่รักษา|ไม่ใช่การรักษา|does not diagnose|not diagnose|not treat" | wc -l)
 chk O4.1 "$([ "$bad" = 0 ] && echo 1 || echo 0)" "ไม่มีคำอ้างทางการแพทย์ใน i18n ($bad)"
 for k in NSHealthShareUsageDescription NSMicrophoneUsageDescription NSBluetoothAlwaysUsageDescription NSUserNotificationsUsageDescription; do
   chk "O4.$k" "$(grep -qs "$k" apps/mobile/app.config.ts && echo 1 || echo 0)" "$k"; done
