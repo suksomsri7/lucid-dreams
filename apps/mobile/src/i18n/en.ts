@@ -146,6 +146,37 @@ export const en: Translations = {
   'earTest.footer.startHint': 'Once started, the screen goes dark on its own',
   'earTest.summary.bothReady': '✓ Both ears are ready · you know this sound now',
 
+  // Morning — telling your dream in the same room (work order L3.1) — mockup 06 · `src/morning/`
+  'morning.greet': 'Good morning ☀️ {cuesLine} · tell me about your dream — speak or type',
+  'morning.greet.cues': "I whispered {n} times last night, didn't wake you at all",
+  'morning.greet.cues.woke': 'I whispered {n} times last night, and one of them woke you',
+  'morning.greet.cues.none': "I didn't whisper at all last night",
+  'morning.chip.cantRemember': "Can't remember at all",
+  'morning.mic.idle': 'Tap to speak',
+  'morning.mic.listening': 'Listening · {time}',
+  'morning.transcribing': 'Transcribing live',
+  'morning.typeInstead': 'Type instead',
+  'morning.composer.placeholder': 'Or type your dream here…',
+  'morning.replay': "Play last night's sound to help you remember",
+  'morning.replay.stop': 'Stop sound',
+  'morning.q.dreamed': 'Did you dream last night? · 0–10',
+  'morning.q.themeMatch': 'How close to {emoji} {theme}?',
+  'morning.q.lucid': 'Did you know you were dreaming?',
+  'morning.q.lucid.yes': 'Yes',
+  'morning.q.lucid.no': 'No',
+  'morning.q.lucid.unsure': 'Not sure',
+  'morning.q.sleepQuality': 'Did you sleep well? · 0–10',
+  'morning.q.cueWoke': 'Did the whisper wake you last night?',
+  'morning.q.cueWoke.yes': 'Yes',
+  'morning.q.cueWoke.no': 'No',
+  'morning.result.loading': 'Working it out…',
+  'morning.result.viewReport': "See last night's report",
+  'morning.result.sameTheme': 'Same dream tonight {emoji}',
+  // `?fixture=morning-record` / `?fixture=morning-result` seed data (mockup 06) — QC fixture only, see th.ts's own note.
+  'morning.fixture.transcript':
+    'I was underwater, the water was so clear … something huge and grey swam right past me, then I realised I could breathe underwater',
+  'morning.fixture.liveText': 'I was underwater, the water was so clear … something huge and grey swam slowly past me',
+
   // Night screen (work order L2.8) — mockup 05(a)
   'night.stub.title': 'Tonight',
   'night.stub.body': 'Night screen — built in work order L2.8',

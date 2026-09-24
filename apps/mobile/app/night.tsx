@@ -90,8 +90,9 @@ export default function NightScreen() {
     if (!handle || stopping.current) return;
     stopping.current = true;
     await handle.stop();
-    // The real "I'm awake" morning flow is WO L3.1 — until it exists, hold-to-stop lands
-    // back on the tab shell rather than a dead-end screen (WO's own "or back to tabs").
+    // Back to the tab shell, same as always — `app/(tabs)/index.tsx` is what notices
+    // (on focus) that this session just ended with no `MorningReport` yet and swaps the
+    // advisor room for `MorningFlow` (WO L3.1) instead of a dead-end screen.
     router.replace('/(tabs)');
   }
 

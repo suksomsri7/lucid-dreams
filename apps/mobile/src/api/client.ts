@@ -93,3 +93,61 @@ export async function requestDreamPlan(request: PlanRequest): Promise<unknown> {
   if (!response.ok) throw new Error(`plan request failed: HTTP ${response.status}`);
   return response.json();
 }
+
+// ---------------------------------------------------------------------------
+// WO L3.1 — the client half of `/ai/score` (DESIGN §6 · APP-RUN §2 L3.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * The request body the future `apps/api` `/ai/score` route (WO L3.2, off-limits to this
+ * WO) is documented to accept — `transcript`/`theme`/`seedLines`/`answers`, mirroring the
+ * `/ai/plan` body's own shape (`PlanBodySchema` in `apps/api/src/server.ts`) closely
+ * enough that L3.2 can lift this type wholesale into a zod schema rather than invent a
+ * second contract. See `ledger/wo-notes/L3.1.md` §route contract for the full write-up.
+ */
+export interface ScoreRequest {
+  transcript: string;
+  theme: { emoji: string; titleTh: string; titleEn: string; place: string | null };
+  seedLines: [string, string];
+  answers: {
+    dreamed: number | null;
+    themeMatchUser: number | null;
+    lucid: 'YES' | 'NO' | 'UNSURE' | null;
+    sleepQuality: number | null;
+    cueWoke: boolean | null;
+  };
+  lang: 'th' | 'en';
+}
+
+async function requestScore(request: ScoreRequest, token: string): Promise<Response> {
+  return fetch(`${apiBaseUrl()}/ai/score`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+    body: JSON.stringify(request),
+  });
+}
+
+/**
+ * Unlike {@link requestDreamPlan}, this **never throws** — `/ai/score` does not exist on
+ * `apps/api` yet (L3.2 builds the server side; this WO only wires the phone's half), so
+ * every call fails today, and DESIGN §6 is explicit about what a failure means: no score
+ * on — fall back to the user's own score alone (schema-broken/unreachable/501/404 all
+ * read the same way), not a crashed morning screen. `src/api/score.ts#requestAiScore` is the only
+ * caller and is what actually gates this on `consentAi` — this function itself has no
+ * opinion on consent, same layering as `requestDreamPlan` having no opinion on offline
+ * fallback (that is `createAdvisor()`'s job one layer up).
+ */
+export async function postScore(request: ScoreRequest): Promise<unknown | null> {
+  try {
+    const token = await getDeviceToken();
+    let response = await requestScore(request, token);
+    if (response.status === 401) {
+      const fresh = await getDeviceToken(true);
+      response = await requestScore(request, fresh);
+    }
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
