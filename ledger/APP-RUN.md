@@ -240,7 +240,8 @@
 | L2.3e/L3.2e/L3.4 | ✅ DONE 24 ก.ย. (engine 129/129) | main | เหลือฝั่งแอป: BLE scan/connect (L2.3) · /ai/score route + UI เช้า (L3.1/3.2) · เซฟ PersonalModel + ใช้ suggestedVolume (L3.4 app) |
 | L1.7ui | ✅ DONE 24 ก.ย. (21/21 · parity 04 a–d) | main | เหลือส่วน native ของ L1.7: Live Activity · DND จริง · pan native · ต่อ /ai/anchor ในแอป |
 | L2.8ui/2.9/2.10 | ✅ DONE 24 ก.ย. (24/24 · parity 05a/07) | main | native ค้าง → L2.2n |
-| L2.2n (L2.2 + L1.7 native) | ▶ building (Opus · wo/L2.2n) | — | LucidWatchLink native module · Live Activity (ActivityKit) · HealthKit bridge · DND · pan · complication · localizable นาฬิกา · oracle qc-L2.2 |
+| L2.2n (L2.2 + L1.7 native) | ✅ DONE 24 ก.ย. (20/20 · prebuild ตรวจ pbxproj) | main | 🔴 Swift ยังไม่ผ่าน compiler → R1 · developer portal: App Group + HealthKit · หนี้: setStreakNights ยังไม่มีใครเรียก (L3ui) |
+| L2.3 (app) | ▶ building (Opus · wo/L2.3) | — | BLE HR (react-native-ble-plx 0x180D scan/connect/reconnect · parser จาก engine) + มือถือบนที่นอน (expo-sensors) + SensorHub รวมแหล่ง · หน้าค้นหาอุปกรณ์ · S8 |
 | L3.1 | ✅ DONE 24 ก.ย. (M1 10/10 · parity 06a/b) | main | route /ai/score → L3.2s |
 | L3.2s | ✅ DONE 24 ก.ย. (api 65/65 · smoke จริง · prod อัปเดต) | main | L3.F: weekly ตัดคืน CONTROL ออกจนครบ 3 คืน |
 | L3.3/3.4app/3.5/3.6 | ▶ building (Sonnet · wo/L3ui) | — | คืนควบคุม 1/4 + reality check + เตือน · เซฟ PersonalModel/bandit · บันทึก (mockup 08) · ตั้งค่า (mockup 09) + Boost night + ลบทั้งหมด + PrivacyInfo · oracle qc-L3ui M3/M5/M6 · parity 08/09 |
