@@ -2,7 +2,7 @@
  * `.plan.cmp` (`ledger/design-app/_base.part` + `03-advisor-chat.body.html`) — the
  * compact dream-plan card that appears inline in the advisor conversation once a plan
  * exists. The full-screen version (mockup `04-dream-plan.png`, all the same rows plus a
- * "ไปต่อ · ตรวจอุปกรณ์" button) is WO L1.5's `apps/mobile/app/plan.tsx`; this WO only
+ * a "continue · check devices" button) is WO L1.5's `apps/mobile/app/plan.tsx`; this WO only
  * ships the stub route that screen will replace (see `AdvisorRoom.tsx`).
  */
 

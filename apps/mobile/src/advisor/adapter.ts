@@ -44,8 +44,6 @@ interface ThemeDefinition {
   seed1Key: TranslationKey;
   seed2Key: TranslationKey;
   ambienceKey: AmbienceKey;
-  /** Both scripts checked regardless of UI language — a Thai-locale user may still type English. */
-  keywords: { th: readonly string[]; en: readonly string[] };
 }
 
 /**
@@ -63,7 +61,6 @@ export const THEME_CHIPS: readonly ThemeDefinition[] = [
     seed1Key: 'advisor.theme.whale.seed1',
     seed2Key: 'advisor.theme.whale.seed2',
     ambienceKey: 'underwater',
-    keywords: { th: ['ฉลาม', 'ดำน้ำ', 'วาฬ'], en: ['shark', 'dive', 'diving', 'whale'] },
   },
   {
     key: 'fly',
@@ -74,7 +71,6 @@ export const THEME_CHIPS: readonly ThemeDefinition[] = [
     seed1Key: 'advisor.theme.fly.seed1',
     seed2Key: 'advisor.theme.fly.seed2',
     ambienceKey: 'wind',
-    keywords: { th: ['บิน', 'ลอยฟ้า'], en: ['fly', 'flying', 'float'] },
   },
   {
     key: 'space',
@@ -85,7 +81,6 @@ export const THEME_CHIPS: readonly ThemeDefinition[] = [
     seed1Key: 'advisor.theme.space.seed1',
     seed2Key: 'advisor.theme.space.seed2',
     ambienceKey: 'silence',
-    keywords: { th: ['อวกาศ', 'ดวงดาว'], en: ['space', 'star', 'galaxy'] },
   },
   {
     key: 'sea',
@@ -96,7 +91,6 @@ export const THEME_CHIPS: readonly ThemeDefinition[] = [
     seed1Key: 'advisor.theme.sea.seed1',
     seed2Key: 'advisor.theme.sea.seed2',
     ambienceKey: 'underwater',
-    keywords: { th: ['ทะเล', 'ชายหาด'], en: ['sea', 'beach', 'ocean'] },
   },
   {
     key: 'oldtown',
@@ -107,7 +101,6 @@ export const THEME_CHIPS: readonly ThemeDefinition[] = [
     seed1Key: 'advisor.theme.oldtown.seed1',
     seed2Key: 'advisor.theme.oldtown.seed2',
     ambienceKey: 'wind',
-    keywords: { th: ['เมืองเก่า', 'เมือง'], en: ['town', 'city', 'old town'] },
   },
   {
     key: 'other',
@@ -118,7 +111,6 @@ export const THEME_CHIPS: readonly ThemeDefinition[] = [
     seed1Key: 'advisor.plan.genericSeed1',
     seed2Key: 'advisor.plan.genericSeed2',
     ambienceKey: 'silence',
-    keywords: { th: [], en: [] },
   },
 ];
 
@@ -126,17 +118,16 @@ function findTheme(key: string): ThemeDefinition {
   return THEME_CHIPS.find((def) => def.key === key) ?? (THEME_CHIPS[THEME_CHIPS.length - 1] as ThemeDefinition);
 }
 
-/** Picks a theme from free text by keyword — deterministic, no network (this is a mock). */
-function themeFromText(text: string): ThemeKey {
-  const lower = text.toLowerCase();
-  for (const def of THEME_CHIPS) {
-    if (def.key === 'other') continue;
-    const hit = [...def.keywords.th, ...def.keywords.en].some(
-      (word) => text.includes(word) || lower.includes(word.toLowerCase()),
-    );
-    if (hit) return def.key;
-  }
-  return 'other';
+/**
+ * Free-typed text always maps to the `'whale'` theme (deterministic, per the WO — this
+ * mock has no NLU and must not fake one; matching arbitrary user text to a theme is the
+ * real engine's job from L1.5 on). Chip taps skip this entirely (`pickChip` passes the
+ * chip's own key straight through) — this only fires when someone types or speaks
+ * instead of tapping, which the WO's own fixture (`advisor-plan`) exercises with a
+ * whale-shark sentence anyway.
+ */
+function themeFromText(_text: string): ThemeKey {
+  return 'whale';
 }
 
 function themeLabel(lang: Locale, def: ThemeDefinition): string {

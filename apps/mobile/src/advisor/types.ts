@@ -29,7 +29,7 @@ export interface Message {
   at: string;
   /** Theme row (first AI message) or a clarify question's options — rendered under the bubble. */
   chips?: MessageChip[];
-  /** This message is followed by the compact plan card + "เริ่มคืนนี้" button. */
+  /** This message is followed by the compact plan card + the "start tonight" button. */
   planCompact?: boolean;
 }
 

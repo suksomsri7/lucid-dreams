@@ -47,6 +47,24 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
+          name="history"
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTintColor: colors.ink,
+            title: t('history.title'),
+          }}
+        />
+        <Stack.Screen
+          name="plan"
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTintColor: colors.ink,
+            title: t('plan.stub.title'),
+          }}
+        />
+        <Stack.Screen
           name="diagnostics"
           options={{
             headerShown: true,
