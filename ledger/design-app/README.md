@@ -21,5 +21,5 @@
 
 ## เรนเดอร์ใหม่
 ```bash
-./render.sh 02-advisor-start "Lucid Dream · ที่ปรึกษา" 800,940
+./render.sh 02-advisor-start "Dreaming · ที่ปรึกษา" 800,940
 ```
