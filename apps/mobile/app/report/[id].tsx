@@ -135,7 +135,10 @@ export default function NightReportScreen() {
   const realCues = cues.filter((cue) => cue.type !== 'SEED');
   const match = compareAppleToEstimate(applePhases, report.epochs);
 
-  const currentVolume = realCues[0]?.volume ?? 0.15;
+  // The most recent cue's own volume is "tonight's level" — the same number `params.
+  // volumeStart` ramps from night to night (`nightController.ts#nextNightVolume`'s own
+  // doc comment walks the same history newest-to-decide).
+  const currentVolume = realCues[realCues.length - 1]?.volume ?? 0.15;
   const engineCues: CueEvent[] = realCues.map((cue) => ({
     t: Math.floor(Date.parse(cue.at) / 1000),
     index: cue.index,

@@ -107,7 +107,29 @@ export default function NightScreen() {
         });
 
   return (
-    <Screen testID="screen-night" withTabBarInset={false} night>
+    <Screen
+      testID="screen-night"
+      withTabBarInset={false}
+      night
+      footer={
+        <View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('night.hold.label')}
+            onLongPress={() => void onHoldStop()}
+            delayLongPress={1000}
+            disabled={!handle}
+            style={({ pressed }) => [pressed && styles.holdPressed]}
+            testID="night-hold-stop"
+          >
+            <GlassSurface tint="clear" background={night.btnDg} night radius={radius.btn} contentStyle={styles.holdSurface}>
+              <Text style={[typeScale.buttonBig, { color: night.btnDgText }]}>{t('night.hold.label')}</Text>
+            </GlassSurface>
+          </Pressable>
+          <Text style={[typeScale.label, styles.holdHint]}>{t('night.hold.hint')}</Text>
+        </View>
+      }
+    >
       <View style={styles.topRow}>
         <Text style={[typeScale.sub, styles.topText]}>
           {formatClock(stats?.nowIso ?? null)} · {t(liveKey)}
@@ -139,23 +161,6 @@ export default function NightScreen() {
       <Text style={[typeScale.sub, styles.cuesLine]} testID="night-cues-line">
         {cuesText}
       </Text>
-
-      <View style={styles.sp} />
-
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={t('night.hold.label')}
-        onLongPress={() => void onHoldStop()}
-        delayLongPress={1000}
-        disabled={!handle}
-        style={({ pressed }) => [pressed && styles.holdPressed]}
-        testID="night-hold-stop"
-      >
-        <GlassSurface tint="clear" background={night.btnDg} night radius={radius.btn} contentStyle={styles.holdSurface}>
-          <Text style={[typeScale.buttonBig, { color: night.btnDgText }]}>{t('night.hold.label')}</Text>
-        </GlassSurface>
-      </Pressable>
-      <Text style={[typeScale.label, styles.holdHint]}>{t('night.hold.hint')}</Text>
     </Screen>
   );
 }

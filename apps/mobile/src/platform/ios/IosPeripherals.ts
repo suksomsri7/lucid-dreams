@@ -63,26 +63,50 @@ export class IosLiveStatus implements LiveStatus {
 
 // ---------------------------------------------------------------------------
 
+/**
+ * WO L2.9's JS-side contract against HealthKit's own `sleepAnalysis` category
+ * (`HKCategoryTypeIdentifier.sleepAnalysis`) — still declared-but-not-wired (see the
+ * class-level TODOs below) because no maintained Expo HealthKit module targets SDK 57
+ * yet (WO L1.3's own finding, unchanged as of this WO). The exact mapping the future
+ * Swift bridge (`LucidHealthKitModule.swift`, same "needs a Mac" shape as
+ * `watchBridge.ts`'s `LucidWatchLinkModule`) must produce, so `SleepPhase.stage` here
+ * and `HKCategoryValueSleepAnalysis` there never drift apart:
+ *
+ *   `HKCategoryValueSleepAnalysis.asleepREM`  → `'REM'`
+ *   `HKCategoryValueSleepAnalysis.asleepCore` → `'CORE'`  (N1+N2 collapsed, `types.ts`'s own comment)
+ *   `HKCategoryValueSleepAnalysis.asleepDeep` → `'DEEP'`
+ *   `HKCategoryValueSleepAnalysis.awake`      → `'AWAKE'`
+ *   `HKCategoryValueSleepAnalysis.inBed`      → `'IN_BED'`
+ *
+ * `src/health/appleSleep.ts` is the app-side half of this contract (turns `SleepPhase[]`
+ * into `@lucid/data`'s `ApplePhaseInput[]` and, from the stored epochs, a
+ * precision/recall number) — it never assumes this class actually has data; every
+ * failure mode here (`isAvailable() === false`, `requestAuthorization() === false`, or
+ * `fetchSleepPhases()` throwing) is treated identically as "no Apple data yet"
+ * (APP-RUN §0.5 S10: never show "0%" for "we never asked").
+ */
 export class IosHealthImport implements HealthImport {
   async isAvailable(): Promise<boolean> {
-    return false; // HealthKit bridge lands in L2.9
+    return false; // HealthKit bridge lands in a future Opus native WO
   }
 
   async requestAuthorization(): Promise<boolean> {
     // WO L1.3: no maintained Expo HealthKit module targets SDK 57 yet, so this stays a
     // named-and-honest stub (never claim access we do not have — APP-RUN §0.5 S10) —
     // the entitlement + usage strings are already declared in `app.config.ts` so the
-    // native bridge in L2.9 only has to fill this function in, nothing else.
-    // TODO(L2.9): call the real HealthKit authorization request here.
+    // native bridge only has to fill this function in, nothing else.
+    // TODO(native WO): call the real HealthKit authorization request here.
     return false;
   }
 
   async fetchSleepPhases(): Promise<SleepPhase[]> {
-    throw NOT_WIRED('HealthKit sleep import', 'L2.9');
+    // TODO(native WO): `HKSampleQuery` over `HKCategoryTypeIdentifier.sleepAnalysis`,
+    // mapped through the `HKCategoryValueSleepAnalysis` table above.
+    throw NOT_WIRED('HealthKit sleep import', 'a future Opus native WO');
   }
 
   async fetchHeartRateSamples(): Promise<{ atIso: string; bpm: number }[]> {
-    throw NOT_WIRED('HealthKit heart rate import', 'L2.9');
+    throw NOT_WIRED('HealthKit heart rate import', 'a future Opus native WO');
   }
 }
 

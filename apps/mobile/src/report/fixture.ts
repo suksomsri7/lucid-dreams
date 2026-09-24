@@ -12,7 +12,7 @@
  * positions — `ledger/wo-notes/L2.8ui.md` notes this as the parity caveat it is.
  */
 
-import type { ApplePhaseRecord, CueRecord, EpochRecord, NightEvent, NightReport, ReportRecord, SessionRecord, WakeRecord } from '@lucid/data';
+import type { ApplePhaseRecord, CueRecord, EarTestRecord, EpochRecord, NightEvent, NightReport, ReportRecord, SessionRecord, WakeRecord } from '@lucid/data';
 
 import type { DreamPlan } from '../advisor/types';
 import { translate, type Locale } from '../i18n';
@@ -90,13 +90,20 @@ function fixtureCues(): CueRecord[] {
   ];
 }
 
+function fixtureEarTests(): EarTestRecord[] {
+  return [
+    { id: 1, sessionId: SESSION_ID, side: 'L', rounds: 3, answer: 3, attempts: 1, volume: 0.15, at: START_ISO },
+    { id: 2, sessionId: SESSION_ID, side: 'R', rounds: 4, answer: 4, attempts: 1, volume: 0.15, at: START_ISO },
+  ];
+}
+
 function fixtureWakes(): WakeRecord[] {
   return [{ id: 1, sessionId: SESSION_ID, at: '2026-09-24T04:05:00.000Z', durationSec: 180, cause: 'MOTION' }];
 }
 
 function fixtureApplePhases(): ApplePhaseRecord[] {
   return [
-    { id: 1, sessionId: SESSION_ID, startIso: '2026-09-24T03:11:00.000Z', endIso: '2026-09-24T03:24:00.000Z', stage: 'REM' },
+    { id: 1, sessionId: SESSION_ID, startIso: '2026-09-24T03:11:00.000Z', endIso: '2026-09-24T03:15:00.000Z', stage: 'REM' },
     { id: 2, sessionId: SESSION_ID, startIso: '2026-09-24T04:50:00.000Z', endIso: '2026-09-24T05:35:00.000Z', stage: 'REM' },
     { id: 3, sessionId: SESSION_ID, startIso: '2026-09-24T05:39:00.000Z', endIso: '2026-09-24T05:52:00.000Z', stage: 'REM' },
   ];
@@ -141,7 +148,7 @@ export function fixtureNightReport(locale: Locale): NightReport {
 
   const session: SessionRecord = {
     id: SESSION_ID,
-    dateIso: '2026-09-23',
+    dateIso: '2026-09-24',
     themeId: null,
     themeKey: 'whale',
     mode: 'CUE',
@@ -163,7 +170,7 @@ export function fixtureNightReport(locale: Locale): NightReport {
     applePhases: fixtureApplePhases(),
     report,
     aiScore: null,
-    earTests: [],
+    earTests: fixtureEarTests(),
     events: fixtureEvents(cues, wakes, report),
   };
 }

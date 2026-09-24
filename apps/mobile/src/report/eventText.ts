@@ -2,11 +2,14 @@
  * One `NightEvent` (`@lucid/data#buildEvents`) → one `EventRow` (`src/ui/EventRow.tsx`,
  * mockup `07-night-report.png`'s "Events overnight" card) — WO L2.10.
  *
- * `pRemAtCue === 0` is not "0 % REM" — it is the engine's own placeholder for "no
- * probability existed at all" (timer-mode/sensor-loss cues, `wakeDetector.ts`'s
- * `timerCueWindows`), documented as a debt for this screen in
- * `ledger/wo-notes/L2.6-2.7.md` §6 item 5 ("pRemAtCue = 0 in timer mode must show
- * as — not 0%") — `formatPercent` below is the fix.
+ * The percentage on a whisper row is its **volume** (mockup `07`'s own caption reads,
+ * translated: "look back at every sound — time, level, result" — and `cue.volume`, not
+ * `pRemAtCue`, is what DESIGN's "starts at 15%, the app adjusts it" describes), not the
+ * REM probability at the moment it fired — that number is
+ * `REM_LIKELY`'s own row a few lines above it. `formatPercent` still guards the
+ * REM_LIKELY row's `pRem` the same way: `pRemAtCue === 0` from a timer-mode/
+ * sensor-loss cue (`ledger/wo-notes/L2.6-2.7.md` §6 item 5) is a "no probability
+ * existed" placeholder there too, never a real "0%".
  */
 
 import { BED_VOLUME_BED, BED_VOLUME_FULL } from '@lucid/engine';
@@ -88,7 +91,7 @@ export function describeEvent(event: NightEvent, ctx: EventTextContext): EventRo
       const base = t(event.response === 'WOKE' ? 'report.event.cue.sub.woke' : 'report.event.cue.sub.notWoke');
       return {
         time,
-        title: t('report.event.cue', { n: index, percent: formatPercent(event.pRemAtCue) }),
+        title: t('report.event.cue', { n: index, percent: formatPercent(event.volume) }),
         sub: matchesApple ? `${base}${t('report.event.cue.sub.appleMatch')}` : base,
       };
     }
