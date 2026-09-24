@@ -1,0 +1,9 @@
+{
+  "//": "solution file — `tsc -b` ไล่ทุกแพ็กเกจในเวิร์กสเปซ",
+  "files": [],
+  "references": [
+    { "path": "./packages/engine" },
+    { "path": "./apps/api" },
+    { "path": "./apps/mobile" }
+  ]
+}
