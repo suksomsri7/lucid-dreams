@@ -63,3 +63,17 @@ export function applyDeviceFoundFixture(): void {
 export function isAcceptedFixtureRequested(): boolean {
   return readFixtureParam() === 'accepted';
 }
+
+/**
+ * WO L1.4 — the two advisor-room QC fixtures (`ledger/design-app/02-advisor-start.png` /
+ * `03-advisor-chat.png`): `advisor-start` is just the room's natural empty state (no
+ * special handling needed, included for symmetry/documentation), `advisor-plan` seeds
+ * `createMockAdvisorAdapter` straight to the finished mockup-03 conversation so the
+ * parity screenshot doesn't depend on scripting taps through the flow first.
+ */
+export type AdvisorFixture = 'advisor-start' | 'advisor-plan';
+
+export function advisorFixtureRequested(): AdvisorFixture | null {
+  const value = readFixtureParam();
+  return value === 'advisor-start' || value === 'advisor-plan' ? value : null;
+}
