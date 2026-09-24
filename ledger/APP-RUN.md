@@ -1,4 +1,4 @@
-# APP-RUN — แผนงาน RUN "Lucid Dream iOS Phase 1" (24 ใบ · 3 ระยะ) — สถานะ: **▶ เริ่ม L1.1 24 ก.ย. 2569** (มติ §0.3 + DESIGN §10 ครบ · repo `github.com/suksomsri7/lucid-dreams` · รอ Apple Developer/Expo สมัครใหม่ + Claude key ก่อน L1.5/R1)
+# APP-RUN — แผนงาน RUN "Dreaming iOS Phase 1" (24 ใบ · 3 ระยะ) — สถานะ: **▶ เริ่ม L1.1 24 ก.ย. 2569** (มติ §0.3 + DESIGN §10 ครบ · repo `github.com/suksomsri7/lucid-dreams` · รอ Apple Developer/Expo สมัครใหม่ + Claude key ก่อน L1.5/R1)
 
 > เขียน 24 ก.ย. 2569 · แบบ `ledger/DESIGN-APP.md` (v2 Liquid Glass · ที่ปรึกษาความฝัน) + ภาพ 10 ใบ `ledger/design-app/` · แนวคิด `ledger/CONCEPT-ANALYSIS-2026-09-24.md`
 > ใช้เอกสารนี้ **เทียบ QC**: ทุกใบมี (1) สัญญาไฟล์/ฟังก์ชัน (2) ข้อสอบ (oracle) ที่ Fable เขียนก่อน spawn builder (3) ภาพ mockup ที่ต้องตรง (4) จุดตรวจความปลอดภัย (5) ใครทำ (model)
@@ -37,7 +37,7 @@
 3b. ✅ **TTS = fal.ai → ElevenLabs eleven-v3** (`[whispers]`) · **เสียงเดียว: Sarah อังกฤษ "You are dreaming…" ทุกผู้ใช้** (มติเจ้าของ 24 ก.ย. หลังฟัง: ไทยยังไม่เป็นธรรมชาติ) · โน้ตลายเสียงออกแบบใหม่ช้า/ลึก (signature v2 · ต้นแบบ `/root/.lucid/tts/sigv2-*.wav`) — มติเจ้าของ 24 ก.ย. ใช้ FAL key ที่มี (`/root/.lucid/fal.env` → `apps/api/.env`) · $0.10/1,000 ตัวอักษร แคชตลอดชีพ
 3. ⏳ **AI ผ่าน OpenRouter** (มติ 24 ก.ย.: เจ้าของใช้ OpenRouter · จะให้ key **ตอนถึงขั้นทดสอบ** — Fable ต้องแจ้งเมื่อถึง L1.5) · เซิร์ฟเวอร์ใช้ OpenAI-compatible client ชี้ `https://openrouter.ai/api/v1` · model ตั้งค่าได้ (ค่าเริ่มต้น Claude ล่าสุดผ่าน OpenRouter) · key ใส่ `apps/api/.env` ไม่เข้า repo · ก่อนมี key ใช้ **mock provider** (fixture ตอบตามสคีมา) เพื่อให้ oracle L1.5 รันได้
 4. ✅ รับทราบ (Polar ยังไม่ซื้อ · รุ่นเครื่องจะรู้จาก diagnostics R1)
-5. ✅ **เซิร์ฟเวอร์ AI บน VPS นี้** หลัง nginx (โดเมนย่อย `lucid.suksomsri.cloud` — Fable ตั้ง DNS/SSL ตอน L1.5)
+5. ✅ **เซิร์ฟเวอร์ AI บน VPS นี้** หลัง nginx (โดเมนย่อย `dreaming.suksomsri.cloud` — Fable ตั้ง DNS/SSL ตอน L1.5)
 
 ### 0.4 ขั้นตอนต่อใบ (ทุกใบเหมือนกัน)
 | ขั้น | ใคร | ทำอะไร | หลักฐาน |

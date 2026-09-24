@@ -61,9 +61,9 @@ AI_ALLOW_MOCK=1 TTS_PROVIDER=mock PORT=8799 API_DB_PATH=./data/dev.sqlite \
 1. `cp apps/api/.env.example apps/api/.env` → เติม `OPENROUTER_API_KEY` · `chmod 600 apps/api/.env`
 2. `mkdir -p /var/lib/lucid-api` (ตรงกับ `API_DB_PATH`)
 3. `cp apps/api/systemd/lucid-api.service /etc/systemd/system/` → `systemctl daemon-reload` → `systemctl enable --now lucid-api`
-4. DNS `lucid.suksomsri.cloud` → VPS · `certbot --nginx -d lucid.suksomsri.cloud`
+4. DNS `dreaming.suksomsri.cloud` → VPS · `certbot --nginx -d dreaming.suksomsri.cloud`
 5. nginx (ท่อนล่าง) → `nginx -t && systemctl reload nginx`
-6. ตรวจ: `curl -s https://lucid.suksomsri.cloud/health`
+6. ตรวจ: `curl -s https://dreaming.suksomsri.cloud/health`
 
 ### nginx
 
@@ -76,10 +76,10 @@ server {
     listen 443 ssl;
     listen [::]:443 ssl;
     http2 on;
-    server_name lucid.suksomsri.cloud;
+    server_name dreaming.suksomsri.cloud;
 
-    ssl_certificate     /etc/letsencrypt/live/lucid.suksomsri.cloud/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/lucid.suksomsri.cloud/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/dreaming.suksomsri.cloud/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/dreaming.suksomsri.cloud/privkey.pem;
 
     # แอปกันที่ 32 KB อยู่แล้ว — กันซ้ำที่ nginx ให้ไม่ต้องอ่านเข้ามาเลย
     client_max_body_size 64k;
@@ -105,7 +105,7 @@ server {
 server {
     listen 80;
     listen [::]:80;
-    server_name lucid.suksomsri.cloud;
+    server_name dreaming.suksomsri.cloud;
     return 301 https://$host$request_uri;
 }
 ```
