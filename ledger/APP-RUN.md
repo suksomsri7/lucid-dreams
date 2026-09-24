@@ -84,7 +84,7 @@
 | **L1.3** | onboarding + ยินยอม + อุปกรณ์ (HealthKit permission · BLE scan UI stub · หูฟังสถานะ/แบต · ทดสอบเสียง ▶) + ข้อความขอสิทธิ์ 4 อย่าง | Sonnet | L1.2 | 16 | 01 | — | สิทธิ์จริง |
 | **L1.4** | ห้องที่ปรึกษา UI: บทสนทนา · ชิปธีม · composer พิมพ์/ไมค์ (Apple Speech ถอดสด TH/EN) · การ์ดแผนย่อในแชท · "ประวัติ" | Sonnet | L1.2 | 18 | 02 · 03 · 06ก | — | ไมค์จริง |
 | **L1.5** | สมองที่ปรึกษา (เซิร์ฟเวอร์ `apps/api` Node + Postgres · systemd `lucid-api` · device token · rate limit · `/ai/plan` = ข้อความผู้ใช้ → DreamPlan JSON (ธีม · seedLines · anchorPhrase · ambience · ≤1 คำถามเป็นตัวเลือก) · `/ai/tts` (เสียงสมอ) · แคชต่อธีม · ฝั่งแอป `advisor.ts` state: ask→clarify(≤1)→plan→edit) | Opus | L1.4 | 26 | 03 · 04ก | 🔒 | — |
-| **L1.6** | เสียงสมอ + คลังเสียงพื้น + **ทดสอบจำเสียง** (เล่นสุ่ม 2–5 รอบ เว้น 1–3 วิ · ถาม · ต้องถูก 2 รอบติด · บันทึกผล) + เสียงของฉัน (อัด 10 วิ → normalize) | Opus | L1.5 | 20 | 04ข (บน) | — | ระดับเสียงจริง |
+| **L1.6** | เสียงสมอ + คลังเสียงพื้น + **ทดสอบจำเสียง** (หน้าละข้าง ซ้าย→ขวา · เล่นสุ่ม 2–5 รอบ เว้น 1–3 วิ · ถาม · ถูก 1 ครั้งผ่าน · บันทึก EarTest) · ลายน้ำเสียงต่อคน (ไม่มีเสียงของฉัน) | Opus | L1.5 | 20 | 04ข (บน) | — | ระดับเสียงจริง |
 | **L1.7** | เครื่องเล่นเสียง + หน้าตรวจอุปกรณ์ 3 หมวด: bed ต่อเนื่อง + cue ซ้อน (เฟด 3/3 วิ) + Now Playing + **Live Activity** (native module) + interruption handling + **หน้าตรวจอุปกรณ์ 3 หมวด** (ชีพจร/เสียง/ดวงตา · `readiness.ts` ใน engine · ต้องมี ≥1 ในหมวดบังคับ + iPhone/ห้ามรบกวน) → **หน้าทดสอบเสียง** แยก (จาก L1.6) → ปุ่มเริ่ม | Opus | L1.6 | 24 | 04ข (ล่าง) · 05ข | 🔒 | R2 |
 | **L1.8** | ชั้นข้อมูล SQLite (สคีมา DESIGN §7 · migration · repo functions) + ส่งออก CSV/JSON + **ลบทั้งหมด** + Data Protection + diagnostics export รวมข้อความ=ปิด | Opus | L1.1 | 22 | — | 🔒 | — |
 | **L2.1** | `packages/engine` แกน: types · clock ฉีดได้ · **ตัวจำลองคืน** (synthetic: onset/รอบ 90 นาที/REM/ตื่น/noise · seed) · ตัวเล่นซ้ำคืนจริงจาก diagnostics · harness วัด precision/recall | Opus | L1.1 | 20 | — | — | — |
@@ -236,7 +236,7 @@
 | L1.3 | ▶ building (Sonnet · wo/L1.3) | — | onboarding 2 จอ ตาม mockup 01 · oracle 20 ข้อ · parity บังคับ |
 | L1.8 | ✅ DONE 24 ก.ย. (vitest 16/16) | main | หนี้ S4: Data Protection ต้องทำเป็น config plugin ก่อน R1 (ใส่ใน L1.7) |
 | L2.1 | ✅ DONE 24 ก.ย. (vitest 23/23 · sim 200 คืน REM 22.6% · latency 81 นาที) | main | หนี้: hrSd จำลองกว้างกว่าจริง · N1 ต่ำ · fitness กฎ node:* นอก cli/ (เพิ่มที่ L2.5) |
-| L1.6e/L1.7e | ▶ building (Opus · wo/L1.6e) | — | ส่วน engine ล้วนของ L1.6 (signature · memorization) + L1.7 (readiness 3 หมวด · cueGate) · oracle 13+17 ข้อ · ส่วนเสียง/UI ทำต่อที่ L1.6/L1.7 | บั๊กที่จับได้: ข้อสอบ chk() ต่อค่าหลายตัว (แก้แล้ว) · .gitignore `ios/` กลืน platform/ios (builder จับ) · S9: audit 17 high อยู่ใน devDeps build-time เท่านั้น → ไม่บล็อก (มติ Fable) · S10: permission strings อังกฤษอย่างเดียว + ยังไม่มี PrivacyInfo.xcprivacy → หนี้ L1.3/L3.6 |
+| L1.6e/L1.7e | ✅ DONE 24 ก.ย. (engine 62/62) | main | เหลือส่วนแอปของ L1.6 (ambience/TTS/หน้าทดสอบหู) และ L1.7 (เครื่องเล่นเสียง/Live Activity/หน้าตรวจอุปกรณ์) | บั๊กที่จับได้: ข้อสอบ chk() ต่อค่าหลายตัว (แก้แล้ว) · .gitignore `ios/` กลืน platform/ios (builder จับ) · S9: audit 17 high อยู่ใน devDeps build-time เท่านั้น → ไม่บล็อก (มติ Fable) · S10: permission strings อังกฤษอย่างเดียว + ยังไม่มี PrivacyInfo.xcprivacy → หนี้ L1.3/L3.6 |
 
 ---
 

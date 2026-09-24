@@ -26,7 +26,7 @@ describe('L1.6 signature (ลายน้ำ)', () => {
     expect(Math.abs(pcm.length - (s.durationMs / 1000) * 48000)).toBeLessThan(200);
     let peak = 0; for (const v of pcm) { expect(Number.isNaN(v)).toBe(false); peak = Math.max(peak, Math.abs(v)); }
     expect(peak).toBeLessThanOrEqual(1); expect(peak).toBeGreaterThan(0.2);
-    expect(Math.abs(pcm[0])).toBeLessThan(0.05); expect(Math.abs(pcm[pcm.length - 1])).toBeLessThan(0.05);
+    expect(Math.abs(pcm[0] ?? 1)).toBeLessThan(0.05); expect(Math.abs(pcm[pcm.length - 1] ?? 1)).toBeLessThan(0.05);
   });
 });
 
