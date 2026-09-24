@@ -17,9 +17,10 @@ apps/mobile/dist/
 # native projects (สร้างใหม่ได้ด้วย expo prebuild — CNG)
 apps/mobile/ios/
 apps/mobile/android/
-ios/build/
-android/build/
-android/.gradle/
+# ต้องขึ้นต้นด้วย / ไม่งั้นจะกิน src/platform/ios/ · src/platform/android/ ด้วย
+/ios/build/
+/android/build/
+/android/.gradle/
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/
 DerivedData/

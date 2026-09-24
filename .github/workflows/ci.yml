@@ -50,7 +50,11 @@ jobs:
           NODE_OPTIONS=--max-old-space-size=3584 npx expo export --platform web
           test -f dist/index.html
 
-      - name: audit (high severity blocks)
-        # APP-RUN §0.5 S9
+      - name: audit
+        # APP-RUN §0.5 S9. Reported, not blocking — as of 24 Sep 2026 all 17 "high"
+        # advisories sit in build-time tooling that never ships in the app bundle:
+        #   @xmldom/xmldom  <- @bacons/apple-targets (devDep, runs during prebuild)
+        #   postcss, image-size <- expo (@expo/cli)
+        # Flip this to a blocking step as soon as those two chains are patched upstream.
         continue-on-error: true
         run: pnpm audit --audit-level high
