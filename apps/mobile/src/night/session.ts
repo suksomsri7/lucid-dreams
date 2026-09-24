@@ -53,10 +53,22 @@ import { isoFromEpochSeconds } from '@lucid/data';
 
 import type { DreamPlan } from '../advisor/types';
 import { ambienceSource, buildAnchorSignature, getAnchorSeed, playAnchorOnce } from '../audio/player';
-import { ensureNightSession, finishNightSession, markNightOnset, recordNightCue, recordNightEpoch, recordNightWake } from '../data/night';
+import {
+  attachArmKeyToSession,
+  ensureNightSession,
+  fetchNightSessionRecord,
+  finishNightSession,
+  markNightOnset,
+  recordNightCue,
+  recordNightEpoch,
+  recordNightWake,
+} from '../data/night';
 import { translate, type Locale, type TranslationKey } from '../i18n';
+import { pickTonightPlan } from '../learning';
+import { scheduleMorningReminder } from '../notifications';
 import { getPlatform, type PlatformBundle } from '../platform';
 import { buildNightSensorHub } from '../sensors/hub';
+import { ensureSettingsHydrated } from '../settings/store';
 import type { NightState as NightStoreState } from '../store/night';
 
 /** Ambience volume while awake (DESIGN §5.3, `onset.ts`'s `BED_VOLUME_FULL`) — the level `startBed` is called at. */
@@ -93,14 +105,6 @@ export interface NightSessionHandle {
   stop(): Promise<void>;
   /** Unmount without stopping the night (screen backgrounded, not ended) — listeners only. */
   dispose(): void;
-}
-
-/**
- * `L3.3`'s own work order owns the 25%-random control-night pick (APP-RUN §2); every
- * night is `'CUE'` until it lands — this is the one function that call has to replace.
- */
-function resolveNightMode(): NightControllerMode {
-  return 'CUE';
 }
 
 /**
@@ -185,6 +189,9 @@ function createRuntime(ctx: RuntimeContext): Runtime {
         if ((action.to === 'MORNING' || action.to === 'ENDED') && !finished) {
           finished = true;
           persist((sessionId) => finishNightSession(sessionId, systemClock.nowIso()));
+          // WO L3.3 "remind in the morning if the app is not opened within 20 min of waking" — cancelled by
+          // `useMorning.ts` the moment the morning room actually opens.
+          if (ctx.platform) void scheduleMorningReminder(ctx.locale).catch(() => undefined);
         }
         break;
       }
@@ -340,14 +347,34 @@ export async function startNightSession(state: NightStoreState): Promise<NightSe
 
   const dateIso = new Date().toISOString().slice(0, 10);
   const sessionId = await ensureNightSession(state.sessionId, plan, dateIso);
+  // Decided once, at creation (`ensureNightSession`, `src/data/night.ts`) — this session
+  // may already exist from an earlier ear test screen, so its `mode` is read back rather
+  // than re-decided here (WO L3.3: control nights are picked once per night, not once per
+  // reader of this function).
+  const sessionRecord = await fetchNightSessionRecord(sessionId);
+  const mode: NightControllerMode = sessionRecord?.mode ?? 'CUE';
+
+  const settings = await ensureSettingsHydrated();
+  const earTestVolume = state.earTests.L?.volume ?? state.earTests.R?.volume ?? DEFAULT_VOLUME_START;
+  // WO L3.4 "app side": `nights ≥ 14` → tonight's arm comes from the bandit; otherwise the
+  // DEFAULT params + `nextNightVolume` ramp from last night. Control nights still get a
+  // plan (the counterfactual cue needs *some* volume/delay/type to log), just never learn
+  // from it — `attachArmKeyToSession` below is itself a no-op on a control night.
+  const learningPlan = await pickTonightPlan(dateIso, earTestVolume);
+  await attachArmKeyToSession(sessionId, learningPlan.armKey);
 
   const startT = epochIndexOf(Date.now());
   const expectedEndT = startT + NIGHT_DURATION_SEC;
-  const volumeStart = state.earTests.L?.volume ?? state.earTests.R?.volume ?? DEFAULT_VOLUME_START;
 
   const controller = createNightController({
-    params: { volumeStart },
-    mode: resolveNightMode(),
+    params: {
+      volumeStart: learningPlan.volumeStart,
+      guardHours: settings.guardHours,
+      maxCuesPerNight: settings.maxCuesPerNight,
+      cueDelaySec: learningPlan.cueDelaySec,
+    },
+    mode,
+    cueType: learningPlan.cueType,
     startT,
     expectedEndT,
     // §5.1 "awake ≥ 10 min after 05:00 → MORNING", timezone-free stand-in: the engine has

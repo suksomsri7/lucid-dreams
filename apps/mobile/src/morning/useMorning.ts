@@ -26,11 +26,14 @@ import { useRouter } from 'expo-router';
 import { Platform } from 'react-native';
 
 import { morningResultMessage, nextNightVolume, type AiScore, type CueEvent, type CueType } from '@lucid/engine';
+import type { SessionMode } from '@lucid/data';
 
 import { requestAiScore } from '../api/score';
 import type { DreamPlan } from '../advisor/types';
+import { recordNightOutcome } from '../learning';
 import { fetchNightReport } from '../data/report';
 import { saveMorningAiScore, saveMorningReport } from '../data/morning';
+import { cancelMorningReminder } from '../notifications';
 import { morningFixturePlan, morningFixtureRequested } from '../dev/fixtures';
 import { translate, useT, type Locale } from '../i18n';
 import { ambienceSource } from '../audio/ambience';
@@ -55,6 +58,8 @@ interface MorningContext {
   cuesPlayed: number;
   anyCueWoke: boolean;
   currentVolume: number;
+  /** WO L3.3: a control night's result sentence says so (`morning.result.control`) — `morningResultMessage` itself (`@lucid/engine`) has no mode concept, this WO adds the sentence on top rather than editing that engine function. */
+  mode: SessionMode;
 }
 
 /** One row of the morning conversation — `MorningFlow.tsx`'s only rendering contract. */
@@ -127,7 +132,7 @@ function fixtureContext(lang: Locale): MorningContext {
     { t: at(3, 19), index: 2, volume: 0.18, type: 'WHISPER' as CueType, pRemAtCue: 0.78, played: true, response: 'NONE' },
     { t: at(5, 40), index: 3, volume: 0.18, type: 'WHISPER' as CueType, pRemAtCue: 0.8, played: true, response: 'NONE' },
   ];
-  return { plan, cueEvents, cuesPlayed: 3, anyCueWoke: false, currentVolume: 0.18 };
+  return { plan, cueEvents, cuesPlayed: 3, anyCueWoke: false, currentVolume: 0.18, mode: 'CUE' };
 }
 
 async function loadRealContext(sessionId: string): Promise<MorningContext | null> {
@@ -150,6 +155,7 @@ async function loadRealContext(sessionId: string): Promise<MorningContext | null
     cuesPlayed: cueEvents.filter((cue) => cue.played).length,
     anyCueWoke: cueEvents.some((cue) => cue.response === 'WOKE'),
     currentVolume: cueEvents[cueEvents.length - 1]?.volume ?? DEFAULT_VOLUME_START,
+    mode: report.session.mode,
   };
 }
 
@@ -187,6 +193,8 @@ export function useMorning({ sessionId }: UseMorningOptions): UseMorningResult {
       return;
     }
     if (sessionId === null) return;
+    // The morning room is open — the "did you not open the app" reminder has done its job.
+    void cancelMorningReminder().catch(() => undefined);
     void loadRealContext(sessionId)
       .then((loaded) => {
         if (!cancelled) setContext(loaded);
@@ -363,6 +371,11 @@ export function useMorning({ sessionId }: UseMorningOptions): UseMorningResult {
       } catch {
         // Best-effort, same policy as `night/session.ts#persist` — the screen still has to finish.
       }
+
+      // WO L3.4 "app side": fold last night's reward into the bandit right after the
+      // report is saved (so `nightReward()` has real answers to read) — no-ops on its own
+      // for a control night / a night with no stored `armKey` (`learning/index.ts`).
+      void recordNightOutcome(sessionId).catch(() => undefined);
     }
 
     // §0.5 S4 / oracle M1.10: the transcript never leaves the device unless the user
@@ -401,7 +414,10 @@ export function useMorning({ sessionId }: UseMorningOptions): UseMorningResult {
       nextVolume,
       lang: locale,
     });
-    setResultMessage(message);
+    // WO L3.3: "morning result says it was a control night" — appended, not folded into
+    // `morningResultMessage` itself (that function is `@lucid/engine`, off-limits to this WO).
+    const fullMessage = context.mode === 'CONTROL' ? `${message} · ${t('morning.result.control')}` : message;
+    setResultMessage(fullMessage);
     setFinalizing(false);
   }
 

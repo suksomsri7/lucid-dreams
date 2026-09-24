@@ -203,7 +203,9 @@ export function applyOnboardingBypassForAdvisorFixture(): void {
     value === 'ble' ||
     value === 'report' ||
     value === 'morning-record' ||
-    value === 'morning-result';
+    value === 'morning-result' ||
+    value === 'journal' ||
+    value === 'settings';
   if (!bypasses) return;
   completeOnboarding();
 }
@@ -221,6 +223,11 @@ export function nightFixtureRequested(): boolean {
 /** `?fixture=report` (WO L2.10) — see the file header. */
 export function reportFixtureRequested(): boolean {
   return readFixtureParam() === 'report';
+}
+
+/** `?fixture=journal` (WO L3.5) — `app/(tabs)/journal.tsx`'s own totals/chart/rows, matching mockup `08-journal.png`'s exact numbers (27%/8%/6.4/16). */
+export function journalFixtureRequested(): boolean {
+  return readFixtureParam() === 'journal';
 }
 
 /**
