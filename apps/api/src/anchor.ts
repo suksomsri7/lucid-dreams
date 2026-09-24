@@ -1,18 +1,19 @@
 /**
  * `anchor.ts` — the personal watermark as **one file**: melody, then the whisper.
  *
- * DESIGN-APP §2 principle 3 (owner decision 24 ก.ย.) says a user has exactly one anchor
- * sound per language: a 1.5 s signature melody generated from their own seed, followed by
- * the whispered sentence. §6 ("สร้างลายน้ำเสียงสมอ") puts the job on the server: the phone
- * asks once during onboarding, gets a file, and plays that same file for daytime reality
- * checks, the pre-sleep training, the night whisper and the morning recall.
+ * DESIGN-APP §2 principle 3 (owner decision 24 ก.ย., **variant v2-C** after listening) says a
+ * user has exactly one anchor sound: a 9.8 s deep bell generated from their own seed, with the
+ * whisper "You… are… dreaming…" (Sarah, English, once, slowed to 0.85) laid **over** it,
+ * starting 2.6 s in. §6 ("สร้างลายน้ำเสียงสมอ") puts the job on the server: the phone asks once
+ * during onboarding, gets a file, and plays that same file for daytime reality checks, the
+ * pre-sleep training, the night whisper and the morning recall.
  *
  * Why one file instead of two the app plays back to back:
  *
- *   * The gap between the melody and the whisper **is part of the cue**. Two `expo-av`
- *     players scheduled 1.7 s apart drift by tens of milliseconds depending on what else
- *     the phone is doing; a night cue that sounds slightly different every time is a
- *     different cue as far as the brain is concerned.
+ *   * The whisper now **overlaps** the bell, so two players would have to stay in sync inside
+ *     one cue, not merely take turns. Two `expo-av` players scheduled 2.6 s apart drift by tens
+ *     of milliseconds depending on what else the phone is doing; a night cue that sounds
+ *     slightly different every time is a different cue as far as the brain is concerned.
  *   * One file is one decode and one volume ramp at 3 a.m. — the engine owns the volume
  *     (§2 rule 3.1) and it can only own one thing.
  *   * The mix is deterministic, so the file is cacheable and diffable: same seed, same
@@ -33,20 +34,41 @@ import path from 'node:path';
 /** 48 kHz throughout: the engine renders at 48 kHz and a resample would be a lossy step. */
 export const ANCHOR_SAMPLE_RATE = 48_000;
 
-/** Where the whisper starts, measured from the start of the file (work order L1.5b). */
-export const ANCHOR_WHISPER_DELAY_MS = 1700;
+/**
+ * Where the whisper starts, measured from the start of the file — **2.6 s** (v2-C, owner
+ * decision 24 ก.ย. evening). The default only exists for direct `mixAnchor` callers; the
+ * route passes `signature.whisperAtMs`, which is the same number coming out of the engine.
+ *
+ * Note what changed with v2-C: the whisper now starts *while the bell is still ringing*
+ * (the melody is 9.8 s long), it does not follow it. That overlap is the sound the owner
+ * approved, so it is not a number to round off.
+ */
+export const ANCHOR_WHISPER_DELAY_MS = 2600;
 
 /**
- * The melody sits 0.8 of the way up. `renderSignaturePcm` already normalises its peak to
- * 0.7, so the melody peaks at 0.56 and the whisper keeps the headroom it needs to stay
- * intelligible at the very low night volumes the engine uses (§5.3).
+ * The bell sits 0.9 of the way up and the whisper is lifted to 1.1 (v2-C).
+ *
+ * `renderSignaturePcm` normalises the melody's peak to 0.7, so at 0.9 it peaks at 0.63 and
+ * the two sum below 1.0 in practice (they never peak together — the bell's own peak is around
+ * 2 s, the whisper's syllables are short). The whisper is the *louder* of the two on purpose:
+ * it has to stay intelligible at the very low night volumes the engine uses (§5.3), and a
+ * whisper that is a hair louder than the bell is what made variant C work.
  */
-export const ANCHOR_SIGNATURE_GAIN = 0.8;
+export const ANCHOR_SIGNATURE_GAIN = 0.9;
+export const ANCHOR_WHISPER_GAIN = 1.1;
 
-/** 128 kbps mono — indistinguishable from the source for a 3 s clip, ~50 KB on the wire. */
+/**
+ * The whisper is slowed to 85 % speed before it is mixed (owner decision). eleven-v3 whispers
+ * "You… are… dreaming…" at a natural conversational pace even with the ellipses; at 0.85 it
+ * turns into the thing you are supposed to hear in a dream. Pitch is untouched — `atempo` is a
+ * time stretch, not a resample, which is exactly why it is ffmpeg's job and not ours.
+ */
+export const ANCHOR_WHISPER_ATEMPO = 0.85;
+
+/** 128 kbps mono — indistinguishable from the source for a 10 s clip, ~160 KB on the wire. */
 export const ANCHOR_MP3_BITRATE = '128k';
 
-/** ffmpeg on a 3 s clip takes ~60 ms; 20 s means something is wrong, not slow. */
+/** ffmpeg on a 10 s clip takes ~150 ms; 20 s means something is wrong, not slow. */
 export const ANCHOR_MIX_TIMEOUT_MS = 20_000;
 
 export type AnchorMixErrorCode = 'FFMPEG_FAILED' | 'FFMPEG_TIMEOUT' | 'FFMPEG_EMPTY';
@@ -124,6 +146,9 @@ export interface MixAnchorOptions {
   ffmpegPath: string;
   delayMs?: number;
   signatureGain?: number;
+  whisperGain?: number;
+  /** Time stretch of the whisper: 0.85 = 15 % slower, same pitch. `1` disables the filter. */
+  atempo?: number;
   timeoutMs?: number;
 }
 
@@ -132,21 +157,35 @@ export interface MixAnchorOptions {
  * are still an array, so nothing here is ever interpreted by a shell.
  *
  * ```
- * [0:a] aformat → volume=gain              → [a]   melody, quieter
- * [1:a] aformat → adelay=1700:all=1        → [b]   whisper, pushed back 1.7 s
- * [a][b] amix=inputs=2:normalize=0                 sum, no automatic gain change
+ * [0:a] aformat → volume=0.9                             → [a]  the bell, 9.8 s
+ * [1:a] aformat → atempo=0.85 → volume=1.1 → adelay=2600 → [b]  the whisper, slowed, once
+ * [a][b] amix=inputs=2:normalize=0                              sum, no automatic gain change
  * ```
  *
+ * Order inside the whisper chain matters: `atempo` **before** `adelay`, or the delay would be
+ * stretched as well and the whisper would start at 3.06 s instead of 2.6 s. `volume` anywhere
+ * before `adelay` is equivalent (padding silence with zeros is scale-invariant), and it is put
+ * here so the graph reads in the order the numbers were decided.
+ *
  * `normalize=0` is the whole point of using `amix` explicitly: the default divides every
- * input by the number of inputs, which would silently halve the melody we just set to 0.8.
- * `duration=longest` keeps the whisper's tail; `dropout_transition=0` stops amix from
- * ramping the melody up when the whisper ends.
+ * input by the number of inputs, which would silently halve both signals.
+ * `duration=longest` keeps whichever of the two ends last; `dropout_transition=0` stops amix
+ * from ramping the bell up when the whisper ends (v2-C: the whisper finishes around 5.5 s and
+ * the bell rings on to 9.8 s, so without this the tail would swell — audibly).
  */
-export function buildMixFilter(gain: number, delayMs: number): string {
+export function buildMixFilter(
+  gain: number,
+  delayMs: number,
+  whisperGain = ANCHOR_WHISPER_GAIN,
+  atempo = ANCHOR_WHISPER_ATEMPO,
+): string {
   const format = `aformat=sample_fmts=fltp:sample_rates=${ANCHOR_SAMPLE_RATE}:channel_layouts=mono`;
+  // `atempo` refuses anything outside [0.5, 100]; 1 means "no stretch", so skip the filter
+  // entirely rather than paying for a resampler that does nothing.
+  const stretch = atempo > 0 && atempo !== 1 ? `,atempo=${atempo}` : '';
   return [
     `[0:a]${format},volume=${gain}[a]`,
-    `[1:a]${format},adelay=${Math.round(delayMs)}:all=1[b]`,
+    `[1:a]${format}${stretch},volume=${whisperGain},adelay=${Math.round(delayMs)}:all=1[b]`,
     `[a][b]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0[mix]`,
   ].join(';');
 }
@@ -162,6 +201,8 @@ export function buildMixFilter(gain: number, delayMs: number): string {
 export async function mixAnchor(options: MixAnchorOptions): Promise<Buffer> {
   const delayMs = options.delayMs ?? ANCHOR_WHISPER_DELAY_MS;
   const gain = options.signatureGain ?? ANCHOR_SIGNATURE_GAIN;
+  const whisperGain = options.whisperGain ?? ANCHOR_WHISPER_GAIN;
+  const atempo = options.atempo ?? ANCHOR_WHISPER_ATEMPO;
   const timeoutMs = options.timeoutMs ?? ANCHOR_MIX_TIMEOUT_MS;
   const whisperExtension = options.whisperContentType === 'audio/wav' ? 'wav' : 'mp3';
 
@@ -185,7 +226,7 @@ export async function mixAnchor(options: MixAnchorOptions): Promise<Buffer> {
       '-i',
       whisperPath,
       '-filter_complex',
-      buildMixFilter(gain, delayMs),
+      buildMixFilter(gain, delayMs, whisperGain, atempo),
       '-map',
       '[mix]',
       '-c:a',
