@@ -16,7 +16,9 @@
 
 import { createMockPlanProvider } from './providers/mock';
 import { createOpenRouterProvider } from './providers/openrouter';
-import { resolveTtsProvider } from './providers/tts';
+import { resolveTtsProvider, type TtsProvider } from './providers/tts';
+import { createFalTtsProvider } from './providers/tts-fal';
+import { resolveFfmpegPath } from './anchor';
 import { createLogger } from './logger';
 import { startServer, DEFAULT_RATE_LIMIT_PER_HOUR } from './server';
 import type { PlanProvider } from '@lucid/engine';
@@ -58,10 +60,38 @@ function resolvePlanProvider(): PlanProvider {
   });
 }
 
+/**
+ * The TTS vendor (owner decision 24 ก.ย.: **fal.ai → ElevenLabs eleven-v3**).
+ *
+ * Unlike the plan provider, a missing key here is **not** a reason to refuse to boot: the
+ * whisper is one file per language that is cached forever, so a server with no `FAL_KEY`
+ * still serves every clip it has already rendered and answers `501 NOT_CONFIGURED` for the
+ * ones it has not. Refusing to start would take `/ai/plan` down with it for no reason.
+ */
+function resolveTts(): TtsProvider | null {
+  if (process.env.TTS_PROVIDER?.trim() !== 'fal') return resolveTtsProvider(process.env);
+
+  const apiKey = process.env.FAL_KEY?.trim();
+  if (!apiKey) {
+    logger.error('tts.missing_key', { hint: 'TTS_PROVIDER=fal needs FAL_KEY in apps/api/.env' });
+    return null;
+  }
+
+  const voice = process.env.TTS_VOICE?.trim() || undefined;
+  // The key is never logged — only that there is one, and how long it was.
+  logger.info('tts.fal', { voice: voice ?? 'default', keyLen: apiKey.length });
+  return createFalTtsProvider({
+    apiKey,
+    defaultVoice: voice,
+    timeoutMs: intFromEnv('TTS_TIMEOUT_MS', 30_000),
+    logger,
+  });
+}
+
 async function main(): Promise<void> {
   const port = intFromEnv('PORT', 8787);
   const dbPath = process.env.API_DB_PATH?.trim() || './data/lucid-api.sqlite';
-  const ttsProvider = resolveTtsProvider(process.env);
+  const ttsProvider = resolveTts();
 
   const server = await startServer({
     port,
@@ -77,7 +107,13 @@ async function main(): Promise<void> {
     logger,
   });
 
-  logger.info('listening', { url: server.url, dbPath, tts: ttsProvider === null ? 'none' : 'configured' });
+  logger.info('listening', {
+    url: server.url,
+    dbPath,
+    tts: ttsProvider === null ? 'none' : 'configured',
+    // `/ai/anchor` needs the mixer; say so at boot instead of at 3 a.m. in a 501.
+    ffmpeg: resolveFfmpegPath(process.env) ?? 'missing',
+  });
 
   const shutdown = (signal: string): void => {
     logger.info('shutdown', { signal });

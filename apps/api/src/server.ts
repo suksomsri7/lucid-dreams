@@ -139,7 +139,7 @@ export interface StartServerOptions {
   port?: number;
   hostname?: string;
   provider: PlanProvider;
-  /** Absent ⇒ `POST /ai/tts` answers `501 NOT_CONFIGURED` (no vendor picked yet). */
+  /** Absent ⇒ `POST /ai/tts` and `POST /ai/anchor` answer `501 NOT_CONFIGURED` (no vendor key). */
   ttsProvider?: TtsProvider | null;
   store?: 'memory' | 'sqlite';
   /** Only for `store: 'sqlite'`; defaults to `API_DB_PATH` or `./data/lucid-api.sqlite`. */
