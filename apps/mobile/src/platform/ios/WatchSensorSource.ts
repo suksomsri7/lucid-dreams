@@ -165,7 +165,7 @@ export class WatchSensorSource implements SensorSource {
     }
 
     this.lastEpochT = parsed.data.t;
-    // WO L2.3: the devices screen prints the mockup's own "หัวใจ 62" line from this
+    // WO L2.3: the devices screen prints the mockup's own "heart 62" line from this
     // (`SensorStatus.lastBpm`). Only overwritten when the epoch actually carried a heart rate —
     // a motion-only epoch must not blank the last real reading a second later.
     if (parsed.data.hrMean !== null) this.lastBpm = parsed.data.hrMean;

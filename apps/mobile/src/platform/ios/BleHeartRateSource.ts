@@ -3,7 +3,7 @@
  * strap (Polar H10) and the optical armband (Polar Verity Sense, Garmin HRM). One standard
  * GATT profile, so this file is not brand code: anything that advertises service `0x180D` and
  * notifies characteristic `0x2A37` works, which is exactly why the owner can buy whichever
- * strap is on the shelf (APP-RUN §2 L2.3, "รองรับหลายยี่ห้อ").
+ * strap is on the shelf (APP-RUN §2 L2.3, "support several brands").
  *
  * ## What this file is and is not
  *
@@ -32,10 +32,10 @@
  *
  * ## S8, concretely (APP-RUN §0.5)
  *
- *  - **จับคู่เฉพาะอุปกรณ์ที่ผู้ใช้เลือก** — `connect()` is only ever called with the id in
+ *  - **bond only to the device the user chose** — `connect()` is only ever called with the id in
  *    `src/devices/prefs.ts`, which is only ever written by a tap in `app/plan/find-devices.tsx`.
  *    A scan result is never auto-connected, not even when it is the only device in the room.
- *  - **ไม่เชื่อ payload ที่ไม่ผ่านสคีมา / HR 25–220** — `parseHeartRateMeasurement` returns
+ *  - **never believe a payload that fails the schema / HR outside 25–220** — `parseHeartRateMeasurement` returns
  *    `null` and the notification is dropped whole; the epoch path runs `normalizeEpochs` +
  *    `SensorEpochSchema` on top, like `WatchSensorSource` does.
  *  - **dedupe** — the hub accepts one reading per `(sourceId, second)`; see `nextSampleSecond()`

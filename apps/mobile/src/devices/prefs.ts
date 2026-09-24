@@ -1,10 +1,10 @@
 /**
  * The two things the sensor rig has to remember between launches (WO L2.3):
  *
- *  1. **which** BLE heart-rate device the user chose — APP-RUN §0.5 S8 is "จับคู่เฉพาะ
- *     อุปกรณ์ที่ผู้ใช้เลือก", and a night that starts while the phone is asleep in a drawer
+ *  1. **which** BLE heart-rate device the user chose — APP-RUN §0.5 S8 is "bond only to the
+ *     device the user chose", and a night that starts while the phone is asleep in a drawer
  *     must be able to reconnect to *that* strap without asking again;
- *  2. whether "มือถือบนที่นอน" is on.
+ *  2. whether "phone on the mattress" is on.
  *
  * Its own tiny AsyncStorage key rather than a field in the settings store on purpose: the
  * settings store (`src/settings/store.ts`) is being written by another builder in a parallel
@@ -31,7 +31,7 @@ export interface BondedBleDevice {
 export interface SensorPrefs {
   /** The BLE HR device the user tapped in `app/plan/find-devices.tsx`. */
   ble: BondedBleDevice | null;
-  /** "มือถือบนที่นอน" — the phone's accelerometer as a motion-only HEART source. */
+  /** "Phone on the mattress" — the phone's accelerometer as a motion-only HEART source. */
   phoneOnMattress: boolean;
 }
 

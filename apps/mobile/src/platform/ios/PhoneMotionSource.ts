@@ -1,5 +1,5 @@
 /**
- * "มือถือบนที่นอน" — the phone itself as a motion source (DESIGN §8.1, row 4).
+ * "Phone on the mattress" — the phone itself as a motion source (DESIGN §8.1, row 4).
  *
  * The fallback for someone who owns neither a watch nor a strap: the phone lies on the
  * mattress and its accelerometer picks up the whole-body movements that matter here (turning
@@ -23,7 +23,7 @@
  * ## Only when the user asked for it
  *
  * `src/sensors/hub.ts` registers this source only while `getSensorPrefs().phoneOnMattress` is
- * on (the toggle in `app/plan/find-devices.tsx`). There is no "sense it automatically" path: a
+ * on (the mattress toggle in `app/plan/find-devices.tsx`). There is no "sense it automatically" path: a
  * phone on a nightstand would report the stillness of the nightstand, which is not evidence
  * about a sleeper and would be worse than no motion channel at all.
  */

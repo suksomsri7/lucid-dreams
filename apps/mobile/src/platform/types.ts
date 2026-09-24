@@ -60,8 +60,8 @@ export interface SensorStatus {
    * Newest heart rate this source has seen, bpm — `null` when the source does not measure
    * one (phone on the mattress) or has not measured one yet (WO L2.3).
    *
-   * Added so the devices screen can print the mockup's own device line — "ต่อแล้ว · หัวใจ 62 ·
-   * แบต 84%" (`04-dream-plan.png` frame b) — without a second, parallel channel for one
+   * Added so the devices screen can print the mockup's own device line — "connected · heart 62 ·
+   * 84% battery" (`04-dream-plan.png` frame b) — without a second, parallel channel for one
    * number: it is a *level* the source can always answer for, which is exactly what
    * `getStatus()` is for. It is deliberately not fed to the estimator from here; evidence
    * only ever travels as epochs/samples (`onEpoch`/`onSample`), never as a status field.
@@ -393,7 +393,7 @@ export interface PlatformBundle {
   watchSensorSource: SensorSource;
   /** Chest strap / armband over the BLE Heart Rate Profile (WO L2.3). */
   bleHeartRate: BleSensorSource;
-  /** "มือถือบนที่นอน" — the phone's own accelerometer as a motion-only HEART source (WO L2.3). */
+  /** "Phone on the mattress" — the phone's own accelerometer as a motion-only HEART source (WO L2.3). */
   phoneMotion: SampleSensorSource;
   audioPlayer: AudioPlayer;
   liveStatus: LiveStatus;
