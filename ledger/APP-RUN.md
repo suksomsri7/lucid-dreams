@@ -237,7 +237,7 @@
 | L1.3 | ✅ DONE 24 ก.ย. (22/22 · parity ตรง mockup 01 ทั้ง 2 จอ) | main | จุดต่างที่แก้: เอาสวิตช์ AI ออก · ปุ่มตรึงล่าง · เพิ่ม fixture QC |
 | L1.4 | ✅ DONE 24 ก.ย. (16/16 · parity 02/03 ตรง หลังแก้ 3 รอบ) | main | mock adapter → สลับ engine advisor ที่ L1.7ui |
 | L1.6s | ▶ building (Opus · wo/L1.6s) | — | signature v2-C ลง engine + `/ai/anchor` กระซิบครั้งเดียว atempo 0.85 delay 2600 |
-| L2.3e/L3.2e/L3.4 | ▶ building (Opus · wo/L3e · เริ่มใหม่หลังโควตา 13:00) | — | engine: BLE HRM parser + SensorHub · AiScore sanitize + ข้อความผลเช้า · bandit/PersonalModel · oracle 10+5+8 |
+| L2.3e/L3.2e/L3.4 | ✅ DONE 24 ก.ย. (engine 129/129) | main | เหลือฝั่งแอป: BLE scan/connect (L2.3) · /ai/score route + UI เช้า (L3.1/3.2) · เซฟ PersonalModel + ใช้ suggestedVolume (L3.4 app) |
 | L1.7ui | ✅ DONE 24 ก.ย. (21/21 · parity 04 a–d) | main | เหลือส่วน native ของ L1.7: Live Activity · DND จริง · pan native · ต่อ /ai/anchor ในแอป |
 | L2.8ui/2.9/2.10 | ▶ building (Sonnet · wo/L2.8ui) | — | จอกลางคืน (controller จริง) · นำเข้าสเตจ Apple (JS) · หน้ารายงานเมื่อคืน · oracle qc-L2.8-10 · parity 05/07 |
 | L1.5 | ✅ DONE 24 ก.ย. (engine 73/73 · api 21/21) | main | ✅ DNS+SSL `dreaming.suksomsri.cloud` · ✅ OpenRouter จริง (haiku-4.5) · **TTS = fal.ai→ElevenLabs v3 [whispers] (มติเจ้าของ · ใช้ FAL key เดิม)** ตัวอย่างส่ง TG แล้ว รอเลือกเสียง |
