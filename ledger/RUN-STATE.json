@@ -1,12 +1,17 @@
 {
  "run": "APP-RUN Phase 1",
- "wo": "L3.F",
- "step": "closing",
+ "wo": "R1",
+ "step": "waiting-owner: ASC app + Team ID + ASC API key → eas build r1-internal (owner orders)",
  "branch": null,
  "worktree": null,
- "builder": "fable",
+ "builder": null,
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-25T00:10Z",
- "lastCommit": "L2.3 merged (23/24)",
- "blockedOn": []
+ "lastCheckpoint": "2026-09-25T00:30Z",
+ "lastCommit": "L3.F closed 24/24",
+ "blockedOn": [
+  "เจ้าของ: สร้างแอป Dreaming ใน ASC (ทีมเดิม · app.dreaming.ios)",
+  "เจ้าของ: Team ID + ASC API key (.p8 · Key ID · Issuer ID)",
+  "เจ้าของ: รุ่น iPhone/Watch/หูฟัง",
+  "เจ้าของ: สั่ง build"
+ ]
 }
