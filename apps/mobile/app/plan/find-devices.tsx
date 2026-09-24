@@ -104,6 +104,10 @@ export default function FindDevicesScreen() {
         stopScan = await ble.scan((found) => {
           if (!cancelled) setResults(found);
         });
+        // The effect may have been torn down while `scan()` was still starting the radio — the
+        // cleanup below already ran and saw `stopScan === null`, so stop it here or the scan
+        // outlives the screen (and a second one would fight it on the next mount).
+        if (cancelled) stopScan();
       } catch {
         if (!cancelled) setAvailability('UNSUPPORTED');
       }
