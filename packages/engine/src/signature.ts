@@ -765,10 +765,12 @@ export function renderSignatureShortPcm(
   const length = Math.max(1, Math.round(seconds * sampleRate));
   const lengthMs = seconds * 1000;
 
-  // Keep every note that has at least one full gap of ring left before the excerpt ends.
+  // Keep every note that still has more than one full gap of ring left when the excerpt ends.
+  // At 3 s with the v2-C spacing that is notes 1–2: the third starts exactly 1 s before the
+  // end, i.e. it would reach the top of its 1 s attack and be cut there.
   let noteCount = 0;
   for (let n = 0; n < signature.notes.length; n += 1) {
-    if (n * signature.gapMs + signature.gapMs <= lengthMs) noteCount += 1;
+    if (n * signature.gapMs + signature.gapMs < lengthMs) noteCount += 1;
   }
 
   const dry = renderDry(signature, sampleRate, length, Math.max(1, noteCount));
