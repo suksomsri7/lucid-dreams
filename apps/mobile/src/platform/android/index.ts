@@ -12,6 +12,8 @@
  *
  * When Android becomes real (Phase 2), the shopping list is:
  *  - `WearSensorSource` — Health Services on Wear OS, same 30 s epoch payload;
+ *  - `BleHeartRateSource`/`PhoneMotionSource` — the same `react-native-ble-plx`/`expo-sensors`
+ *    code the iOS side runs, plus Android's runtime Bluetooth permissions;
  *  - `AndroidAudioPlayer` — foreground service + `expo-audio` (already cross-platform);
  *  - `AndroidLiveStatus` — ongoing notification instead of a Live Activity;
  *  - `AndroidHealthImport` — Health Connect sleep stages;
@@ -23,12 +25,17 @@ import type {
   AudioPlayer,
   AudioPlayerStatus,
   BatteryReader,
+  BleAvailability,
+  BleBondedDevice,
+  BleScanResult,
+  BleSensorSource,
   DeviceInfoReader,
   Display,
   HealthImport,
   LiveStatus,
   NotificationsPermission,
   PlatformBundle,
+  SampleSensorSource,
   SensorSource,
   SensorStatus,
   SleepPhase,
@@ -63,9 +70,134 @@ class AndroidSensorSource implements SensorSource {
       connected: false,
       reachable: false,
       lastEpochT: null,
+      lastDataT: null,
+      lastBpm: null,
       battery: null,
       error: 'NOT_IMPLEMENTED',
     };
+  }
+
+  onEpoch(): Unsubscribe {
+    return noop();
+  }
+
+  onStatus(): Unsubscribe {
+    return noop();
+  }
+
+  onCommand(): Unsubscribe {
+    return noop();
+  }
+}
+
+/**
+ * BLE heart rate (WO L2.3). Android *could* run `react-native-ble-plx` as-is — the library is
+ * cross-platform and the GATT profile is the same — but Phase 1 builds no Android app and the
+ * permission model there (`BLUETOOTH_SCAN`/`BLUETOOTH_CONNECT`, and location on older API
+ * levels) is a real piece of work, not a re-export. Until that work happens this reports "not
+ * here" rather than half-working. On **web** this same stub is what the QC bundle gets, which is
+ * also what keeps `react-native-ble-plx` out of a bundle that has no radio to talk to.
+ */
+class AndroidBleHeartRateSource implements BleSensorSource {
+  readonly id = 'ble-heart-rate-stub';
+  readonly kind = 'BLE_HR' as const;
+
+  async isAvailable(): Promise<boolean> {
+    return false;
+  }
+
+  async availability(): Promise<BleAvailability> {
+    return 'UNSUPPORTED';
+  }
+
+  selected(): BleBondedDevice | null {
+    return null;
+  }
+
+  async scan(_onResults: (results: BleScanResult[]) => void): Promise<Unsubscribe> {
+    throw new NotImplementedError('BLE scanning');
+  }
+
+  async select(_device: BleBondedDevice): Promise<void> {
+    throw new NotImplementedError('BLE pairing');
+  }
+
+  async forget(): Promise<void> {
+    // nothing was ever bonded — safe
+  }
+
+  async start(): Promise<void> {
+    throw new NotImplementedError('BLE heart-rate source');
+  }
+
+  async stop(): Promise<void> {
+    // never started — safe
+  }
+
+  getStatus(): SensorStatus {
+    return {
+      id: this.id,
+      kind: this.kind,
+      connected: false,
+      reachable: false,
+      lastEpochT: null,
+      lastDataT: null,
+      lastBpm: null,
+      battery: null,
+      error: 'NOT_IMPLEMENTED',
+    };
+  }
+
+  onSample(): Unsubscribe {
+    return noop();
+  }
+
+  onEpoch(): Unsubscribe {
+    return noop();
+  }
+
+  onStatus(): Unsubscribe {
+    return noop();
+  }
+
+  onCommand(): Unsubscribe {
+    return noop();
+  }
+}
+
+/** Phone-on-mattress accelerometer (WO L2.3) — same story as the BLE stub above. */
+class AndroidPhoneMotionSource implements SampleSensorSource {
+  readonly id = 'phone-on-mattress-stub';
+  readonly kind = 'PHONE_MOTION' as const;
+
+  async isAvailable(): Promise<boolean> {
+    return false;
+  }
+
+  async start(): Promise<void> {
+    throw new NotImplementedError('Phone motion source');
+  }
+
+  async stop(): Promise<void> {
+    // never started — safe
+  }
+
+  getStatus(): SensorStatus {
+    return {
+      id: this.id,
+      kind: this.kind,
+      connected: false,
+      reachable: false,
+      lastEpochT: null,
+      lastDataT: null,
+      lastBpm: null,
+      battery: null,
+      error: 'NOT_IMPLEMENTED',
+    };
+  }
+
+  onSample(): Unsubscribe {
+    return noop();
   }
 
   onEpoch(): Unsubscribe {
@@ -252,6 +384,8 @@ export function createStubPlatform(name: 'android' | 'unsupported'): PlatformBun
     name,
     hasLiquidGlass: false,
     watchSensorSource: new AndroidSensorSource(),
+    bleHeartRate: new AndroidBleHeartRateSource(),
+    phoneMotion: new AndroidPhoneMotionSource(),
     audioPlayer: new AndroidAudioPlayer(),
     liveStatus: new AndroidLiveStatus(),
     healthImport: new AndroidHealthImport(),

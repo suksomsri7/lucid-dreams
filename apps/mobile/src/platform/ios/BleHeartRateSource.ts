@@ -271,15 +271,11 @@ export class BleHeartRateSource implements BleSensorSource {
       connected: this.connected,
       reachable: this.started && this.reachable,
       lastEpochT: this.lastEpochT,
+      lastDataT: this.lastDataT,
       lastBpm: this.lastBpm,
       battery: this.battery,
       error: this.error,
     };
-  }
-
-  /** Epoch seconds of the newest notification — what the devices screen calls `lastDataAt`. */
-  lastDataAtSeconds(): number | null {
-    return this.lastDataT;
   }
 
   onSample(listener: (sample: SensorSample) => void): Unsubscribe {

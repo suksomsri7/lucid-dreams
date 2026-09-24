@@ -47,6 +47,16 @@ export interface SensorStatus {
   /** Epoch seconds of the newest epoch received, `null` before the first one. */
   lastEpochT: number | null;
   /**
+   * Unix seconds of the newest *reading* of any kind — WO L2.3.
+   *
+   * Not the same question as `lastEpochT`, and the difference decides whether the devices
+   * screen shows a strap as alive: a BLE strap notifies every second but only produces an
+   * epoch when something asked it to fold one (`onEpoch`), so during a night — where the hub
+   * consumes its samples instead — `lastEpochT` stays `null` while data pours in. For the
+   * Apple Watch, whose only output *is* epochs, the two are the same number.
+   */
+  lastDataT: number | null;
+  /**
    * Newest heart rate this source has seen, bpm — `null` when the source does not measure
    * one (phone on the mattress) or has not measured one yet (WO L2.3).
    *
