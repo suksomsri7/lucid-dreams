@@ -6,9 +6,7 @@
  "worktree": "/root/projects/lucid-dreams-L2.8ui · -L3e · -L1.6s",
  "builder": "sonnet+opus+opus",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T14:05Z",
+ "lastCheckpoint": "2026-09-24T14:30Z",
  "lastCommit": "L1.7ui merged",
- "blockedOn": [
-  "เจ้าของ: OpenRouter API key"
- ]
+ "blockedOn": []
 }

@@ -35,7 +35,7 @@
 1. ✅ **GitHub repo** `suksomsri7/lucid-dreams` — push แล้ว 24 ก.ย. (origin/main)
 2. ✅ **Apple Developer = ทีมเดิม** ที่ใช้กับ SiamDive/SHARK/GoodFood (มติ 24 ก.ย.) → สร้าง bundle id ใหม่ใต้ทีมนั้น (Fable จะขอ Team ID/ASC key ตอน R1) · ✅ **Expo/EAS**: บัญชี `luciddreams-team` (Admin) — token เก็บที่ `/root/.lucid/expo.env` (600 · นอก repo · แยกจาก token โปรเจกต์อื่น) ตรวจ `eas whoami` ผ่านแล้ว 24 ก.ย.
 3b. ✅ **TTS = fal.ai → ElevenLabs eleven-v3** (`[whispers]`) · **เสียงเดียว: Sarah อังกฤษ "You are dreaming…" ทุกผู้ใช้** (มติเจ้าของ 24 ก.ย. หลังฟัง: ไทยยังไม่เป็นธรรมชาติ) · โน้ตลายเสียงออกแบบใหม่ช้า/ลึก (signature v2 · ต้นแบบ `/root/.lucid/tts/sigv2-*.wav`) — มติเจ้าของ 24 ก.ย. ใช้ FAL key ที่มี (`/root/.lucid/fal.env` → `apps/api/.env`) · $0.10/1,000 ตัวอักษร แคชตลอดชีพ
-3. ⏳ **AI ผ่าน OpenRouter** (มติ 24 ก.ย.: เจ้าของใช้ OpenRouter · จะให้ key **ตอนถึงขั้นทดสอบ** — Fable ต้องแจ้งเมื่อถึง L1.5) · เซิร์ฟเวอร์ใช้ OpenAI-compatible client ชี้ `https://openrouter.ai/api/v1` · model ตั้งค่าได้ (ค่าเริ่มต้น Claude ล่าสุดผ่าน OpenRouter) · key ใส่ `apps/api/.env` ไม่เข้า repo · ก่อนมี key ใช้ **mock provider** (fixture ตอบตามสคีมา) เพื่อให้ oracle L1.5 รันได้
+3. ✅ **AI ผ่าน OpenRouter** — key ได้ 24 ก.ย. (ใน `apps/api/.env` 600 · ไม่เข้า repo) · **model = anthropic/claude-haiku-4.5** (มติ: ถูก+เหมาะ · smoke ไทยผ่าน 3.9 วิ · ≈0.2 บาท/คืน/คน) · fallback google/gemini-3.7-flash (ผ่าน 7.2 วิ) · gemini-3.5-flash-lite ตกสคีมา 502 ไม่ใช้ · เซิร์ฟเวอร์ใช้ OpenAI-compatible client ชี้ `https://openrouter.ai/api/v1` · model ตั้งค่าได้ (ค่าเริ่มต้น Claude ล่าสุดผ่าน OpenRouter) · key ใส่ `apps/api/.env` ไม่เข้า repo · ก่อนมี key ใช้ **mock provider** (fixture ตอบตามสคีมา) เพื่อให้ oracle L1.5 รันได้
 4. ✅ รับทราบ (Polar ยังไม่ซื้อ · รุ่นเครื่องจะรู้จาก diagnostics R1)
 5. ✅ **เซิร์ฟเวอร์ AI บน VPS นี้** หลัง nginx (โดเมนย่อย `dreaming.suksomsri.cloud` — Fable ตั้ง DNS/SSL ตอน L1.5)
 
@@ -240,7 +240,7 @@
 | L2.3e/L3.2e/L3.4 | ▶ building (Opus · wo/L3e · เริ่มใหม่หลังโควตา 13:00) | — | engine: BLE HRM parser + SensorHub · AiScore sanitize + ข้อความผลเช้า · bandit/PersonalModel · oracle 10+5+8 |
 | L1.7ui | ✅ DONE 24 ก.ย. (21/21 · parity 04 a–d) | main | เหลือส่วน native ของ L1.7: Live Activity · DND จริง · pan native · ต่อ /ai/anchor ในแอป |
 | L2.8ui/2.9/2.10 | ▶ building (Sonnet · wo/L2.8ui) | — | จอกลางคืน (controller จริง) · นำเข้าสเตจ Apple (JS) · หน้ารายงานเมื่อคืน · oracle qc-L2.8-10 · parity 05/07 |
-| L1.5 | ✅ DONE 24 ก.ย. (engine 73/73 · api 21/21) | main | ✅ DNS+SSL `dreaming.suksomsri.cloud` (24 ก.ย.) · รอ: OpenRouter key (ยิงจริง) · **TTS = fal.ai→ElevenLabs v3 [whispers] (มติเจ้าของ · ใช้ FAL key เดิม)** ตัวอย่างส่ง TG แล้ว รอเลือกเสียง |
+| L1.5 | ✅ DONE 24 ก.ย. (engine 73/73 · api 21/21) | main | ✅ DNS+SSL `dreaming.suksomsri.cloud` · ✅ OpenRouter จริง (haiku-4.5) · **TTS = fal.ai→ElevenLabs v3 [whispers] (มติเจ้าของ · ใช้ FAL key เดิม)** ตัวอย่างส่ง TG แล้ว รอเลือกเสียง |
 | L2.4/2.5 | ✅ DONE 24 ก.ย. (87/87 · onset 99.5% ≤10 นาที บนจำลอง · F1 0.98 จำลอง — คาดจริง 0.5–0.7) | main | ปรับเทียบ R2 |
 | L2.6/2.7 | ✅ DONE 24 ก.ย. (106/106 · fuzz 2,200 คืน 0 ข้อผิด) | main | R2: พิจารณาลด maxCuesPerNight · ปรับเกณฑ์ตื่น 0.15 g จากคืนจริง |
 | L1.5b | ✅ DONE 24 ก.ย. (api 42/42 · smoke fal จริง) | main | prod: TTS_PROVIDER=fal TTS_VOICE=Sarah · **ตามมา L1.6s**: กระซิบ EN ครั้งเดียว "You… are… dreaming…" + atempo 0.85 + **signature v2-C (มติเจ้าของ)** ลง engine (`signature.ts` v2 + แก้ข้อสอบ G3 ความยาว/โน้ต) และ `/ai/anchor` (delay 2600 ms · tone 0.9 · whisper 1.1) · ล้าง tts_cache เมื่อเปลี่ยน |
