@@ -1,12 +1,12 @@
 /**
  * One `NightEvent` (`@lucid/data#buildEvents`) → one `EventRow` (`src/ui/EventRow.tsx`,
- * mockup `07-night-report.png`'s "เหตุการณ์ทั้งคืน" card) — WO L2.10.
+ * mockup `07-night-report.png`'s "Events overnight" card) — WO L2.10.
  *
  * `pRemAtCue === 0` is not "0 % REM" — it is the engine's own placeholder for "no
  * probability existed at all" (timer-mode/sensor-loss cues, `wakeDetector.ts`'s
  * `timerCueWindows`), documented as a debt for this screen in
- * `ledger/wo-notes/L2.6-2.7.md` §6 item 5 ("pRemAtCue = 0 ในโหมดจับเวลา … ต้องแสดงเป็น
- * '—' ไม่ใช่ 0%") — `formatPercent` below is the fix.
+ * `ledger/wo-notes/L2.6-2.7.md` §6 item 5 ("pRemAtCue = 0 in timer mode must show
+ * as — not 0%") — `formatPercent` below is the fix.
  */
 
 import { BED_VOLUME_BED, BED_VOLUME_FULL } from '@lucid/engine';
@@ -42,7 +42,7 @@ export interface EventTextContext {
   t: Translate;
   locale: Locale;
   plan: DreamPlan | null;
-  /** Epoch seconds where Apple scored REM — for the cue row's "ตรงกับ REM ของ Apple ✓". */
+  /** Epoch seconds where Apple scored REM — for the cue row's "matches Apple REM ✓". */
   appleRemEpochTs: ReadonlySet<number>;
   epochSecondsFrom: (iso: string) => number;
 }

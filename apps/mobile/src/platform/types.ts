@@ -76,7 +76,7 @@ export interface SensorSource {
   onStatus(listener: (status: SensorStatus) => void): Unsubscribe;
   /**
    * Fires when the paired device sends an explicit command — today just the watch's own
-   * "หยุด" button (WO L2.8, mockup `05-night.png` frame b). Separate from `onStatus`
+   * "stop" button (WO L2.8, mockup `05-night.png` frame b). Separate from `onStatus`
    * because a command is an instant, one-shot event (→ `NightController.userStop()`),
    * not a level that `getStatus()` could ever describe.
    */

@@ -1,6 +1,6 @@
 /**
  * Apple's own sleep stages, read the morning after (WO L2.9 · APP-RUN §2 "L2.9" ·
- * DESIGN §5.2 "ตอนเช้า … precision/recall ต่อคืน").
+ * DESIGN §5.2 "in the morning … precision/recall per night").
  *
  * Ground rule (APP-RUN §0.5 S10): a caller must never believe it has HealthKit data
  * when it does not. `platform.healthImport` is still the honest, declared-but-not-
@@ -10,7 +10,7 @@
  * next Opus native WO). This file is the complete JS-side contract against that
  * interface: `importAppleForSession()` calls it, treats "unavailable" and "throws" and
  * "returned nothing" identically (no phases saved, `applePhasesFetched` stays `false`),
- * and the report screen shows "ไม่มีข้อมูล Apple" rather than "0%" either way
+ * and the report screen shows "No Apple data" rather than "0%" either way
  * (`repo.ts#applePhases` — an empty `saveMany([])` still flips `applePhasesFetched`, so
  * the report screen must check the *phases array*, not that flag, to tell "asked and
  * got nothing" apart from "never asked" — both render the same "no data" text, but the
@@ -84,7 +84,7 @@ function stageTruthForEpochs(phases: readonly ApplePhaseInput[], epochTs: readon
 
 export interface AppleImportResult {
   /** `false` when HealthKit is unavailable/unauthorized/empty — the report screen must
-   * show "ไม่มีข้อมูล Apple", never "0%", when this is `false` (APP-RUN §0.5 S10). */
+   * show "No Apple data", never "0%", when this is `false` (APP-RUN §0.5 S10). */
   imported: boolean;
   phaseCount: number;
 }
@@ -141,9 +141,9 @@ export async function retryPendingAppleImports(): Promise<void> {
 
 /**
  * Precision/recall of tonight's `p_REM` against Apple's own stages (`metrics.ts`'s
- * `remMetrics`, shared with the L2.1/L2.5 oracles and the report screen's "ทายตรง n%").
+ * `remMetrics`, shared with the L2.1/L2.5 oracles and the report screen's "n% match").
  * `null` when there is nothing to compare against — the caller's cue to show
- * "ไม่มีข้อมูล Apple" instead of a metric (APP-RUN §0.5 S10).
+ * "No Apple data" instead of a metric (APP-RUN §0.5 S10).
  */
 export function compareAppleToEstimate(
   applePhases: readonly ApplePhaseInput[],

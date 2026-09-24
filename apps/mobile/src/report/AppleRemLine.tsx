@@ -1,7 +1,7 @@
 /**
  * `.band2` — the thin mint line under the main `Band`, showing Apple Watch's own REM
- * stretches for comparison (mockup `07-night-report.png`'s own legend: "เอาไว้เทียบว่า
- * แอป 'ทายตรง' แค่ไหน (ไม่ใช่คำตัดสิน)" — not part of `src/ui/Band.tsx` itself: that
+ * stretches for comparison (mockup `07-night-report.png`'s own legend: "for comparing
+ * how accurate the app's own guess was — not a verdict") — not part of `src/ui/Band.tsx` itself: that
  * component's contract is guard/watch/rem + cue/wake ticks, one lane; this is a second,
  * independent lane that only the report screen (L2.10) needs.
  */

@@ -209,8 +209,8 @@ function createRuntime(ctx: RuntimeContext): Runtime {
         // No rendered seed-line *audio* yet — the phrase is server-side TTS, still
         // unbuilt (`src/audio/anchor.ts`'s header, carried as a debt since WO L1.7ui) —
         // but the *event* is real and `repo.ts#buildEvents` already special-cases
-        // `type: 'SEED'` for exactly this row (mockup `07-night-report.png`'s "ปลูก
-        // ภาพ"), so it is still written to the database, `played: true` (a seed always
+        // `type: 'SEED'` for exactly this row (mockup `07-night-report.png`'s
+        // "planting the image"), so it is still written to the database, `played: true` (a seed always
         // "plays" — the melody tone does, via the signature; only the spoken phrase
         // is the debt).
         if (__DEV__) {
@@ -338,7 +338,7 @@ export async function startNightSession(state: NightStoreState): Promise<NightSe
     mode: resolveNightMode(),
     startT,
     expectedEndT,
-    // §5.1 "ตื่น ≥ 10 นาทีหลัง 05:00 → MORNING", timezone-free stand-in: the engine has
+    // §5.1 "awake ≥ 10 min after 05:00 → MORNING", timezone-free stand-in: the engine has
     // no timezone (`ledger/wo-notes/L2.6-2.7.md` debt 1) — a flat "8 h after lights-out"
     // is the WO's own documented placeholder until a real alarm time exists (L3.1/L3.6).
     morningAfterT: expectedEndT,

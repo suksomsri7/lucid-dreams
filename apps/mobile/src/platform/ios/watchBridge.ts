@@ -53,7 +53,7 @@ interface NativeWatchLink {
   addListener(event: 'onEpoch', listener: (payload: WatchEpochPayload) => void): { remove(): void };
   addListener(event: 'onStatus', listener: (status: WatchLinkStatus) => void): { remove(): void };
   /**
-   * The other direction: the watch face/complication has its own "หยุด" button
+   * The other direction: the watch face/complication has its own "stop" button
    * (mockup `05-night.png` frame b) — pressing it sends this event to the phone
    * instead of (or in addition to) `sendCommand`, which only goes phone → watch.
    * WO L2.8's JS-side contract; the native `LucidWatchLinkModule.swift` emitting it is

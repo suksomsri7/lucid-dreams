@@ -46,7 +46,7 @@ export function ambienceLabelKey(key: AmbienceKey): TranslationKey {
 }
 
 // ---------------------------------------------------------------------------
-// The band (mockup 07's "ทั้งคืน · 23:10 → 06:51" card)
+// The band (mockup 07's "All night · 23:10 → 06:51" card)
 // ---------------------------------------------------------------------------
 
 export interface BandModel {
@@ -59,7 +59,7 @@ export interface BandModel {
   guardHours: number | null;
   cueTimes: string[];
   wakeTimes: string[];
-  /** Longest Apple REM stretch, for the legend's "ช่วงยาว {range}" — `null` with no Apple data. */
+  /** Longest Apple REM stretch, for the legend's "longest stretch {range}" — `null` with no Apple data. */
   longestAppleRange: { startIso: string; endIso: string } | null;
 }
 
@@ -144,3 +144,27 @@ export function nightDurationParts(session: NightReport['session']): { h: number
 
 /** Same "15 min before watching resumes" number the engine's Sleep Guard enforces — used by the wake row's sub-line, not re-derived. */
 export const WAKE_REST_MIN = Math.round(AWAKE_QUIET_SEC / 60);
+
+/** Epoch seconds Apple scored as `REM` — the cue row's "matches Apple REM ✓" check. */
+export function appleRemEpochSeconds(applePhases: readonly ApplePhaseRecord[]): Set<number> {
+  const out = new Set<number>();
+  for (const phase of applePhases) {
+    if (phase.stage !== 'REM') continue;
+    const startT = epochSecondsFrom(phase.startIso);
+    const endT = epochSecondsFrom(phase.endIso);
+    for (let t = startT; t < endT; t += 30) out.add(t);
+  }
+  return out;
+}
+
+/** Up to 5 evenly-spaced clock labels across the band, start and end always included (mockup 07's `.tl` row). */
+export function timelineLabels(rangeStartT: number, rangeEndT: number, locale: Locale, count = 5): string[] {
+  const span = Math.max(0, rangeEndT - rangeStartT);
+  const steps = Math.max(1, count - 1);
+  const labels: string[] = [];
+  for (let i = 0; i <= steps; i += 1) {
+    const t = rangeStartT + (span * i) / steps;
+    labels.push(fmtTime(new Date(t * 1000).toISOString(), locale));
+  }
+  return labels;
+}

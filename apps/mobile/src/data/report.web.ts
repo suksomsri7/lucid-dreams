@@ -5,11 +5,15 @@
  * `expo-sqlite` so Metro's web bundle never resolves the broken `.wasm` asset.
  */
 
-import type { ApplePhaseInput, ApplePhaseRecord, ExportBundle, NightReport } from '@lucid/data';
+import type { ApplePhaseInput, ApplePhaseRecord, DataDiagnosticsDraft, ExportBundle, NightReport } from '@lucid/data';
 
 import { NotImplementedError } from '../platform/types';
 
 export async function fetchNightReport(_sessionId: string): Promise<NightReport> {
+  throw new NotImplementedError('the night report database');
+}
+
+export async function fetchNightDiagnosticsDraft(_sessionId: string): Promise<DataDiagnosticsDraft> {
   throw new NotImplementedError('the night report database');
 }
 

@@ -8,13 +8,23 @@
  * file's web counterpart — `app/report/[id].tsx` always uses `?fixture=report` there.
  */
 
-import type { ApplePhaseInput, ApplePhaseRecord, ExportBundle, NightReport } from '@lucid/data';
+import type { ApplePhaseInput, ApplePhaseRecord, DataDiagnosticsDraft, ExportBundle, NightReport } from '@lucid/data';
 
 import { getRepo } from './index';
 
 export async function fetchNightReport(sessionId: string): Promise<NightReport> {
   const repo = await getRepo();
   return repo.nightReport(sessionId);
+}
+
+/**
+ * The "Export" button's data (mockup `07-night-report.png`'s "tonight's result" card) —
+ * `repo.ts#diagnosticsDraft`'s own doc comment names this exact button as its
+ * `sessionId` option's reason to exist, rather than `exportJson`'s whole-database dump.
+ */
+export async function fetchNightDiagnosticsDraft(sessionId: string): Promise<DataDiagnosticsDraft> {
+  const repo = await getRepo();
+  return repo.diagnosticsDraft({ sessionId, includeText: false });
 }
 
 /** WO L2.9: replaces the night's `AppleSleepPhase` rows and marks `applePhasesFetched`. */

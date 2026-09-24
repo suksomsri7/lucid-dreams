@@ -90,7 +90,7 @@ export default function NightScreen() {
     if (!handle || stopping.current) return;
     stopping.current = true;
     await handle.stop();
-    // The real "ตื่นแล้ว" morning flow is WO L3.1 — until it exists, hold-to-stop lands
+    // The real "I'm awake" morning flow is WO L3.1 — until it exists, hold-to-stop lands
     // back on the tab shell rather than a dead-end screen (WO's own "or back to tabs").
     router.replace('/(tabs)');
   }
