@@ -8,10 +8,10 @@ import { Button, GlassCard, Icon, Screen, Seg, Sub, Switch, Title, colors, spaci
 import type { IconName } from '../../src/ui';
 
 /**
- * Onboarding screen (ก) — welcome + safety notes + consent (DESIGN §4-01 · mockup
+ * Onboarding screen (a) — welcome + safety notes + consent (DESIGN §4-01 · mockup
  * `01-onboarding.png`, left frame · `01-onboarding.body.html`). Ported structure/order
  * 1:1 from the mockup source: logo → title → tagline → 3-note card → accept checkbox →
- * (spacer) → "เริ่ม" button, language `Seg` top-right.
+ * (spacer) → the "start" button, language `Seg` top-right.
  */
 export default function OnboardingWelcomeScreen() {
   const { t } = useT();
@@ -100,17 +100,17 @@ export default function OnboardingWelcomeScreen() {
       </Pressable>
 
       {/*
-       * WO L1.3 asks for a "ส่งข้อความฝันให้ AI" switch on this card, default off — but
-       * `ledger/design-app/01-onboarding.body.html` (the mockup source, read before
+       * WO L1.3 asks for a "send my dream text to AI" switch on this card, default off —
+       * but `ledger/design-app/01-onboarding.body.html` (the mockup source, read before
        * writing any JSX) has no such control anywhere on this screen: the 3-note card
-       * ends at "ข้อมูลอยู่ในเครื่อง" and the only interactive element besides the
-       * checkbox/button is the language `Seg`. This is flagged as disagreement N-1 in
-       * `ledger/wo-notes/L1.3.md` — kept here (small, "soft" card, clearly secondary to
-       * the checkbox) because the WO instruction is explicit and the underlying
-       * `consentAi` state has to exist end-to-end regardless (oracle O2.3/O2.4); Fable's
-       * parity review is the right place to decide whether it stays here, moves to
-       * Settings (where DESIGN §2 rule 6 "ปิดได้" more naturally belongs), or is dropped
-       * from this screen until the mockup is updated to show it.
+       * ends at the "data stays on this phone" note, and the only interactive element
+       * besides the checkbox/button is the language `Seg`. This is flagged as
+       * disagreement N-1 in `ledger/wo-notes/L1.3.md` — kept here (small, "soft" card,
+       * clearly secondary to the checkbox) because the WO instruction is explicit and
+       * the underlying `consentAi` state has to exist end-to-end regardless (oracle
+       * O2.3/O2.4); Fable's parity review is the right place to decide whether it stays
+       * here, moves to Settings (where DESIGN §2 rule 6's opt-out more naturally
+       * belongs), or is dropped from this screen until the mockup is updated to show it.
        */}
       <View style={{ height: spacing.sm }} />
       <GlassCard variant="soft">

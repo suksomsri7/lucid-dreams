@@ -1,3 +1,9 @@
+/// <reference types="node" />
+// This file runs under plain Node at `expo prebuild`/config-eval time (never bundled
+// into the app), so it needs `@types/node` — the rest of `apps/mobile` deliberately does
+// not pull it in globally (`expo/types`, referenced via `expo-env.d.ts`, covers the
+// handful of Node-ish ambients the RN code itself needs, like `process.env`). Confirmed
+// this one-file reference does not change `pnpm typecheck`'s result for any other file.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -140,7 +146,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     // S10 permission-string localisation (WO L1.3) — see `withInfoPlistLocales` above.
-    withInfoPlistLocales,
+    // `@expo/config-types`'s `ExpoConfig['plugins']` type only lists `string | [string,
+    // any]` entries, even though `expo/config`'s actual plugin resolver accepts a bare
+    // `ConfigPlugin` function at runtime (confirmed by the prebuild run in
+    // `ledger/wo-notes/L1.3.md` — the file really does land). Cast to bridge that
+    // type-vs-runtime gap rather than widen the whole `plugins` array's type.
+    withInfoPlistLocales as unknown as string,
   ],
 
   extra: {

@@ -3,7 +3,7 @@
    explicit, reviewable localisation on equal footing with Thai (DESIGN §2 rule 7:
    "สองภาษาเท่ากัน"). Text mirrors `app.config.ts`'s `ios.infoPlist` verbatim. Copied
    into `ios/<project>/en.lproj/InfoPlist.strings` at prebuild time by
-   `plugins/withInfoPlistLocales.ts`. */
+   `withInfoPlistLocales` in `app.config.ts`. */
 
 "NSHealthShareUsageDescription" = "Lucid Dream reads your sleep and heart rate from Health so it can tell when you are dreaming and only whisper then.";
 "NSHealthUpdateUsageDescription" = "Lucid Dream saves the mindfulness session your Apple Watch runs while you sleep.";

@@ -198,7 +198,7 @@ export interface SpeechToText {
 }
 
 // ---------------------------------------------------------------------------
-// 6. NotificationsPermission — asked once, on the devices screen's "พร้อมแล้ว" (L1.3)
+// 6. NotificationsPermission — asked once, on the devices screen's "ready" button (L1.3)
 // ---------------------------------------------------------------------------
 
 /**

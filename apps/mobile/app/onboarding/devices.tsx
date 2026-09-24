@@ -28,17 +28,18 @@ const AUDIO_SEARCH_KEYS: TranslationKey[] = [
 type SearchableCategory = 'HEART' | 'AUDIO';
 
 /**
- * Onboarding screen (ข) — 3 device categories (DESIGN §4-01(b) · §3.2 step 3 · mockup
+ * Onboarding screen (b) — 3 device categories (DESIGN §4-01(b) · §3.2 step 3 · mockup
  * `01-onboarding.png` right frame / `01-onboarding.body.html`). Ear testing is
  * deliberately **not** here — the mockup's own caption says it moved to happen before
  * every night (L1.6), and the WO deliverables list for this file matches that, not the
- * stale "ทดสอบเสียง ▶ + slider 15%" line still sitting in `APP-RUN.md` §2's L1.3 summary
- * (see the disagreement note in `ledger/wo-notes/L1.3.md`).
+ * stale ear-test-with-a-volume-slider line still sitting in `APP-RUN.md` §2's L1.3
+ * one-line summary (see the disagreement note in `ledger/wo-notes/L1.3.md`).
  *
- * "พร้อมแล้ว" is never blocked on device counts here: pairing itself does not exist yet
- * in Phase 1 (Watch link is L2.2, BLE is L2.3), so a hard gate on this screen would make
- * onboarding impossible to finish on a fresh install. The real per-night gate
- * (`readiness.ts`, `DeviceRegistry`-shaped) is APP-RUN §2 L1.7's job.
+ * The "ready" button (`t('onboarding.devices.ready')`) is never blocked on device
+ * counts here: pairing itself does not exist yet in Phase 1 (Watch link is L2.2, BLE is
+ * L2.3), so a hard gate on this screen would make onboarding impossible to finish on a
+ * fresh install. The real per-night gate (`readiness.ts`, `DeviceRegistry`-shaped) is
+ * APP-RUN §2 L1.7's job.
  */
 export default function OnboardingDevicesScreen() {
   const { t } = useT();
@@ -288,9 +289,9 @@ interface DeviceSearchSheetProps {
 }
 
 /**
- * "ค้นหาอุปกรณ์อื่น" opens this — not in the mockup (which only shows the happy path),
- * but the WO asks for it and BLE scanning does not exist until L2.3, so every option is
- * shown with a "เร็ว ๆ นี้" chip instead of being a dead tap.
+ * The "find another device" row opens this — not in the mockup (which only shows the
+ * happy path), but the WO asks for it and BLE scanning does not exist until L2.3, so
+ * every option is shown with a "coming soon" chip instead of being a dead tap.
  */
 function DeviceSearchSheet({ category, onClose }: DeviceSearchSheetProps) {
   const { t } = useT();

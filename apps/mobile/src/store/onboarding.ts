@@ -2,18 +2,17 @@
  * Onboarding + consent, persisted locally (DESIGN §4-01 · APP-RUN §2 L1.3).
  *
  * `hasOnboarded` gates the root redirect (`app/_layout.tsx`) so onboarding is shown
- * exactly once. `consentSafety` records *that* the user ticked "รับทราบ", *which*
- * version of the safety notes they accepted, and *when* — required so a future policy
- * change can re-ask only the users who accepted an older version (oracle O2.2).
+ * exactly once. `consentSafety` records *that* the user ticked the accept checkbox,
+ * *which* version of the safety notes they accepted, and *when* — required so a future
+ * policy change can re-ask only the users who accepted an older version (oracle O2.2).
  *
- * `consentAi` (DESIGN §2 rule 6: "ส่งขึ้นเซิร์ฟเวอร์เฉพาะข้อความ … ปิดได้") defaults to
- * `false` here — opt-in, never assumed. There is **no toggle for it on the welcome
- * screen**: mockup `01-onboarding.png`/`.body.html` has no such control (verified by
- * reading the mockup source — see `ledger/wo-notes/L1.3.md` disagreement N-1), so adding
- * one would violate the "UI must match the mockup exactly" rule (APP-RUN §0.2 rule 9)
- * on the strength of a WO line that the actual design file does not back up. The state
- * still exists end-to-end (default off) so the setting has somewhere to live once a
- * later WO (Settings, L3.6) puts a real switch on it.
+ * `consentAi` (DESIGN §2 rule 6: send dream text to the server for AI scoring only if
+ * the user opts in, off by default) defaults to `false` here — opt-in, never assumed.
+ * Note: the mockup source (`01-onboarding.png`/`.body.html`, read before writing any
+ * JSX) has no toggle for this anywhere on the welcome screen — the WO's request for one
+ * is flagged as disagreement N-1 in `ledger/wo-notes/L1.3.md`. The state exists
+ * end-to-end (default off) regardless of where the WO/Fable ultimately decide the
+ * visible switch belongs (this screen vs. Settings, L3.6).
  *
  * TODO(L1.8): mirror this into `UserProfile.consentAi` / `.consentSafety` once
  * `packages/data`'s repo layer exists — this file must not import from `packages/data`
