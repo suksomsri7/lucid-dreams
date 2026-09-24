@@ -1,12 +1,12 @@
 {
  "run": "APP-RUN Phase 1",
  "wo": "L1.1",
- "step": "writing-oracle",
- "branch": null,
- "worktree": null,
+ "step": "building",
+ "branch": "wo/L1.1",
+ "worktree": "/root/projects/lucid-dreams-L1.1",
  "builder": "opus",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24",
+ "lastCheckpoint": "2026-09-24T08:30Z",
  "lastCommit": null,
  "blockedOn": []
 }
