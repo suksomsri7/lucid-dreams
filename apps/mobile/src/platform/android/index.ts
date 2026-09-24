@@ -26,6 +26,7 @@ import type {
   DeviceInfoReader,
   HealthImport,
   LiveStatus,
+  NotificationsPermission,
   PlatformBundle,
   SensorSource,
   SensorStatus,
@@ -132,7 +133,7 @@ class AndroidHealthImport implements HealthImport {
     return false;
   }
 
-  async requestReadAccess(): Promise<boolean> {
+  async requestAuthorization(): Promise<boolean> {
     return false;
   }
 
@@ -142,6 +143,16 @@ class AndroidHealthImport implements HealthImport {
 
   async fetchHeartRateSamples(): Promise<{ atIso: string; bpm: number }[]> {
     throw new NotImplementedError('Health Connect heart rate import');
+  }
+}
+
+class AndroidNotificationsPermission implements NotificationsPermission {
+  async isAvailable(): Promise<boolean> {
+    return false;
+  }
+
+  async requestAuthorization(): Promise<boolean> {
+    return false;
   }
 }
 
@@ -208,6 +219,7 @@ export function createStubPlatform(name: 'android' | 'unsupported'): PlatformBun
     liveStatus: new AndroidLiveStatus(),
     healthImport: new AndroidHealthImport(),
     speechToText: new AndroidSpeechToText(),
+    notifications: new AndroidNotificationsPermission(),
     battery: new AndroidBatteryReader(),
     deviceInfo: new AndroidDeviceInfoReader(deviceInfoPlatform),
   };

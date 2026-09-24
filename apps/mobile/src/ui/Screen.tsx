@@ -5,7 +5,7 @@
  */
 
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppBackground, NightBackground } from './AppBackground';
@@ -16,10 +16,24 @@ export interface ScreenProps {
   night?: boolean;
   /** Leaves room for the floating tab bar (default true — every tab screen has one). */
   withTabBarInset?: boolean;
+  /**
+   * Extra style merged onto the `ScrollView`'s `contentContainerStyle` (WO L1.3): a
+   * screen with a footer button pinned to the bottom (onboarding's welcome screen,
+   * mockup 01(a)) passes `{ flexGrow: 1 }` here so short content still pushes the
+   * button down instead of leaving it right under the last card. Every existing screen
+   * omits this and keeps its old layout untouched.
+   */
+  contentStyle?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
-export function Screen({ children, night: isNight = false, withTabBarInset = true, testID }: ScreenProps) {
+export function Screen({
+  children,
+  night: isNight = false,
+  withTabBarInset = true,
+  contentStyle,
+  testID,
+}: ScreenProps) {
   const insets = useSafeAreaInsets();
   const Background = isNight ? NightBackground : AppBackground;
 
@@ -32,6 +46,7 @@ export function Screen({ children, night: isNight = false, withTabBarInset = tru
             paddingTop: insets.top + spacing.lg,
             paddingBottom: insets.bottom + (withTabBarInset ? 120 : spacing.xxl),
           },
+          contentStyle,
         ]}
       >
         {children}
