@@ -256,11 +256,13 @@ const REVERB_TAU_DIVISOR = 6;
  * 8 % under another). That is not a personal fingerprint, it is a lottery for whether your
  * anchor sounds like the one the owner approved.
  *
- * So: the melody and the timbre are personal (and hashed), the room is a constant — this
- * particular one because, of the candidates measured against `.heavy/sigv2-C.wav`, its band
- * balance and RMS envelope sit closest to the file the owner listened to.
+ * So: the melody and the timbre are personal (and hashed), the room is a constant — and the
+ * `.9` is not decoration: 16 draws were rendered over the reference file's own notes and this
+ * one matched it best (band split 52/42/5 % against the reference's 57/39/3 % below
+ * 80 / 160 / 320 Hz, RMS-envelope correlation 0.85). Changing this string changes every
+ * user's anchor, so it is a decision, not a tunable.
  */
-const REVERB_ROOM_SEED = 'lucid.anchor.room.v2c';
+const REVERB_ROOM_SEED = 'lucid.anchor.room.v2c.9';
 
 /** A 64-sample box filter at 48 kHz ≈ a gentle shelf from ~1.5 kHz up: takes the fizz off. */
 const LOWPASS_WINDOW = 64;
