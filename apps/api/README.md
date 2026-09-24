@@ -16,34 +16,44 @@ Hono + SQLite (better-sqlite3) + OpenRouter · TypeScript ล้วน รัน
 
 ## เสียงสมอ = ลายน้ำ (`/ai/tts` + `/ai/anchor`)
 
-เสียงสมอของผู้ใช้ 1 คน = **1 ไฟล์ต่อภาษา** (DESIGN §2 ข้อ 3): ลายเสียง 1.2–1.8 วิ ที่สังเคราะห์จาก
-`seed` ของคนนั้น (`@lucid/engine` · `makeSignature` + `renderSignaturePcm`) แล้วต่อด้วยประโยคกระซิบ
-ที่เริ่มนาที **1.7 วิ** · ผสมด้วย `ffmpeg` เป็น mp3 128 kbps 48 kHz mono
+เสียงสมอของผู้ใช้ 1 คน = **1 ไฟล์ต่อภาษา** (DESIGN §2 ข้อ 3 · **แบบ v2-C มติเจ้าของ 24 ก.ย. ค่ำ**):
+ระฆังลึก **9.8 วิ** สังเคราะห์จาก `seed` ของคนนั้น (`@lucid/engine` · `makeSignature` +
+`renderSignaturePcm` — 4 โน้ต pentatonic minor midi 33–57 · โน้ตละ 2.0 วิ เริ่มห่างกัน 1.0 วิ ·
+attack 1.0 / release 1.8 ยกกำลัง 1.3 · ฮาร์มอนิก 1/2/4/6 คู่ละ ±0.8% · reverb 2.8 วิ mix 0.55)
+แล้ว **วางเสียงกระซิบทับ** (ไม่ใช่ต่อท้าย) ที่วินาที **2.6** — กระซิบ `You… are… dreaming…`
+เสียง Sarah ภาษาอังกฤษ **ครั้งเดียว ทุกคน ทุกภาษา UI** ชะลอด้วย `atempo=0.85` ·
+ระฆังเบา 0.9 กระซิบดัง 1.1 · ผสมด้วย `ffmpeg` เป็น mp3 128 kbps 48 kHz mono (ยาว ~9.8 วิ)
 
 ```bash
 # ขอลายน้ำ (ครั้งแรกเรนเดอร์ · ครั้งต่อไปมาจากแคช)
 curl -s -D- -o anchor-th.mp3 -X POST http://127.0.0.1:8799/ai/anchor \
   -H "authorization: Bearer $TOKEN" -H 'content-type: application/json' \
   -d '{"seed":"<seed ของผู้ใช้>","lang":"th"}'
-# → 200 audio/mpeg · x-cache: MISS|HIT · x-anchor-hash: 526246ef… · x-anchor-notes: 62,66,69,71
+# → 200 audio/mpeg · x-cache: MISS|HIT · x-anchor-hash: b26ef074… · x-anchor-notes: 43,48,55,52
+# (ตัวอย่างจริงของ seed 'owner-demo' lang th — ไฟล์ยาว 9.84 วิ 158 KB)
 ```
 
 | เรื่อง | ค่า |
 |---|---|
 | ผู้ให้บริการเสียง | **fal.ai → ElevenLabs `eleven-v3`** (มติเจ้าของ 24 ก.ย.) · `TTS_PROVIDER=fal` + `FAL_KEY` |
 | เสียงกระซิบเกิดจาก | แท็กเสียง `[whispers]` นำหน้าประโยค (ไม่มีพารามิเตอร์ style) · `voice` เริ่มต้น `Sarah` · `stability` 0.6 |
-| ราคา | **$0.10 / 1,000 ตัวอักษร** ⇒ ประโยค ~17 ตัวอักษร ≈ **0.2 สตางค์ต่อครั้ง** |
-| แคช | `tts_cache` · กระซิบ = `sha256(ประโยค｜ภาษา｜เสียง)` (ทุกคนใช้ร่วมกัน) · ลายน้ำ = `sha256(anchor｜seed｜ภาษา｜เสียง｜hash ลายเสียง｜hash ไฟล์กระซิบ)` — **แคชตลอดชีพ** ทั้งคู่ |
-| ค่าใช้จ่ายรวมที่คาดไว้ | 2 ภาษา × 1 ประโยค = **2 ครั้งทั้งระบบ** (~0.4 สตางค์) ไม่ว่ามีผู้ใช้กี่คน · ลายเสียงต่อคนสังเคราะห์ฟรีในเครื่อง |
+| ราคา | **$0.10 / 1,000 ตัวอักษร** ⇒ ประโยค 20 ตัวอักษร ≈ **0.2 สตางค์ต่อครั้ง** |
+| แคช | `tts_cache` · กระซิบ = `sha256(ประโยค｜en｜เสียง)` (ทุกคนใช้ร่วมกัน · ไม่แยกภาษาอีกแล้ว) · ลายน้ำ = `sha256(anchor｜v2c｜2600｜0.9｜1.1｜0.85｜seed｜ภาษา｜เสียง｜hash ลายเสียง｜hash ไฟล์กระซิบ)` — **แคชตลอดชีพ** ทั้งคู่ |
+| ค่าใช้จ่ายรวมที่คาดไว้ | 1 ประโยค 1 เสียง = **ครั้งเดียวทั้งระบบ** (~0.2 สตางค์) ไม่ว่ามีผู้ใช้กี่คน กี่ภาษา · ระฆังต่อคนสังเคราะห์ฟรีในเครื่อง (~1 วิ CPU) |
+| เปลี่ยนค่าผสม = ไฟล์ใหม่ | ทุกตัวเลขในการผสม (2600 / 0.9 / 1.1 / 0.85) อยู่ในกุญแจแคช + คำนำหน้า `anchor｜v2c` ⇒ ของเก่าจาก v1 (ลายเสียง 1.5 วิ · กระซิบต่อท้าย 1.7 วิ) **ไม่ถูกเสิร์ฟอีก** ไม่ต้องล้าง `tts_cache` มือ |
 | ไม่มีกุญแจ / ไม่มี ffmpeg | `501 NOT_CONFIGURED` + `detail` บอกว่าขาดอะไร · ของที่แคชไว้แล้วยังเสิร์ฟได้ (กระซิบ) |
 
 `voice` ใน body ของ `/ai/anchor` มีไว้ให้ **เจ้าของลองเทียบเสียง** ก่อนเคาะ (`TTS_VOICE`) เท่านั้น —
 ไม่ใช่ตัวเลือกของผู้ใช้ (§2 ข้อ 3: ไม่มีตัวเลือกเสียงหญิง/ชาย/เสียงของฉัน)
 
+`lang` ใน body **ไม่เปลี่ยนเสียงที่ได้ยินแล้ว** (มติ v2-C): กระซิบเป็นอังกฤษเสียงเดียวทุกคน · `lang`
+เหลือหน้าที่ 2 อย่างคือแยกแถวแคช/`hash` (คนละไฟล์ต่อภาษา ไบต์เท่ากัน) และตัวหนังสือบนจอ
+(`anchorPhraseFor`) — ไม่ได้ส่งให้ผู้ให้บริการเสียงแล้ว (ส่ง `lang: 'en'` ตายตัว)
+
 ## รันในเครื่อง (ไม่ต้องมีกุญแจ)
 
 ```bash
-pnpm --filter @lucid/api test            # 42 ข้อ (ข้อสอบ L1.5 11 + builder 10 + L1.5b 21)
+pnpm --filter @lucid/api test            # 47 ข้อ (L1.5 11 + builder 10 + L1.5b 21 + L1.6s 5)
 cd apps/api
 cp .env.example .env                     # เติมค่าเอง — .env ไม่เข้า repo
 AI_ALLOW_MOCK=1 TTS_PROVIDER=mock PORT=8799 API_DB_PATH=./data/dev.sqlite \
@@ -61,9 +71,9 @@ AI_ALLOW_MOCK=1 TTS_PROVIDER=mock PORT=8799 API_DB_PATH=./data/dev.sqlite \
 1. `cp apps/api/.env.example apps/api/.env` → เติม `OPENROUTER_API_KEY` · `chmod 600 apps/api/.env`
 2. `mkdir -p /var/lib/lucid-api` (ตรงกับ `API_DB_PATH`)
 3. `cp apps/api/systemd/lucid-api.service /etc/systemd/system/` → `systemctl daemon-reload` → `systemctl enable --now lucid-api`
-4. DNS `lucid.suksomsri.cloud` → VPS · `certbot --nginx -d lucid.suksomsri.cloud`
+4. DNS `dreaming.suksomsri.cloud` → VPS · `certbot --nginx -d dreaming.suksomsri.cloud`
 5. nginx (ท่อนล่าง) → `nginx -t && systemctl reload nginx`
-6. ตรวจ: `curl -s https://lucid.suksomsri.cloud/health`
+6. ตรวจ: `curl -s https://dreaming.suksomsri.cloud/health`
 
 ### nginx
 
@@ -76,10 +86,10 @@ server {
     listen 443 ssl;
     listen [::]:443 ssl;
     http2 on;
-    server_name lucid.suksomsri.cloud;
+    server_name dreaming.suksomsri.cloud;
 
-    ssl_certificate     /etc/letsencrypt/live/lucid.suksomsri.cloud/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/lucid.suksomsri.cloud/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/dreaming.suksomsri.cloud/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/dreaming.suksomsri.cloud/privkey.pem;
 
     # แอปกันที่ 32 KB อยู่แล้ว — กันซ้ำที่ nginx ให้ไม่ต้องอ่านเข้ามาเลย
     client_max_body_size 64k;
@@ -105,7 +115,7 @@ server {
 server {
     listen 80;
     listen [::]:80;
-    server_name lucid.suksomsri.cloud;
+    server_name dreaming.suksomsri.cloud;
     return 301 https://$host$request_uri;
 }
 ```
@@ -120,7 +130,7 @@ server {
 | `src/providers/mock.ts` | provider สำหรับ QC (ไม่ใช้เครือข่าย · ผลเหมือนเดิมทุกครั้ง) |
 | `src/providers/tts.ts` | สัญญา TTS + ตัวปลอมเงียบ + ตัวดมชนิดไฟล์เสียง |
 | `src/providers/tts-fal.ts` | อะแดปเตอร์ fal.ai → ElevenLabs `eleven-v3` (แท็ก `[whispers]` · โหลด mp3 · `TtsError`) |
-| `src/anchor.ts` | ผสมลายน้ำด้วย `ffmpeg` (PCM→WAV · `adelay` 1700 ms · `amix normalize=0` · mp3 128k) |
+| `src/anchor.ts` | ผสมลายน้ำด้วย `ffmpeg` (PCM→WAV · กระซิบ `atempo=0.85` → `volume=1.1` → `adelay` 2600 ms · ระฆัง `volume=0.9` · `amix normalize=0` · mp3 128k) |
 | `src/logger.ts` | log JSON บรรทัดละคำขอ · ไม่มีข้อความผู้ใช้/โทเคน (§0.5 S5) |
 | `src/main.ts` | จุดเริ่มของ prod (อ่าน env · SIGTERM ปิดสวย) |
 | `scripts/smoke-sqlite.ts` | ตรวจว่าโมดูล native ใช้ได้บนเครื่องนี้ |

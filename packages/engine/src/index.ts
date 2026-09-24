@@ -114,6 +114,7 @@ export {
   ANCHOR_PHRASE_TH,
   ANCHOR_PHRASE_EN,
   anchorPhraseFor,
+  anchorWhisperText,
   anchorPhraseKey,
   type SignatureEnvelope,
   type SignatureTimbre,
@@ -121,6 +122,7 @@ export {
   makeSignature,
   midiToHz,
   renderSignaturePcm,
+  renderSignatureShortPcm,
 } from './signature';
 
 export {
@@ -311,3 +313,71 @@ export {
 
 /** Engine package version — reported inside diagnostics so QC knows what produced a file. */
 export const ENGINE_VERSION = '0.1.0';
+
+// --- WO L3e (L2.3 BLE + L3.2 AI score + L3.4 learning loop) ---------------
+
+export {
+  HRM_FLAG_UINT16,
+  HRM_FLAG_CONTACT_DETECTED,
+  HRM_FLAG_CONTACT_SUPPORTED,
+  HRM_FLAG_ENERGY,
+  HRM_FLAG_RR,
+  RR_TICKS_PER_SECOND,
+  RR_MIN_MS,
+  RR_MAX_MS,
+  type HeartRateMeasurement,
+  parseHeartRateMeasurement,
+  rmssd,
+  sdnn,
+  type SensorSample,
+  type SensorHubOptions,
+  type SensorHub,
+  createSensorHub,
+} from './ble';
+
+export {
+  type MessageLang,
+  AI_MATCHED_TERMS_MAX,
+  AI_TAGS_MAX,
+  AI_SUMMARY_MAX,
+  AiScoreSchema,
+  type AiScore,
+  sanitizeAiScore,
+  FORBIDDEN_CLAIMS,
+  containsForbiddenClaim,
+  type MorningReportFacts,
+  type MorningResultInput,
+  morningResultMessage,
+} from './aiScore';
+
+export {
+  ARM_VOLUMES,
+  ARM_DELAYS_SEC,
+  ARM_CUE_TYPES,
+  type ArmVolume,
+  type ArmDelaySec,
+  type ArmCueType,
+  type Arm,
+  ARMS,
+  armKey,
+  armFromKey,
+  playerCueType,
+  type NightRewardInput,
+  REWARD_LUCID_YES,
+  REWARD_LUCID_UNSURE,
+  REWARD_THEME_WEIGHT,
+  REWARD_WOKE_PENALTY,
+  REWARD_POOR_SLEEP_PENALTY,
+  POOR_SLEEP_BELOW,
+  nightReward,
+  type UniformSource,
+  type BetaPosterior,
+  PICK_SHARPENING,
+  type BanditOptions,
+  type BanditHandle,
+  createBandit,
+  PERSONAL_MODEL_MIN_NIGHTS,
+  type PersonalModel,
+  personalModelFromBandit,
+  explainLearning,
+} from './bandit';

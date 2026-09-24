@@ -4,7 +4,7 @@
 #   systemctl daemon-reload && systemctl enable --now lucid-api
 #   journalctl -u lucid-api -f -o cat | jq      # log เป็น JSON บรรทัดละคำขอ
 [Unit]
-Description=Lucid Dream AI API (Hono + SQLite + OpenRouter)
+Description=Dreaming AI API (Hono + SQLite + OpenRouter)
 Documentation=file:/root/projects/lucid-dreams/apps/api/README.md
 After=network-online.target
 Wants=network-online.target

@@ -6,7 +6,8 @@
  *   `POST   /device`   — hand out a device token at onboarding (§0.5 S2).
  *   `POST   /ai/plan`  — conversation ➜ `DreamPlan`, validated against the engine schema.
  *   `POST   /ai/tts`   — render (and cache) the whispered anchor sentence.
- *   `POST   /ai/anchor`— the whole personal watermark file: melody + whisper, mixed (§2 ข้อ 3).
+ *   `POST   /ai/anchor`— the whole personal watermark file: the v2-C bell with the single
+ *                        English whisper mixed over it at 2.6 s (§2 ข้อ 3, มติ 24 ก.ย. ค่ำ).
  *   `DELETE /device`   — revoke the token; the server side of "ลบทั้งหมด" (§0.5 S4).
  *
  * Guards, in the order they run for `/ai/*` — the order is the design, not an accident:
@@ -35,6 +36,7 @@ import { getConnInfo } from '@hono/node-server/conninfo';
 import {
   DreamPlanSchema,
   anchorPhraseFor,
+  anchorWhisperText,
   makeSignature,
   parseDreamPlan,
   renderSignaturePcm,
@@ -51,7 +53,8 @@ import { z } from 'zod';
 import {
   ANCHOR_SAMPLE_RATE,
   ANCHOR_SIGNATURE_GAIN,
-  ANCHOR_WHISPER_DELAY_MS,
+  ANCHOR_WHISPER_ATEMPO,
+  ANCHOR_WHISPER_GAIN,
   AnchorMixError,
   mixAnchor,
   pcmToWav,
@@ -501,8 +504,9 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
    *   2. **The melody is free and deterministic** (`makeSignature` + `renderSignaturePcm`
    *      out of `@lucid/engine`), so it is never cached: rebuilding it is cheaper than a
    *      cache lookup, and it is the same bytes on the phone and here.
-   *   3. **The whisper comes from the shared cache**, which means the second user in a
-   *      language never pays for it and the anchor cache miss path costs nothing but CPU.
+   *   3. **The whisper comes from the shared cache** — and since v2-C there is exactly one
+   *      whisper for the whole product (one sentence, one voice, English), so the vendor is
+   *      paid **once, ever**: every later anchor, in any language, costs nothing but CPU.
    *   4. **The mix is cached under the hash of everything that went into it** — including
    *      the hash of the whisper bytes, so re-rendering the sentence with a different voice
    *      produces a different file instead of quietly serving yesterday's.
@@ -533,11 +537,17 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
     const voiceKey = parsed.data.voice?.trim() || 'whisper';
 
     const signature = makeSignature(seed, lang);
-    const phrase = anchorPhraseFor(lang);
+
+    // v2-C (owner decision 24 ก.ย. evening): **one** sentence, in English, in one voice, for
+    // every user — Thai TTS does not whisper naturally enough yet. So the vendor call says
+    // `lang: 'en'` whatever the UI language, and one cached clip serves the whole world; the
+    // request's `lang` only decides which *file* the user gets (below) and which language the
+    // screen text around the anchor is in.
+    const phrase = anchorWhisperText();
 
     const spoken = await whisper(
-      whisperKey(phrase, lang, voiceKey),
-      { text: phrase, lang, voice: 'whisper', voiceName: parsed.data.voice },
+      whisperKey(phrase, 'en', voiceKey),
+      { text: phrase, lang: 'en', voice: 'whisper', voiceName: parsed.data.voice },
       device.deviceId,
     );
     if (!spoken.ok) {
@@ -546,13 +556,26 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
       return c.json({ error: spoken.error, detail }, whisperStatus[spoken.error]);
     }
 
-    // Everything that can change the bytes is in the key, including the two mix numbers:
-    // the day the owner says "start the whisper a little later", the old files stop being
-    // found instead of being served forever (the melody and the sentence are in there via
-    // `signature.hash` and the hash of the clip). The `anchor|` prefix keeps these rows in
-    // a different namespace from the plain `/ai/tts` ones.
+    // Everything that can change the bytes is in the key, including every mix number: the day
+    // the owner says "start the whisper a little later", the old files stop being found
+    // instead of being served forever (the melody and the sentence are in there via
+    // `signature.hash` and the hash of the clip). The `anchor|v2c|` prefix keeps these rows in
+    // a different namespace from the plain `/ai/tts` ones **and** from the v1 mixes: v2-C is a
+    // different sound with the same inputs, so the version has to be in the key or every
+    // existing install would keep being served the 1.5 s melody from yesterday.
     const key = sha256(
-      `anchor|${ANCHOR_WHISPER_DELAY_MS}|${ANCHOR_SIGNATURE_GAIN}|${seed}|${lang}|${voiceKey}|${signature.hash}|${sha256(spoken.audio.audio)}`,
+      [
+        'anchor|v2c',
+        signature.whisperAtMs,
+        ANCHOR_SIGNATURE_GAIN,
+        ANCHOR_WHISPER_GAIN,
+        ANCHOR_WHISPER_ATEMPO,
+        seed,
+        lang,
+        voiceKey,
+        signature.hash,
+        sha256(spoken.audio.audio),
+      ].join('|'),
     );
 
     const headers = (cache: 'HIT' | 'MISS'): Record<string, string> => ({
@@ -576,6 +599,12 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
         whisper: spoken.audio.audio,
         whisperContentType: spoken.audio.contentType === 'audio/wav' ? 'audio/wav' : 'audio/mpeg',
         ffmpegPath,
+        // The engine owns *when* the whisper lands (it is part of the signature), the mixer
+        // owns how loud each side is.
+        delayMs: signature.whisperAtMs,
+        signatureGain: ANCHOR_SIGNATURE_GAIN,
+        whisperGain: ANCHOR_WHISPER_GAIN,
+        atempo: ANCHOR_WHISPER_ATEMPO,
       });
     } catch (error) {
       // Our own tool failed, not the client and not the vendor — so this is a 500, and the

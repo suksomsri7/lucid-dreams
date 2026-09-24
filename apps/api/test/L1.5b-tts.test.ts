@@ -362,6 +362,27 @@ async function decode(mp3: Buffer): Promise<{ samples: Int16Array; sampleRate: n
   return { samples: new Int16Array(aligned), sampleRate: 48_000 };
 }
 
+/**
+ * Amplitude of one frequency between two times — a Goertzel filter. Needed since v2-C: the
+ * whisper is mixed *over* the bell, so "is the whisper playing" is a question about one
+ * frequency, not about how loud the file is.
+ */
+function toneRms(samples: Int16Array, hz: number, fromMs: number, toMs: number, sampleRate = 48_000): number {
+  const from = Math.max(0, Math.floor((fromMs / 1000) * sampleRate));
+  const to = Math.min(samples.length, Math.floor((toMs / 1000) * sampleRate));
+  const size = to - from;
+  if (size <= 0) return 0;
+  const coefficient = 2 * Math.cos((2 * Math.PI * hz) / sampleRate);
+  let s1 = 0;
+  let s2 = 0;
+  for (let i = 0; i < size; i += 1) {
+    const s0 = (samples[from + i] as number) / 32768 + coefficient * s1 - s2;
+    s2 = s1;
+    s1 = s0;
+  }
+  return (2 * Math.sqrt(Math.max(0, s1 * s1 + s2 * s2 - coefficient * s1 * s2))) / size;
+}
+
 function rms(samples: Int16Array, fromMs: number, toMs: number, sampleRate = 48_000): number {
   const from = Math.max(0, Math.floor((fromMs / 1000) * sampleRate));
   const to = Math.min(samples.length, Math.floor((toMs / 1000) * sampleRate));
@@ -416,7 +437,11 @@ describe.skipIf(!ffmpegPath)('L1.5b POST /ai/anchor', () => {
     expect(isMp3).toBe(true);
   });
 
-  it('B2 the melody plays first and the whisper starts at 1700 ms', async () => {
+  // Updated for v2-C (owner decision 24 ก.ย. ค่ำ · Fable's call on L1.6s): the bell is now
+  // 9.8 s and the whisper plays **over** it from 2.6 s, so the file is as long as the bell and
+  // there is no silent gap between the two any more. What is still worth pinning here is that
+  // the mix keeps the engine's own length and that both voices are audible.
+  it('B2 the file is as long as the bell, and the whisper plays over it', async () => {
     const seed = 'seed-b2';
     const response = await postAnchor(main.url, main.token, { seed, lang: 'th' });
     const mp3 = Buffer.from(await response.arrayBuffer());
@@ -425,19 +450,21 @@ describe.skipIf(!ffmpegPath)('L1.5b POST /ai/anchor', () => {
     const signature = makeSignature(seed, 'th');
     const totalMs = (samples.length / 48_000) * 1000;
 
-    // The file is as long as delay + whisper (the melody is at most 1800 ms, so the tail
-    // after 1800 ms can only be the whisper). ±120 ms for the encoder's padding.
-    expect(totalMs).toBeGreaterThan(ANCHOR_WHISPER_DELAY_MS + WHISPER_MS - 120);
-    expect(totalMs).toBeLessThan(ANCHOR_WHISPER_DELAY_MS + WHISPER_MS + 250);
+    // The bell decides the length; ±300 ms for the encoder's padding.
+    expect(Math.abs(totalMs - signature.durationMs)).toBeLessThan(300);
 
-    // Something is playing while the melody is on…
+    // Something is playing while the bell is on…
     expect(rms(samples, 200, signature.durationMs - 100)).toBeGreaterThan(0.01);
-    // …and something is still playing after the melody has ended: that is the whisper.
-    expect(rms(samples, 1850, ANCHOR_WHISPER_DELAY_MS + WHISPER_MS - 50)).toBeGreaterThan(0.01);
-    // and the gap between the melody and the whisper is quiet
-    expect(rms(samples, signature.durationMs + 20, ANCHOR_WHISPER_DELAY_MS - 20)).toBeLessThan(
-      rms(samples, 1850, ANCHOR_WHISPER_DELAY_MS + WHISPER_MS - 50),
-    );
+    // …and the whisper is in there, on top of it. Total RMS cannot show that any more (the
+    // bell is at its loudest right before 2.6 s), so ask for the whisper's own frequency: a
+    // Goertzel over 500 ms is ~2 Hz wide, far narrower than the gap to any partial of the bell.
+    //
+    // 440 Hz, not 320: the request says `lang: 'th'` but since v2-C the server asks the vendor
+    // in **English** whatever the UI language, so the fake returns its `en` clip. That is the
+    // decision, visible in the audio.
+    const during = toneRms(samples, 440, ANCHOR_WHISPER_DELAY_MS + 100, ANCHOR_WHISPER_DELAY_MS + WHISPER_MS);
+    const before = toneRms(samples, 440, 1_500, 2_500);
+    expect(during).toBeGreaterThan(before * 5);
   });
 
   it('B3 second call → x-cache HIT, identical bytes, and the vendor is not called again', async () => {
@@ -479,7 +506,10 @@ describe.skipIf(!ffmpegPath)('L1.5b POST /ai/anchor', () => {
     }
   });
 
-  it('B5 one file per language: same melody, different file', async () => {
+  // Updated for v2-C: there is exactly one whisper — English, one voice, for every user — so
+  // the two languages are two cache rows holding the *same* audio. `L1.6s-anchor.test.ts` S4
+  // covers the vendor side of that decision (one paid call, `lang: 'en'`).
+  it('B5 one row per language, one sound for everybody', async () => {
     const seed = 'seed-b5';
     const th = await postAnchor(main.url, main.token, { seed, lang: 'th' });
     const en = await postAnchor(main.url, main.token, { seed, lang: 'en' });
@@ -487,9 +517,9 @@ describe.skipIf(!ffmpegPath)('L1.5b POST /ai/anchor', () => {
     // The engine keeps the notes and changes the hash (signature oracle G4) …
     expect(en.headers.get('x-anchor-notes')).toBe(th.headers.get('x-anchor-notes'));
     expect(en.headers.get('x-anchor-hash')).not.toBe(th.headers.get('x-anchor-hash'));
-    // … and the two whispers are two different cache rows, so two different files.
+    // … while the audio itself no longer depends on the UI language.
     const [a, b] = [Buffer.from(await th.arrayBuffer()), Buffer.from(await en.arrayBuffer())];
-    expect(a.equals(b)).toBe(false);
+    expect(a.equals(b)).toBe(true);
   });
 
   it('B6 guards: no token → 401 · bad body → 400', async () => {

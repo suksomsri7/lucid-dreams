@@ -2,7 +2,7 @@
  * ข้อสอบ L1.6 — เสียงสมอ = ลายน้ำส่วนตัว + ทดสอบจำเสียง (หูซ้าย/หูขวา หน้าละข้าง)
  * วางที่ packages/engine/test/L1.6-anchor.test.ts · builder ห้ามแก้
  * สัญญา API (export จาก packages/engine):
- *   makeSignature(seed: number|string, lang: 'th'|'en') → { seed, lang, notes: number[] (3–4 midi), envelope: {attackMs, decayMs, ...}, durationMs (≈1500), hash: string }
+ *   makeSignature(seed: number|string, lang: 'th'|'en') → { seed, lang, notes: number[] (4 midi ใน 33–57 · pentatonic minor · ก้าว ≤ 7), envelope: {attackMs, releaseMs, ...}, timbre, noteMs (≈2000), gapMs (≈1000), reverb: {decayMs, mix}, durationMs (8000–12000 · v2-C มติเจ้าของ 24 ก.ย.), whisperAtMs (2600), hash: string }
  *   renderSignaturePcm(sig, sampleRate=48000) → Float32Array  (mono · ค่าใน [-1,1] · ยาว ≈ durationMs)
  *   createMemorizationTest(opts: { side:'L'|'R'; rng: () => number; volume: number }) → MemorizationTest
  *     .state: 'IDLE'|'PLAYING'|'ASKING'|'PASSED' · .rounds (2–5) · .gapsMs number[] (1000–3000) · .attempts
@@ -19,14 +19,19 @@ function seededRng(seed: number) { let s = seed >>> 0; return () => { s = (s + 0
 describe('L1.6 signature (ลายน้ำ)', () => {
   it('G1 seed เดียวกัน = ลายเดียวกันทุกฟิลด์', () => { expect(JSON.stringify(makeSignature('user-1', 'th'))).toBe(JSON.stringify(makeSignature('user-1', 'th'))); });
   it('G2 1,000 seed ไม่มี hash ซ้ำ', () => { const set = new Set<string>(); for (let i = 0; i < 1000; i++) set.add(makeSignature(`u${i}`, 'th').hash); expect(set.size).toBe(1000); });
-  it('G3 โน้ต 3–4 ตัว midi 48–84 · ยาว 1200–1800 ms', () => { const s = makeSignature('u', 'en'); expect(s.notes.length).toBeGreaterThanOrEqual(3); expect(s.notes.length).toBeLessThanOrEqual(4); for (const n of s.notes) { expect(n).toBeGreaterThanOrEqual(48); expect(n).toBeLessThanOrEqual(84); } expect(s.durationMs).toBeGreaterThanOrEqual(1200); expect(s.durationMs).toBeLessThanOrEqual(1800); });
-  it('G4 ภาษาต่างกัน ลายเสียง (โน้ต) เท่ากัน แต่ hash ต่างกัน (คนละไฟล์)', () => { const a = makeSignature('u', 'th'), b = makeSignature('u', 'en'); expect(a.notes).toEqual(b.notes); expect(a.hash).not.toBe(b.hash); });
-  it('G5 PCM อยู่ใน [-1,1] · ความยาวตรง · ไม่มี NaN · ไม่เงียบ · หัว-ท้ายเฟด', () => {
+  it('G3 (v2-C) โน้ต 4 ตัว midi 33–57 · ก้าว ≤ 7 · ยาวรวม 8000–12000 ms · whisperAtMs 2600', () => { const s = makeSignature('u', 'en'); expect(s.notes.length).toBe(4); for (let i = 0; i < 4; i++) { expect(s.notes[i]).toBeGreaterThanOrEqual(33); expect(s.notes[i]).toBeLessThanOrEqual(57); if (i > 0) expect(Math.abs(s.notes[i] - s.notes[i - 1])).toBeLessThanOrEqual(7); } expect(s.durationMs).toBeGreaterThanOrEqual(8000); expect(s.durationMs).toBeLessThanOrEqual(12000); expect(s.whisperAtMs).toBe(2600); });
+  it('G4 ภาษาต่างกัน ลายเสียง (โน้ต) เท่ากัน · hash ต่างกัน · anchorPhraseFor คืน EN เสมอ (มติ: กระซิบ Sarah EN เสียงเดียว)', () => { const a = makeSignature('u', 'th'), b = makeSignature('u', 'en'); expect(a.notes).toEqual(b.notes); expect(a.hash).not.toBe(b.hash); expect((engine as any).anchorWhisperText()).toBe('You… are… dreaming…'); });
+  it('G5 PCM อยู่ใน [-1,1] · ความยาวตรง · ไม่มี NaN · ไม่เงียบ · หัว-ท้ายเฟด (สุ่มตรวจ ไม่วน expect ทุกแซมเปิล)', () => {
     const s = makeSignature('u', 'th'); const pcm: Float32Array = renderSignaturePcm(s, 48000);
-    expect(Math.abs(pcm.length - (s.durationMs / 1000) * 48000)).toBeLessThan(200);
-    let peak = 0; for (const v of pcm) { expect(Number.isNaN(v)).toBe(false); peak = Math.max(peak, Math.abs(v)); }
-    expect(peak).toBeLessThanOrEqual(1); expect(peak).toBeGreaterThan(0.2);
+    expect(Math.abs(pcm.length - (s.durationMs / 1000) * 48000)).toBeLessThan(4800);
+    let peak = 0, nan = 0; for (let i = 0; i < pcm.length; i++) { const v = pcm[i] as number; if (v !== v) nan++; const a = v < 0 ? -v : v; if (a > peak) peak = a; }
+    expect(nan).toBe(0); expect(peak).toBeLessThanOrEqual(1); expect(peak).toBeGreaterThan(0.2);
     expect(Math.abs(pcm[0] ?? 1)).toBeLessThan(0.05); expect(Math.abs(pcm[pcm.length - 1] ?? 1)).toBeLessThan(0.05);
+  });
+  it('G6 renderSignatureShortPcm(sig, 3) = ตัวอย่างสั้น ≈3 วิ สำหรับหน้าทดสอบหู · เฟดท้าย · ไม่มี NaN', () => {
+    const s = makeSignature('u', 'th'); const short: Float32Array = (engine as any).renderSignatureShortPcm(s, 3, 48000);
+    expect(Math.abs(short.length - 3 * 48000)).toBeLessThan(4800); let peak = 0; for (let i = 0; i < short.length; i++) { const v = short[i] as number; expect(v === v).toBe(true); peak = Math.max(peak, Math.abs(v)); }
+    expect(peak).toBeGreaterThan(0.2); expect(Math.abs(short[short.length - 1] ?? 1)).toBeLessThan(0.05);
   });
 });
 
