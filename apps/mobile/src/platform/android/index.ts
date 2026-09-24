@@ -97,6 +97,19 @@ class AndroidAudioPlayer implements AudioPlayer {
     throw new NotImplementedError('Android cue playback');
   }
 
+  /**
+   * Android has no build in Phase 1, and this same stub is what the **web** QC bundle
+   * gets (`createStubPlatform('unsupported')`, see the file header) — the plan-card
+   * preview and ear-test screens still need to call *something* there without crashing
+   * the export, so this logs and resolves instead of throwing like the rest of the
+   * class. Kept deliberately silent about volume/pan (nothing plays) — a QC screenshot
+   * never depends on sound.
+   */
+  async playOneShot(options: { source: string; volume: number; pan?: number }): Promise<void> {
+    // eslint-disable-next-line no-console -- intentional web/Android stub log (WO L1.7ui)
+    console.log('[AudioPlayer.playOneShot] stub (no native audio on this platform)', options);
+  }
+
   getStatus(): AudioPlayerStatus {
     return { state: 'idle', volume: 0, route: null, error: 'NOT_IMPLEMENTED' };
   }
