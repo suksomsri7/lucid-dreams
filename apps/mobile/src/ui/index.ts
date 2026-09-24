@@ -19,3 +19,4 @@ export * from './AppBackground';
 export * from './Type';
 export * from './Row';
 export * from './Screen';
+export * from './StepNav';

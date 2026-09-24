@@ -15,11 +15,21 @@
  * - `?fixture=devices` — populate `DeviceRegistry` with a connected Apple Watch Series 9
  *   (84% battery) and Sleep A20 (92% battery), matching mockup 01(b) exactly.
  * - `?fixture=accepted` — pre-tick the welcome screen's consent checkbox (mockup 01(a)).
+ * - `?fixture=ear-passed` — WO L1.7ui: same device set as `devices`, plus both ear
+ *   tests already recorded as passed, for the `earTest.correct` / "both ears ready"
+ *   states on `app/plan/ear-left.tsx` / `ear-right.tsx` (mockup `04-dream-plan.png` c/d).
+ * - `?fixture=plan` (WO L1.7ui) — or implicitly, any of the three fixtures above: seeds
+ *   `useNightState()`'s plan with the same whale-shark + sea-turtle plan
+ *   `?fixture=advisor-plan` shows mid-conversation, so every `app/plan/*` screen can be
+ *   screenshotted directly by URL without walking through the advisor chat first.
  */
 
 import { Platform } from 'react-native';
 
+import type { DreamPlan } from '../advisor/types';
 import { deviceRegistry, HEADPHONES_DEVICE_ID, WATCH_DEVICE_ID } from '../devices/registry';
+import { translate, type Locale } from '../i18n';
+import { getNightState, saveTonightPlan } from '../store/night';
 import { completeOnboarding } from '../store/onboarding';
 
 const FIXTURES_ENABLED = __DEV__ || Platform.OS === 'web';
@@ -39,8 +49,29 @@ function readFixtureParam(): string | null {
  * the real (empty, on web) platform read reported, rather than adding a second, hidden
  * entry alongside it.
  */
+/** `?fixture=devices` or `?fixture=ear-passed` (which builds on top of the same device set). */
+export function devicesFixtureRequested(): boolean {
+  const value = readFixtureParam();
+  return value === 'devices' || value === 'ear-passed';
+}
+
+export function earPassedFixtureRequested(): boolean {
+  return readFixtureParam() === 'ear-passed';
+}
+
+/**
+ * `platform.battery`/`platform/dnd.ts` have no real reading on web (the QC bundle gets
+ * the same stub `AndroidBatteryReader` Android does — always `null`, see
+ * `platform/android/index.ts`), so `app/plan/devices.tsx` cannot show "iPhone is
+ * charging, 78%" or pass the phone/DND half of `evaluateReadiness` there without this — matches
+ * mockup 04(b)'s phone card exactly (78%, charging, DND already allowing the app).
+ */
+export function fixturePhoneStatus(): { charging: boolean; battery: number } | null {
+  return devicesFixtureRequested() ? { charging: true, battery: 0.78 } : null;
+}
+
 export function applyDeviceFoundFixture(): void {
-  if (readFixtureParam() !== 'devices') return;
+  if (!devicesFixtureRequested()) return;
   const now = new Date().toISOString();
   deviceRegistry.add({
     id: WATCH_DEVICE_ID,
@@ -80,15 +111,49 @@ export function advisorFixtureRequested(): AdvisorFixture | null {
 }
 
 /**
- * These fixtures screenshot the advisor room itself (tab 1), which `app/_layout.tsx`'s
- * onboarding gate would otherwise redirect away from on a fresh, un-onboarded web QC
- * session (`hasOnboarded` starts `false`, `src/store/onboarding.ts`). Called once from
- * `RootLayout` — safe to call every render, `completeOnboarding()` is already a no-op
- * once `hasOnboarded` is `true`. Deliberately narrow to `advisor-*`: the L1.3 fixtures
- * (`devices`/`accepted`) screenshot the onboarding screens themselves and must NOT skip
- * past them this way.
+ * These fixtures screenshot a screen that lives *past* onboarding (the advisor room,
+ * `app/plan/*` — WO L1.7ui), which `app/_layout.tsx`'s onboarding gate would otherwise
+ * redirect away from on a fresh, un-onboarded web QC session (`hasOnboarded` starts
+ * `false`, `src/store/onboarding.ts`). Called once from `RootLayout` — safe to call
+ * every render, `completeOnboarding()` is already a no-op once `hasOnboarded` is `true`.
+ * Deliberately **not** applied for the `devices`/`accepted` fixtures — those two
+ * screenshot the onboarding screens themselves and must NOT skip past them this way.
  */
 export function applyOnboardingBypassForAdvisorFixture(): void {
-  if (advisorFixtureRequested() === null) return;
+  const value = readFixtureParam();
+  const bypasses = value === 'advisor-start' || value === 'advisor-plan' || value === 'plan' || value === 'ear-passed';
+  if (!bypasses) return;
   completeOnboarding();
+}
+
+export function planFixtureRequested(): boolean {
+  const value = readFixtureParam();
+  return value === 'plan' || value === 'ear-passed';
+}
+
+/**
+ * Seeds `useNightState()`'s plan with the same whale-shark + sea-turtle plan
+ * `?fixture=advisor-plan` shows mid-conversation (`adapter.ts`'s mock `buildThemePlan`,
+ * duplicated here rather than imported — that function is private to the mock adapter
+ * and this is a dev-only fixture, not a second source of truth for the real plan shape)
+ * — WO L1.7ui, so `app/plan/*` can be screenshotted directly by URL. No-ops once a real
+ * plan already exists (e.g. the user actually walked the advisor room first).
+ */
+export function applyPlanFixture(lang: Locale): void {
+  if (!planFixtureRequested()) return;
+  if (getNightState().plan !== null) return;
+
+  const plan: DreamPlan = {
+    theme: {
+      emoji: '🐋',
+      titleTh: translate('th', 'advisor.theme.whale'),
+      titleEn: translate('en', 'advisor.theme.whale'),
+      place: translate(lang, 'advisor.theme.whale.place'),
+    },
+    seedLines: [translate(lang, 'advisor.theme.whale.seed1'), translate(lang, 'advisor.clarify.turtle.detail')],
+    anchorPhrase: translate(lang, 'advisor.anchorPhrase'),
+    ambienceKey: 'underwater',
+    clarify: null,
+  };
+  saveTonightPlan(plan, lang);
 }

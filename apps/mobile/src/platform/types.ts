@@ -108,6 +108,17 @@ export interface AudioPlayer {
   setVolume(volume: number): Promise<void>;
   /** From L1.7: the anchor whisper, mixed over the bed. */
   playCue(options: { volume: number; cueId: string }): Promise<void>;
+  /**
+   * Fire-and-forget playback of a short local clip, independent of the all-night bed
+   * (WO L1.7ui). Used for the plan card's "▶ listen" preview and the ear-test screens —
+   * neither of those is the gated night cue, so they do not go through `playCue`/the
+   * Sleep Guard. `pan` is `-1`..`1` for callers that want it recorded/logged, but the
+   * actual left/right separation on iOS is done by pre-rendering a left-only or
+   * right-only stereo file (`src/audio/anchor.ts`) — expo-audio has no per-player pan
+   * control (checked against the installed `expo-audio` types before choosing this
+   * design). Resolves once playback finishes.
+   */
+  playOneShot(options: { source: string; volume: number; pan?: number }): Promise<void>;
   getStatus(): AudioPlayerStatus;
   onEvent(listener: (event: AudioEvent) => void): Unsubscribe;
   /** Release players and deactivate the session. Safe to call twice. */

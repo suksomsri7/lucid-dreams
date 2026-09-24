@@ -61,15 +61,16 @@ export default function RootLayout() {
             title: t('history.title'),
           }}
         />
-        <Stack.Screen
-          name="plan"
-          options={{
-            headerShown: true,
-            headerTransparent: true,
-            headerTintColor: colors.ink,
-            title: t('plan.stub.title'),
-          }}
-        />
+        {/*
+          `plan` (WO L1.7ui) is a directory with no own `_layout.tsx` — same shape as
+          `onboarding` above, whose own multi-file screens (`index.tsx`, `devices.tsx`)
+          already rely on the Stack's own default `screenOptions` (headerShown: false)
+          with no per-route entry needed. Every `app/plan/*` screen paints its own
+          `StepNav` header (`src/ui/StepNav.tsx`) to match the mockup's custom nav row,
+          not a native stack header, so this route needs no explicit `<Stack.Screen>` —
+          declaring one with `headerShown: true` here would draw a second, native header
+          bar above that custom one on every screen under `plan/`.
+        */}
         <Stack.Screen
           name="diagnostics"
           options={{

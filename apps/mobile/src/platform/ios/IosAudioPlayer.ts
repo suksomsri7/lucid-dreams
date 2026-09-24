@@ -108,6 +108,53 @@ export class IosAudioPlayer implements AudioPlayer {
     throw new Error('CUE_DISABLED_UNTIL_ENGINE_GATE_EXISTS');
   }
 
+  /**
+   * Short local clip, outside the bed/cue machinery (WO L1.7ui — plan-card preview +
+   * ear test). A brand new `ExpoAudioPlayer` per call (not `this.player`, which is the
+   * looping all-night bed) so a one-shot never fights the bed for the shared instance,
+   * and is disposed the moment it finishes so a rapid run of ear-test rounds does not
+   * leak native players.
+   */
+  async playOneShot(options: { source: string; volume: number; pan?: number }): Promise<void> {
+    const target = clampVolume(options.volume);
+    const shot = createAudioPlayer(options.source, { updateInterval: 100 });
+    shot.volume = target;
+
+    await new Promise<void>((resolve, reject) => {
+      let settled = false;
+      const finish = (): void => {
+        if (settled) return;
+        settled = true;
+        subscription.remove();
+        try {
+          shot.remove();
+        } catch {
+          // already released
+        }
+        resolve();
+      };
+
+      const subscription = shot.addListener('playbackStatusUpdate', (status) => {
+        if (status.didJustFinish) finish();
+      });
+
+      try {
+        shot.play();
+      } catch (error) {
+        settled = true;
+        subscription.remove();
+        reject(error as Error);
+        return;
+      }
+
+      // Belt and braces: `didJustFinish` should always fire, but a clip that somehow
+      // never reports it must not hang the caller (the ear-test screen awaits this).
+      const signature = /anchor-[0-9a-f]+/.exec(options.source);
+      const timeoutMs = signature ? 4000 : 8000;
+      setTimeout(finish, timeoutMs);
+    });
+  }
+
   getStatus(): AudioPlayerStatus {
     return this.status;
   }
