@@ -1,12 +1,12 @@
 {
  "run": "APP-RUN Phase 1",
- "wo": "L2.2n+L3.1",
+ "wo": "L2.2n+L3.2s+L3ui",
  "step": "building",
- "branch": "wo/L2.2n + wo/L3.1",
- "worktree": "/root/projects/lucid-dreams-L2.2n · -L3.1",
- "builder": "opus+sonnet",
+ "branch": "wo/L2.2n + wo/L3.2s + wo/L3ui",
+ "worktree": "/root/projects/lucid-dreams-L2.2n · -L3.2s · -L3ui",
+ "builder": "opus+opus+sonnet",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T15:40Z",
- "lastCommit": "L2.8ui merged · rename Dreaming",
+ "lastCheckpoint": "2026-09-24T16:10Z",
+ "lastCommit": "L3.1 merged",
  "blockedOn": []
 }
