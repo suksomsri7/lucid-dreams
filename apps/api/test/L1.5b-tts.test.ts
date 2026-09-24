@@ -373,17 +373,22 @@ function rms(samples: Int16Array, fromMs: number, toMs: number, sampleRate = 48_
 
 describe.skipIf(!ffmpegPath)('L1.5b POST /ai/anchor', () => {
   const WHISPER_MS = 600;
-  let whisperMp3: Buffer;
+  let whispers: Record<'th' | 'en', Buffer>;
   let main: Harness;
 
-  beforeAll(async () => {
-    // A real mp3, made the way the vendor makes one: a tone, 128 kbps, 44.1 kHz mono.
-    whisperMp3 = await ffmpeg([
+  /** A real mp3, made the way the vendor makes one: a tone, 128 kbps, 44.1 kHz mono. */
+  const sineMp3 = (hz: number): Promise<Buffer> =>
+    ffmpeg([
       '-hide_banner', '-loglevel', 'error',
-      '-f', 'lavfi', '-i', `sine=frequency=320:duration=${WHISPER_MS / 1000}`,
+      '-f', 'lavfi', '-i', `sine=frequency=${hz}:duration=${WHISPER_MS / 1000}`,
       '-c:a', 'libmp3lame', '-b:a', '128k', '-ar', '44100', '-ac', '1', '-f', 'mp3', 'pipe:1',
     ]);
-    expect(whisperMp3.byteLength).toBeGreaterThan(1000);
+
+  beforeAll(async () => {
+    // Two different clips, because the two languages are two different sentences.
+    whispers = { th: await sineMp3(320), en: await sineMp3(440) };
+    expect(whispers.th.byteLength).toBeGreaterThan(1000);
+    expect(whispers.th.equals(whispers.en)).toBe(false);
 
     main = await harness({ whispers });
   });

@@ -7,21 +7,51 @@ Hono + SQLite (better-sqlite3) + OpenRouter · TypeScript ล้วน รัน
 | `GET /health` | – | `{ok:true, at, store}` สำหรับ nginx/systemd |
 | `POST /device` | – | ออก device token (32 ไบต์สุ่ม · base64url 43 ตัว) → `201 {deviceId, token}` · เก็บแค่ `sha256(token)` |
 | `POST /ai/plan` | Bearer | บทสนทนา → `DreamPlan` (สคีมาจาก `@lucid/engine`) · ตอบนอกสคีมา → `502 PROVIDER_SCHEMA` |
-| `POST /ai/tts` | Bearer | ประโยคกระซิบ → ไฟล์เสียง + `x-cache: HIT/MISS` · ยังไม่มีผู้ให้บริการ → `501 NOT_CONFIGURED` |
+| `POST /ai/tts` | Bearer | ประโยคกระซิบ → ไฟล์เสียง + `x-cache: HIT/MISS` · ไม่ได้ตั้งผู้ให้บริการ → `501 NOT_CONFIGURED` |
+| `POST /ai/anchor` | Bearer | **ลายน้ำเสียงทั้งไฟล์** (ลายเสียง + กระซิบ ผสมแล้ว) → `audio/mpeg` + `x-anchor-hash` · `x-anchor-notes` |
 | `DELETE /device` | Bearer | เพิกถอน token → `204` (ฝั่งเซิร์ฟเวอร์ของ "ลบทั้งหมด") |
 
 ด่านทุกคำขอ (APP-RUN §0.5 S2/S3): body ≤ 32 KB → `413` · ไม่มี/ผิด token → `401` · zod ไม่ผ่าน → `400`
 · เกิน `API_RATE_LIMIT_PER_HOUR` (ค่าเริ่มต้น 60) ต่ออุปกรณ์ในหนึ่งชั่วโมงแบบเลื่อน → `429`
 
+## เสียงสมอ = ลายน้ำ (`/ai/tts` + `/ai/anchor`)
+
+เสียงสมอของผู้ใช้ 1 คน = **1 ไฟล์ต่อภาษา** (DESIGN §2 ข้อ 3): ลายเสียง 1.2–1.8 วิ ที่สังเคราะห์จาก
+`seed` ของคนนั้น (`@lucid/engine` · `makeSignature` + `renderSignaturePcm`) แล้วต่อด้วยประโยคกระซิบ
+ที่เริ่มนาที **1.7 วิ** · ผสมด้วย `ffmpeg` เป็น mp3 128 kbps 48 kHz mono
+
+```bash
+# ขอลายน้ำ (ครั้งแรกเรนเดอร์ · ครั้งต่อไปมาจากแคช)
+curl -s -D- -o anchor-th.mp3 -X POST http://127.0.0.1:8799/ai/anchor \
+  -H "authorization: Bearer $TOKEN" -H 'content-type: application/json' \
+  -d '{"seed":"<seed ของผู้ใช้>","lang":"th"}'
+# → 200 audio/mpeg · x-cache: MISS|HIT · x-anchor-hash: 526246ef… · x-anchor-notes: 62,66,69,71
+```
+
+| เรื่อง | ค่า |
+|---|---|
+| ผู้ให้บริการเสียง | **fal.ai → ElevenLabs `eleven-v3`** (มติเจ้าของ 24 ก.ย.) · `TTS_PROVIDER=fal` + `FAL_KEY` |
+| เสียงกระซิบเกิดจาก | แท็กเสียง `[whispers]` นำหน้าประโยค (ไม่มีพารามิเตอร์ style) · `voice` เริ่มต้น `Sarah` · `stability` 0.6 |
+| ราคา | **$0.10 / 1,000 ตัวอักษร** ⇒ ประโยค ~17 ตัวอักษร ≈ **0.2 สตางค์ต่อครั้ง** |
+| แคช | `tts_cache` · กระซิบ = `sha256(ประโยค｜ภาษา｜เสียง)` (ทุกคนใช้ร่วมกัน) · ลายน้ำ = `sha256(anchor｜seed｜ภาษา｜เสียง｜hash ลายเสียง｜hash ไฟล์กระซิบ)` — **แคชตลอดชีพ** ทั้งคู่ |
+| ค่าใช้จ่ายรวมที่คาดไว้ | 2 ภาษา × 1 ประโยค = **2 ครั้งทั้งระบบ** (~0.4 สตางค์) ไม่ว่ามีผู้ใช้กี่คน · ลายเสียงต่อคนสังเคราะห์ฟรีในเครื่อง |
+| ไม่มีกุญแจ / ไม่มี ffmpeg | `501 NOT_CONFIGURED` + `detail` บอกว่าขาดอะไร · ของที่แคชไว้แล้วยังเสิร์ฟได้ (กระซิบ) |
+
+`voice` ใน body ของ `/ai/anchor` มีไว้ให้ **เจ้าของลองเทียบเสียง** ก่อนเคาะ (`TTS_VOICE`) เท่านั้น —
+ไม่ใช่ตัวเลือกของผู้ใช้ (§2 ข้อ 3: ไม่มีตัวเลือกเสียงหญิง/ชาย/เสียงของฉัน)
+
 ## รันในเครื่อง (ไม่ต้องมีกุญแจ)
 
 ```bash
-pnpm --filter @lucid/api test            # 21 ข้อ (ข้อสอบ 11 + ของ builder 10)
+pnpm --filter @lucid/api test            # 42 ข้อ (ข้อสอบ L1.5 11 + builder 10 + L1.5b 21)
 cd apps/api
 cp .env.example .env                     # เติมค่าเอง — .env ไม่เข้า repo
 AI_ALLOW_MOCK=1 TTS_PROVIDER=mock PORT=8799 API_DB_PATH=./data/dev.sqlite \
   node --import tsx src/main.ts
 ```
+
+`TTS_PROVIDER=mock` ใช้กับ `/ai/anchor` ได้ (กระซิบ = WAV เงียบ) — ได้ไฟล์ mp3 ที่โครงถูกต้องไว้ทดสอบแอป
+โดยไม่เสียเงิน · อยากได้เสียงจริงต้อง `TTS_PROVIDER=fal` + `FAL_KEY`
 
 ไม่มี `OPENROUTER_API_KEY` และไม่ตั้ง `AI_ALLOW_MOCK=1` → **เซิร์ฟเวอร์ปฏิเสธที่จะบูต** (exit 1) เพื่อไม่ให้
 เผลอส่งแผนสำเร็จรูปให้ผู้ใช้จริง
@@ -66,8 +96,8 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        # การเรียก AI ใช้เวลาได้ถึง 20 วิ (AI_TIMEOUT_MS) → เผื่อไว้ 30
-        proxy_read_timeout 30s;
+        # การเรียก AI ใช้เวลาได้ถึง 20 วิ (AI_TIMEOUT_MS) · TTS 30 วิ (TTS_TIMEOUT_MS) → เผื่อไว้ 40
+        proxy_read_timeout 40s;
         proxy_connect_timeout 5s;
     }
 }
@@ -88,7 +118,9 @@ server {
 | `src/store.ts` / `src/store-sqlite.ts` | `memory` (ข้อสอบ) / `sqlite` (prod · `devices`, `rate`, `tts_cache`) |
 | `src/providers/openrouter.ts` | provider จริง + **system prompt ภาษาอังกฤษ** (export ไว้ให้ review/diff ได้) |
 | `src/providers/mock.ts` | provider สำหรับ QC (ไม่ใช้เครือข่าย · ผลเหมือนเดิมทุกครั้ง) |
-| `src/providers/tts.ts` | สัญญา TTS + ตัวปลอมเงียบ · **ยังไม่เลือกผู้ให้บริการ** |
+| `src/providers/tts.ts` | สัญญา TTS + ตัวปลอมเงียบ + ตัวดมชนิดไฟล์เสียง |
+| `src/providers/tts-fal.ts` | อะแดปเตอร์ fal.ai → ElevenLabs `eleven-v3` (แท็ก `[whispers]` · โหลด mp3 · `TtsError`) |
+| `src/anchor.ts` | ผสมลายน้ำด้วย `ffmpeg` (PCM→WAV · `adelay` 1700 ms · `amix normalize=0` · mp3 128k) |
 | `src/logger.ts` | log JSON บรรทัดละคำขอ · ไม่มีข้อความผู้ใช้/โทเคน (§0.5 S5) |
 | `src/main.ts` | จุดเริ่มของ prod (อ่าน env · SIGTERM ปิดสวย) |
 | `scripts/smoke-sqlite.ts` | ตรวจว่าโมดูล native ใช้ได้บนเครื่องนี้ |
