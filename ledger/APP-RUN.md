@@ -240,7 +240,7 @@
 | L1.5 | ✅ DONE 24 ก.ย. (engine 73/73 · api 21/21) | main | รอ: OpenRouter key (ยิงจริง) · DNS lucid → 72.62.196.201 · **TTS = fal.ai→ElevenLabs v3 [whispers] (มติเจ้าของ · ใช้ FAL key เดิม)** ตัวอย่างส่ง TG แล้ว รอเลือกเสียง |
 | L2.4/2.5 | ✅ DONE 24 ก.ย. (87/87 · onset 99.5% ≤10 นาที บนจำลอง · F1 0.98 จำลอง — คาดจริง 0.5–0.7) | main | ปรับเทียบ R2 |
 | L2.6/2.7 | ▶ building (Opus · wo/L2.6) | — | ตัวควบคุมคืน + Sleep Guard + ramp + คืนควบคุม · ตัวจับตื่น + โหมดจับเวลา · oracle 12+7 (fuzz 500 คืน) |
-| L1.5b | ▶ building (Opus · wo/L1.5b) | — | TTS provider fal (`tts-fal.ts` · TTS_PROVIDER=fal · FAL_KEY) + endpoint `/ai/anchor` คืนลายน้ำเต็ม (signature+กระซิบ mix ฝั่งเซิร์ฟเวอร์ · แคช) |
+| L1.5b | ✅ DONE 24 ก.ย. (api 42/42 · smoke fal จริง) | main | prod: TTS_PROVIDER=fal TTS_VOICE=Sarah · **ตามมา L1.6s**: กระซิบ EN ครั้งเดียว "You… are… dreaming…" + atempo 0.85 + signature v2 (รอเจ้าของเลือก A/B/C) · ล้าง tts_cache เมื่อเปลี่ยน |
 | L1.8 | ✅ DONE 24 ก.ย. (vitest 16/16) | main | หนี้ S4: Data Protection ต้องทำเป็น config plugin ก่อน R1 (ใส่ใน L1.7) |
 | L2.1 | ✅ DONE 24 ก.ย. (vitest 23/23 · sim 200 คืน REM 22.6% · latency 81 นาที) | main | หนี้: hrSd จำลองกว้างกว่าจริง · N1 ต่ำ · fitness กฎ node:* นอก cli/ (เพิ่มที่ L2.5) |
 | L1.6e/L1.7e | ✅ DONE 24 ก.ย. (engine 62/62) | main | เหลือส่วนแอปของ L1.6 (ambience/TTS/หน้าทดสอบหู) และ L1.7 (เครื่องเล่นเสียง/Live Activity/หน้าตรวจอุปกรณ์) | บั๊กที่จับได้: ข้อสอบ chk() ต่อค่าหลายตัว (แก้แล้ว) · .gitignore `ios/` กลืน platform/ios (builder จับ) · S9: audit 17 high อยู่ใน devDeps build-time เท่านั้น → ไม่บล็อก (มติ Fable) · S10: permission strings อังกฤษอย่างเดียว + ยังไม่มี PrivacyInfo.xcprivacy → หนี้ L1.3/L3.6 |
