@@ -454,14 +454,26 @@ function envelopeAt(envelope: SignatureEnvelope, tSec: number, noteSec: number):
   return (attack * release) ** envelope.curve;
 }
 
-/** The four notes, additively synthesised, before the room is added. */
-function renderDry(signature: AnchorSignature, sampleRate: number, length: number): Float64Array {
+/**
+ * The notes, additively synthesised, before the room is added.
+ *
+ * `noteCount` exists for the short excerpt ({@link renderSignatureShortPcm}): a note whose
+ * swell would be cut off by the end of the buffer is better left out than faded out halfway
+ * through its attack.
+ */
+function renderDry(
+  signature: AnchorSignature,
+  sampleRate: number,
+  length: number,
+  noteCount = signature.notes.length,
+): Float64Array {
   const dry = new Float64Array(length);
   const { notes, envelope, timbre } = signature;
   const noteSec = signature.noteMs / 1000;
   const noteSamples = Math.round(noteSec * sampleRate);
+  const count = Math.max(1, Math.min(noteCount, notes.length));
 
-  for (let n = 0; n < notes.length; n += 1) {
+  for (let n = 0; n < count; n += 1) {
     const baseHz = midiToHz(notes[n] as number);
     const start = Math.round(((n * signature.gapMs) / 1000) * sampleRate);
 
@@ -655,7 +667,24 @@ export function renderSignaturePcm(signature: AnchorSignature, sampleRate = 4800
   }
 
   const length = Math.max(1, Math.round((signature.durationMs / 1000) * sampleRate));
-  const dry = renderDry(signature, sampleRate, length);
+  return roomAndPolish(signature, renderDry(signature, sampleRate, length), sampleRate, EDGE_FADE_MS);
+}
+
+/**
+ * Everything after the notes: the room, the low pass, the level and the fades.
+ *
+ * Shared by the full anchor and the short ear-test excerpt so the two can never drift apart —
+ * the excerpt has to be *the same bell*, not a second implementation of it. The only thing the
+ * caller chooses is how long the fade at the end is (50 ms for the anchor, which simply must
+ * not click; 300 ms for the excerpt, which is cut mid-ring and must not sound chopped).
+ */
+function roomAndPolish(
+  signature: AnchorSignature,
+  dry: Float64Array,
+  sampleRate: number,
+  fadeOutMs: number,
+): Float32Array {
+  const length = dry.length;
   const wet = convolve(dry, impulseResponse(signature.reverb, sampleRate));
 
   const mix = signature.reverb.mix;
@@ -690,14 +719,58 @@ export function renderSignaturePcm(signature: AnchorSignature, sampleRate = 4800
     for (let i = 0; i < length; i += 1) pcm[i] = (pcm[i] as number) * scale;
   }
 
-  // Fades last, so sample 0 and sample n-1 are exactly zero (oracle G5) and the peak in the
+  // Fades last, so sample 0 and sample n-1 are exactly zero (oracle G5/G6) and the peak in the
   // middle is exactly RENDER_PEAK.
-  const fade = Math.max(1, Math.min(Math.round((EDGE_FADE_MS / 1000) * sampleRate), length >> 1));
-  for (let i = 0; i < fade; i += 1) {
-    const factor = i / fade;
-    pcm[i] = (pcm[i] as number) * factor;
-    pcm[length - 1 - i] = (pcm[length - 1 - i] as number) * factor;
+  const fadeIn = Math.max(1, Math.min(Math.round((EDGE_FADE_MS / 1000) * sampleRate), length >> 1));
+  for (let i = 0; i < fadeIn; i += 1) pcm[i] = (pcm[i] as number) * (i / fadeIn);
+
+  const fadeOut = Math.max(1, Math.min(Math.round((fadeOutMs / 1000) * sampleRate), length >> 1));
+  for (let i = 0; i < fadeOut; i += 1) {
+    pcm[length - 1 - i] = (pcm[length - 1 - i] as number) * (i / fadeOut);
   }
 
   return pcm;
+}
+
+/** The ear-test excerpt fades out over 300 ms — it is cut mid-ring, not at the end of a note. */
+const SHORT_FADE_OUT_MS = 300;
+
+/**
+ * The **short** version of the bell: the first `seconds` of the same anchor, for the ear-test
+ * pages (L1.6 UI) — no whisper, fading out at the end.
+ *
+ * Why it exists at all: the memorisation screens play the cue **2–5 times** per ear, and the
+ * full anchor is 9.8 s — five rounds plus the 1–3 s gaps would be a minute of a user staring
+ * at a screen before they may answer. Three seconds is the opening of *their own* bell (the
+ * first two notes, rendered exactly as the anchor renders them, through the same room), so
+ * what they memorise on that screen is the same sound they will hear at 3 a.m. — just not all
+ * of it. The full 9.8 s file is played once at the end of the right-ear page.
+ *
+ * Notes whose swell would not fit are dropped rather than cut: with the v2-C spacing a 3 s
+ * excerpt holds notes 1–2 (the third would start 1 s before the end and be chopped in the
+ * middle of its 1 s attack, which sounds like a mistake, not like an ending).
+ */
+export function renderSignatureShortPcm(
+  signature: AnchorSignature,
+  seconds = 3,
+  sampleRate = 48000,
+): Float32Array {
+  if (!Number.isFinite(sampleRate) || sampleRate <= 0) {
+    throw new Error(`renderSignatureShortPcm: sampleRate must be > 0, got ${String(sampleRate)}`);
+  }
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    throw new Error(`renderSignatureShortPcm: seconds must be > 0, got ${String(seconds)}`);
+  }
+
+  const length = Math.max(1, Math.round(seconds * sampleRate));
+  const lengthMs = seconds * 1000;
+
+  // Keep every note that has at least one full gap of ring left before the excerpt ends.
+  let noteCount = 0;
+  for (let n = 0; n < signature.notes.length; n += 1) {
+    if (n * signature.gapMs + signature.gapMs <= lengthMs) noteCount += 1;
+  }
+
+  const dry = renderDry(signature, sampleRate, length, Math.max(1, noteCount));
+  return roomAndPolish(signature, dry, sampleRate, SHORT_FADE_OUT_MS);
 }

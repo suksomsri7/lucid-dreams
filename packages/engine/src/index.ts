@@ -122,6 +122,7 @@ export {
   makeSignature,
   midiToHz,
   renderSignaturePcm,
+  renderSignatureShortPcm,
 } from './signature';
 
 export {
