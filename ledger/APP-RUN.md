@@ -236,7 +236,7 @@
 | L1.2 | ✅ DONE 24 ก.ย. (oracle 32/32 · parity gallery ✓ · settings Seg แก้แล้ว) | main | จอ 3 แท็บยังเป็น placeholder ตามแผน — parity ของจอจริงตัดสินที่ L1.4/L3.5/L3.6 |
 | L1.3 | ✅ DONE 24 ก.ย. (22/22 · parity ตรง mockup 01 ทั้ง 2 จอ) | main | จุดต่างที่แก้: เอาสวิตช์ AI ออก · ปุ่มตรึงล่าง · เพิ่ม fixture QC |
 | L1.4 | ✅ DONE 24 ก.ย. (16/16 · parity 02/03 ตรง หลังแก้ 3 รอบ) | main | mock adapter → สลับ engine advisor ที่ L1.7ui |
-| L1.6s | ▶ building (Opus · wo/L1.6s) | — | signature v2-C ลง engine + `/ai/anchor` กระซิบครั้งเดียว atempo 0.85 delay 2600 |
+| L1.6s | ✅ DONE 24 ก.ย. (engine 107/107 · api 47/47 · prod restart) | main | หน้าทดสอบหูต้องสลับมาใช้ renderSignatureShortPcm + เล่นฉบับเต็มท้ายหูขวา (ใบ UI ถัดไป) |
 | L2.3e/L3.2e/L3.4 | ✅ DONE 24 ก.ย. (engine 129/129) | main | เหลือฝั่งแอป: BLE scan/connect (L2.3) · /ai/score route + UI เช้า (L3.1/3.2) · เซฟ PersonalModel + ใช้ suggestedVolume (L3.4 app) |
 | L1.7ui | ✅ DONE 24 ก.ย. (21/21 · parity 04 a–d) | main | เหลือส่วน native ของ L1.7: Live Activity · DND จริง · pan native · ต่อ /ai/anchor ในแอป |
 | L2.8ui/2.9/2.10 | ▶ building (Sonnet · wo/L2.8ui) | — | จอกลางคืน (controller จริง) · นำเข้าสเตจ Apple (JS) · หน้ารายงานเมื่อคืน · oracle qc-L2.8-10 · parity 05/07 |
