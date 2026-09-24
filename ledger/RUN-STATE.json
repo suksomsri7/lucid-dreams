@@ -1,16 +1,16 @@
 {
  "run": "APP-RUN Phase 1",
- "wo": "L1.4",
+ "wo": "L1.4+L2.4+L1.5b",
  "step": "building",
- "branch": "wo/L1.4",
- "worktree": "/root/projects/lucid-dreams-L1.4",
- "builder": "sonnet",
+ "branch": "wo/L1.4 + wo/L2.4 + wo/L1.5b",
+ "worktree": "/root/projects/lucid-dreams-L1.4 · -L2.4 · -L1.5b",
+ "builder": "sonnet+opus+opus",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T11:30Z",
+ "lastCheckpoint": "2026-09-24T12:05Z",
  "lastCommit": "L1.5 merged",
  "blockedOn": [
-  "เจ้าของ: DNS A record lucid.suksomsri.cloud → 72.62.196.201 (Hostinger token เดิมหมดอายุ)",
+  "เจ้าของ: DNS A record lucid.suksomsri.cloud → 72.62.196.201",
   "เจ้าของ: OpenRouter API key",
-  "เจ้าของ: เลือก TTS (Azure whisper / ElevenLabs)"
+  "เจ้าของ: เลือกเสียงกระซิบ (Sarah/Laura/Charlotte) จากตัวอย่าง TG 3439–3445"
  ]
 }
