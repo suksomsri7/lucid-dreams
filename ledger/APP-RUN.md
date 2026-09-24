@@ -234,6 +234,7 @@
 | L1.1 | ✅ DONE 24 ก.ย. (oracle 41/41 · SDK 57 · ภาพ .qc-shots/L1.1) | main |
 | L1.2 | ✅ DONE 24 ก.ย. (oracle 32/32 · parity gallery ✓ · settings Seg แก้แล้ว) | main | จอ 3 แท็บยังเป็น placeholder ตามแผน — parity ของจอจริงตัดสินที่ L1.4/L3.5/L3.6 |
 | L1.3 | ▶ building (Sonnet · wo/L1.3) | — | onboarding 2 จอ ตาม mockup 01 · oracle 20 ข้อ · parity บังคับ |
+| L1.5 | ▶ building (Opus · wo/L1.5) | — | สมองที่ปรึกษา (engine advisor) + apps/api (Hono+SQLite · OpenRouter provider + mock) · oracle 11+11 |
 | L1.8 | ✅ DONE 24 ก.ย. (vitest 16/16) | main | หนี้ S4: Data Protection ต้องทำเป็น config plugin ก่อน R1 (ใส่ใน L1.7) |
 | L2.1 | ✅ DONE 24 ก.ย. (vitest 23/23 · sim 200 คืน REM 22.6% · latency 81 นาที) | main | หนี้: hrSd จำลองกว้างกว่าจริง · N1 ต่ำ · fitness กฎ node:* นอก cli/ (เพิ่มที่ L2.5) |
 | L1.6e/L1.7e | ✅ DONE 24 ก.ย. (engine 62/62) | main | เหลือส่วนแอปของ L1.6 (ambience/TTS/หน้าทดสอบหู) และ L1.7 (เครื่องเล่นเสียง/Live Activity/หน้าตรวจอุปกรณ์) | บั๊กที่จับได้: ข้อสอบ chk() ต่อค่าหลายตัว (แก้แล้ว) · .gitignore `ios/` กลืน platform/ios (builder จับ) · S9: audit 17 high อยู่ใน devDeps build-time เท่านั้น → ไม่บล็อก (มติ Fable) · S10: permission strings อังกฤษอย่างเดียว + ยังไม่มี PrivacyInfo.xcprivacy → หนี้ L1.3/L3.6 |

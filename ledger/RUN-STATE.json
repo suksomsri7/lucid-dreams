@@ -1,12 +1,12 @@
 {
  "run": "APP-RUN Phase 1",
- "wo": "L1.3",
+ "wo": "L1.3+L1.5",
  "step": "building",
- "branch": "wo/L1.3",
- "worktree": "/root/projects/lucid-dreams-L1.3",
- "builder": "sonnet",
+ "branch": "wo/L1.3 + wo/L1.5",
+ "worktree": "/root/projects/lucid-dreams-L1.3 · /root/projects/lucid-dreams-L1.5",
+ "builder": "sonnet+opus",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T11:45Z",
+ "lastCheckpoint": "2026-09-24T11:50Z",
  "lastCommit": "L1.6e merged",
  "blockedOn": []
 }
