@@ -33,16 +33,20 @@ export interface BandProps {
   testID?: string;
 }
 
-const SEGMENT_COLOR: Record<BandSegmentKind, string> = {
+/** Exported so a legend (mockup 07's `.lg`) can swatch with the exact same tokens the band itself paints with — never a hand-picked, driftable copy. */
+export const BAND_SEGMENT_COLOR: Record<BandSegmentKind, string> = {
   guard: 'rgba(17,19,24,0.10)',
   watch: colors.accBg,
   rem: 'rgba(14,159,122,0.22)',
 };
 
-const TICK_COLOR: Record<BandTickKind, string> = {
+export const BAND_TICK_COLOR: Record<BandTickKind, string> = {
   cue: colors.acc,
   wake: colors.dg,
 };
+
+const SEGMENT_COLOR = BAND_SEGMENT_COLOR;
+const TICK_COLOR = BAND_TICK_COLOR;
 
 const clampFraction = (value: number): number => Math.min(1, Math.max(0, value));
 

@@ -24,6 +24,7 @@ import type {
   AudioPlayerStatus,
   BatteryReader,
   DeviceInfoReader,
+  Display,
   HealthImport,
   LiveStatus,
   NotificationsPermission,
@@ -72,6 +73,10 @@ class AndroidSensorSource implements SensorSource {
   }
 
   onStatus(): Unsubscribe {
+    return noop();
+  }
+
+  onCommand(): Unsubscribe {
     return noop();
   }
 }
@@ -201,6 +206,16 @@ class AndroidBatteryReader implements BatteryReader {
   }
 }
 
+class AndroidDisplay implements Display {
+  async isAvailable(): Promise<boolean> {
+    return false;
+  }
+
+  async setBrightness(): Promise<void> {
+    // no-op — Phase 2/web, never wired to a real backlight (see file header)
+  }
+}
+
 class AndroidDeviceInfoReader implements DeviceInfoReader {
   /**
    * L1.2 fix: this stub used to hardcode `platform: 'android'` even when
@@ -235,5 +250,6 @@ export function createStubPlatform(name: 'android' | 'unsupported'): PlatformBun
     notifications: new AndroidNotificationsPermission(),
     battery: new AndroidBatteryReader(),
     deviceInfo: new AndroidDeviceInfoReader(deviceInfoPlatform),
+    display: new AndroidDisplay(),
   };
 }

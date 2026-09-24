@@ -51,6 +51,7 @@ export type {
   AudioSessionState,
   BatteryReader,
   DeviceInfoReader,
+  Display,
   HealthImport,
   LiveStatus,
   LiveStatusContent,

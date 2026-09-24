@@ -33,8 +33,10 @@ export class WatchSensorSource implements SensorSource {
 
   private readonly epochListeners = new Set<(epoch: SensorEpoch) => void>();
   private readonly statusListeners = new Set<(status: SensorStatus) => void>();
+  private readonly commandListeners = new Set<(command: 'stop') => void>();
   private unsubscribeEpoch: Unsubscribe | null = null;
   private unsubscribeStatus: Unsubscribe | null = null;
+  private unsubscribeCommand: Unsubscribe | null = null;
 
   async isAvailable(): Promise<boolean> {
     if (!watchBridge.isNativeAvailable()) return false;
@@ -54,6 +56,9 @@ export class WatchSensorSource implements SensorSource {
       this.link = status;
       this.emitStatus();
     });
+    this.unsubscribeCommand = watchBridge.onCommand((command) => {
+      for (const listener of this.commandListeners) listener(command);
+    });
 
     this.link = await watchBridge.activate();
     await watchBridge.sendCommand('start');
@@ -65,8 +70,10 @@ export class WatchSensorSource implements SensorSource {
     this.started = false;
     this.unsubscribeEpoch?.();
     this.unsubscribeStatus?.();
+    this.unsubscribeCommand?.();
     this.unsubscribeEpoch = null;
     this.unsubscribeStatus = null;
+    this.unsubscribeCommand = null;
     await watchBridge.sendCommand('stop');
     this.emitStatus();
   }
@@ -94,6 +101,13 @@ export class WatchSensorSource implements SensorSource {
     this.statusListeners.add(listener);
     return () => {
       this.statusListeners.delete(listener);
+    };
+  }
+
+  onCommand(listener: (command: 'stop') => void): Unsubscribe {
+    this.commandListeners.add(listener);
+    return () => {
+      this.commandListeners.delete(listener);
     };
   }
 

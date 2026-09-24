@@ -22,6 +22,11 @@
  *   `useNightState()`'s plan with the same whale-shark + sea-turtle plan
  *   `?fixture=advisor-plan` shows mid-conversation, so every `app/plan/*` screen can be
  *   screenshotted directly by URL without walking through the advisor chat first.
+ * - `?fixture=night` (WO L2.8) — `app/night.tsx` drives its controller from
+ *   `simulateNight` instead of a watch (`src/night/session.ts#startNightFixture`); no
+ *   store fixture needed here, that function builds its own plan.
+ * - `?fixture=report` (WO L2.10) — `app/report/[id].tsx` renders `src/report/fixture.ts`'s
+ *   canned `NightReport` instead of reading the (web-less) database.
  */
 
 import { Platform } from 'react-native';
@@ -121,7 +126,16 @@ export function advisorFixtureRequested(): AdvisorFixture | null {
  */
 export function applyOnboardingBypassForAdvisorFixture(): void {
   const value = readFixtureParam();
-  const bypasses = value === 'advisor-start' || value === 'advisor-plan' || value === 'plan' || value === 'ear-passed';
+  // `night`/`report` (WO L2.8/L2.10) land past onboarding too — `/night?fixture=night`
+  // and `/report/demo?fixture=report` must be screenshottable directly by URL, same as
+  // the four fixtures above already are.
+  const bypasses =
+    value === 'advisor-start' ||
+    value === 'advisor-plan' ||
+    value === 'plan' ||
+    value === 'ear-passed' ||
+    value === 'night' ||
+    value === 'report';
   if (!bypasses) return;
   completeOnboarding();
 }
@@ -129,6 +143,16 @@ export function applyOnboardingBypassForAdvisorFixture(): void {
 export function planFixtureRequested(): boolean {
   const value = readFixtureParam();
   return value === 'plan' || value === 'ear-passed';
+}
+
+/** `?fixture=night` (WO L2.8) — see the file header. */
+export function nightFixtureRequested(): boolean {
+  return readFixtureParam() === 'night';
+}
+
+/** `?fixture=report` (WO L2.10) — see the file header. */
+export function reportFixtureRequested(): boolean {
+  return readFixtureParam() === 'report';
 }
 
 /**

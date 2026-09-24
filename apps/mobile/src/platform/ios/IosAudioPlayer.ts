@@ -41,6 +41,7 @@ function clampVolume(volume: number): number {
 
 export class IosAudioPlayer implements AudioPlayer {
   private player: ExpoAudioPlayer | null = null;
+  private playerSource: number | null = null;
   private status: AudioPlayerStatus = { state: 'idle', volume: 0, route: null, error: null };
   private readonly listeners = new Set<(event: AudioEvent) => void>();
 
@@ -63,15 +64,21 @@ export class IosAudioPlayer implements AudioPlayer {
     }
   }
 
-  async startBed(volume: number): Promise<void> {
+  async startBed(volume: number, source: number = BED_SOURCE): Promise<void> {
     const target = clampVolume(volume);
     try {
       if (this.status.state === 'idle') await this.configureSession();
       await setIsAudioActiveAsync(true);
 
-      if (!this.player) {
-        this.player = createAudioPlayer(BED_SOURCE, { updateInterval: 1000 });
+      // A night's ambience (WO L2.8) is picked once, at `startBed`'s first call — a
+      // different `source` while one is already playing (should not happen: the app
+      // only ever calls this once per night) replaces the player rather than layering
+      // two loops on top of each other.
+      if (!this.player || this.playerSource !== source) {
+        this.player?.remove();
+        this.player = createAudioPlayer(source, { updateInterval: 1000 });
         this.player.loop = true;
+        this.playerSource = source;
       }
       this.player.volume = target;
       this.player.play();
@@ -173,6 +180,7 @@ export class IosAudioPlayer implements AudioPlayer {
       // already released — nothing to do
     }
     this.player = null;
+    this.playerSource = null;
     this.status = { ...this.status, state: 'stopped', volume: 0 };
   }
 

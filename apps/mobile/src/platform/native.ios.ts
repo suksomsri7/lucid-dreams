@@ -5,6 +5,7 @@ import { IosAudioPlayer } from './ios/IosAudioPlayer';
 import {
   IosBatteryReader,
   IosDeviceInfoReader,
+  IosDisplay,
   IosHealthImport,
   IosLiveStatus,
   IosNotificationsPermission,
@@ -25,5 +26,6 @@ export function createNativePlatform(): PlatformBundle {
     notifications: new IosNotificationsPermission(),
     battery: new IosBatteryReader(),
     deviceInfo: new IosDeviceInfoReader(),
+    display: new IosDisplay(),
   };
 }
