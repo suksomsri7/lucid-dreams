@@ -3,7 +3,7 @@
 > เอกสารออกแบบ · 24 กันยายน 2569 · ผู้เขียน: Fable
 > โจทย์: เจ้าของสั่ง "ออกแบบ app บน iOS เพื่อทำหน้าที่นี้" หลังบทวิเคราะห์ `CONCEPT-ANALYSIS-2026-09-24.md` (+ ภาคผนวก A–F)
 > ขอบเขต Phase 1 = **Apple Watch + หูฟังบลูทูธ** เท่านั้น (EOG เลื่อนไปอนาคต) · UI ไทย+อังกฤษ · เสียงสมอ 1 ภาษาต่อคน
-> **v2 (24 ก.ย. รอบ 5)** — เจ้าของสั่งแก้: ธีมขาว สะอาด ใช้ง่ายที่สุด · หน้าแรกเป็น **ที่ปรึกษาความฝัน** (พิมพ์/พูด/เลือกธีม → AI สรุปแผน → เริ่ม) · ไม่กี่ขั้นตอน — §3–§4 เขียนใหม่ทั้งหมด · แบบเดิมธีมมืด 13 ภาพเก็บที่ `design-app-v1-dark/`
+> **v2 (24 ก.ย. รอบ 5–6)** — เจ้าของสั่งแก้: ธีมขาว สะอาด ใช้ง่ายที่สุด · **UI สไตล์ Liquid Glass** · หน้าแรกเป็น **ที่ปรึกษาความฝัน** (พิมพ์/พูด/เลือกธีม → AI สรุปแผน → เริ่ม) · ไม่กี่ขั้นตอน — §3–§4 เขียนใหม่ทั้งหมด · แบบเดิมธีมมืด 13 ภาพเก็บที่ `design-app-v1-dark/`
 > ภาพประกอบ: `design-app/` (10 ภาพ · ดู `README.md` ในโฟลเดอร์นั้น) · ⚠️ เป็น **แบบ** ยังไม่มีโค้ด
 
 ---
@@ -50,7 +50,7 @@
 5. **ตอนเช้าตอบเสร็จใน 60 วินาที** — ไมค์ก่อน คำถามทีหลัง · ตอบไม่ครบก็บันทึก
 6. **ข้อมูลอยู่ที่เครื่องก่อน** — SQLite ในเครื่อง · ถอดเสียงบนเครื่อง (Apple Speech) · ส่งขึ้นเซิร์ฟเวอร์เฉพาะ "ข้อความ" เพื่อให้ AI ให้คะแนน (ปิดได้ → ใช้คะแนนจากคำถามอย่างเดียว) · PDPA ยินยอมชัด
 7. **สองภาษาเท่ากัน** — UI ไทย/อังกฤษสลับได้ทันที · เสียงสมอ/AI ตอบตามภาษาที่เลือก · prompt ภายในเขียนอังกฤษ (ประหยัด token)
-8. **ขาว สะอาด น้อยที่สุด** — พื้นขาว ตัวหนังสือดำ · สี accent 1 สี (ม่วงฝัน) ใช้เฉพาะปุ่มหลัก/ข้อความผู้ใช้ · เขียวมินต์ = ผลดี/REM · ไม่มีเงา ไม่มีไล่สี ไม่มีการ์ดซ้อนการ์ด · จอเดียวที่มืด = จอกลางคืน (มืดอัตโนมัติกันแสงจ้า)
+8. **Liquid Glass สว่าง สะอาด น้อยที่สุด** (เจ้าของสั่ง 24 ก.ย. รอบ 6) — พื้นแอปไล่สีอ่อนมาก (ลาเวนเดอร์/ฟ้า/พีช) · ทุกพื้นผิวลอยเป็น **กระจกฝ้าโปร่งแสง** (ขาว 55–70% + เบลอ + ขอบขาวบาง + ไฮไลต์ด้านบน) · แถบแท็บ/ปุ่ม/ชิป/บับเบิล = แคปซูลกระจกลอย มุมมนใหญ่ · ตัวหนังสือดำ · accent ม่วง 1 สีเฉพาะปุ่มหลัก/ข้อความผู้ใช้ · เขียวมินต์ = ผลดี/REM · ไม่มีเส้นขอบทึบ ไม่มีการ์ดซ้อนการ์ด · จอเดียวที่มืด = จอกลางคืน (กระจกมืดบนพื้นน้ำเงินลึก) · ต้องเป็น iOS 26+ (SwiftUI `glassEffect` / ใน RN ใช้ `expo-glass-effect` หรือ blur view — ดู §8)
 9. **คุยแทนกดเมนู** — ทุกอย่างก่อนนอนและตอนเช้าเกิดในบทสนทนาเดียวกับ "ที่ปรึกษาความฝัน" · ผู้ใช้พิมพ์/พูด/แตะชิป · AI ถามเพิ่มได้ **ไม่เกิน 1 ข้อ** แล้วต้องสรุปแผนทันที · ครบใน **3 ขั้น: บอก → สรุป → เริ่ม**
 
 ---
@@ -244,7 +244,7 @@ MORNING ─▶ Recall ─▶ ENDED (ดึงสเตจ Apple เมื่อ�
 - **ข้อเสนอ**: เปิด BLE HR Profile ตั้งแต่ L1 (มาตรฐานเดียว รองรับหลายยี่ห้อ ~1 WO) และใช้ **Polar H10 เป็นอุปกรณ์ทดสอบคู่กับ Apple Watch** เพราะได้ RR จริง ทำให้เรามีเฉลย HRV ไว้เทรนตัวประเมินฝั่งนาฬิกาด้วย
 
 ### 8.2 ส่วนประกอบ
-- **มือถือ**: Expo (React Native) · BLE: `react-native-ble-plx` (Heart Rate Service 0x180D · Heart Rate Measurement 0x2A37 อ่าน bpm + RR intervals · background mode `bluetooth-central`) · expo-router · SQLite (expo-sqlite) · เสียง: `react-native-track-player` (background audio · Now Playing · ล็อกสกรีน) เล่น ambience bed ต่อเนื่อง + ซ้อนเสียงสมอด้วยแทร็กที่ 2 · Live Activity ผ่าน native module เล็ก · Apple Speech ผ่าน `expo-speech-recognition`
+- **มือถือ**: Expo (React Native) · **Liquid Glass**: iOS 26+ ผ่าน `expo-glass-effect` (UIGlassEffect ของจริง) · iOS 18 ลงมาถอยเป็น `expo-blur` (กระจกฝ้าธรรมดา) · แท็บบาร์ลอยแบบ native ผ่าน expo-router tabs (iOS 26 ให้ liquid glass เอง) · BLE: `react-native-ble-plx` (Heart Rate Service 0x180D · Heart Rate Measurement 0x2A37 อ่าน bpm + RR intervals · background mode `bluetooth-central`) · expo-router · SQLite (expo-sqlite) · เสียง: `react-native-track-player` (background audio · Now Playing · ล็อกสกรีน) เล่น ambience bed ต่อเนื่อง + ซ้อนเสียงสมอด้วยแทร็กที่ 2 · Live Activity ผ่าน native module เล็ก · Apple Speech ผ่าน `expo-speech-recognition`
 - **นาฬิกา**: watchOS target Swift ฝังผ่าน `@bacons/apple-targets` (build บน EAS) · `HKWorkoutSession(.mindAndBody)` + `HKLiveWorkoutBuilder` (HR ต่อวินาที) · `CMMotionManager` accel 20 Hz → รวมเป็น epoch 30 วิ บนนาฬิกา · ส่ง `WCSession.sendMessage` ทุก epoch · ถ้าไม่ reachable → `transferUserInfo` คิวไว้ · ปุ่มหยุด → ส่งคำสั่งกลับ · **การประเมิน REM อยู่มือถือ** (แก้โมเดลง่าย) แต่นาฬิกามี fallback: ถ้ามือถือหายเกิน 10 นาที นาฬิกาสั่นเตือนเบา ๆ ตอนเช้าว่าข้อมูลบางส่วนอยู่บนนาฬิกา
 - **เซิร์ฟเวอร์** (เล็ก): Node/Next + Postgres · endpoint: `/ai/seed` `/ai/tts` `/ai/score` `/ai/weekly` · sync (ตัวเลือก) · ไม่มีบัญชีใน Phase 1 (device id + Sign in with Apple เมื่อเปิด sync)
 - **ความเสี่ยงต้องพิสูจน์สัปดาห์แรก (L1.1 spike)**: EAS build watch target ผ่าน · workout session ทั้งคืนแบตเหลือ ≥ 30% · audio session ไม่ถูก iOS ฆ่า 8 ชม. · หูฟังไม่ดับเมื่อเล่น bed ต่อเนื่อง
