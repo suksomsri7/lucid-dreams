@@ -1,0 +1,60 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "live.stop" : {
+      "comment" : "The one button on the lock-screen card (DESIGN §4-05 screen ข).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "หยุด"
+          }
+        }
+      }
+    },
+    "live.stop.accessibility" : {
+      "comment" : "VoiceOver label for the stop button.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop tonight's session"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "หยุดคืนนี้"
+          }
+        }
+      }
+    },
+    "live.whispers" : {
+      "comment" : "Third line of the card. First %lld = whispers played, second %lld = the ceiling for tonight. Wording mirrors the app's 'plan.tonight.full'.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Whispered %lld/%lld · silent the moment you wake"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กระซิบ %lld/%lld · เงียบทันทีถ้าคุณตื่น"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
