@@ -166,6 +166,8 @@ export class BleHeartRateSource implements BleSensorSource {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private reconnectAttempt = 0;
   private scanning = false;
+  /** One connect attempt at a time — see `connect()`. */
+  private connecting = false;
 
   /** Folds this source's own samples into epochs for `onEpoch` — see the file header. */
   private epochHub: SensorHub | null = null;
@@ -399,6 +401,12 @@ export class BleHeartRateSource implements BleSensorSource {
       this.emitStatus();
       return;
     }
+    // `start()` both subscribes to the radio state (which fires immediately with the current
+    // state, and connects when it is already powered on) and connects itself, so without this
+    // the very first start would open two links to one strap — two monitors, two notifications
+    // per beat, and the hub's `(source, second)` dedupe would silently drop half of them.
+    if (this.connecting) return;
+    this.connecting = true;
 
     try {
       const device = await manager.connectToDevice(deviceId, { timeout: CONNECT_TIMEOUT_MS });
@@ -435,6 +443,8 @@ export class BleHeartRateSource implements BleSensorSource {
       this.error = `BLE_CONNECT:${errorCodeOf(cause)}`;
       this.emitStatus();
       this.scheduleReconnect(deviceId);
+    } finally {
+      this.connecting = false;
     }
   }
 
