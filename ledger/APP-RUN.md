@@ -236,8 +236,9 @@
 | L1.2 | ✅ DONE 24 ก.ย. (oracle 32/32 · parity gallery ✓ · settings Seg แก้แล้ว) | main | จอ 3 แท็บยังเป็น placeholder ตามแผน — parity ของจอจริงตัดสินที่ L1.4/L3.5/L3.6 |
 | L1.3 | ✅ DONE 24 ก.ย. (22/22 · parity ตรง mockup 01 ทั้ง 2 จอ) | main | จุดต่างที่แก้: เอาสวิตช์ AI ออก · ปุ่มตรึงล่าง · เพิ่ม fixture QC |
 | L1.4 | ✅ DONE 24 ก.ย. (16/16 · parity 02/03 ตรง หลังแก้ 3 รอบ) | main | mock adapter → สลับ engine advisor ที่ L1.7ui |
-| L2.3e/L3.2e/L3.4 | ▶ building (Opus · wo/L3e) | — | engine: BLE HRM parser + SensorHub · AiScore sanitize + ข้อความผลเช้า · bandit/PersonalModel · oracle 10+5+8 |
-| L1.7ui | ▶ building (Sonnet · wo/L1.7ui) | — | หน้าแผน → ตรวจอุปกรณ์ → หูซ้าย → หูขวา → เริ่ม (mockup 04 4 จอ) + สลับ advisor จริง · oracle qc-L1.7app |
+| L1.6s | ▶ building (Opus · wo/L1.6s) | — | signature v2-C ลง engine + `/ai/anchor` กระซิบครั้งเดียว atempo 0.85 delay 2600 |
+| L2.3e/L3.2e/L3.4 | ▶ building (Opus · wo/L3e · เริ่มใหม่หลังโควตา 13:00) | — | engine: BLE HRM parser + SensorHub · AiScore sanitize + ข้อความผลเช้า · bandit/PersonalModel · oracle 10+5+8 |
+| L1.7ui | ▶ building (Sonnet · wo/L1.7ui · ต่อจาก autosave 12:38 หลังโควตา) | — | หน้าแผน → ตรวจอุปกรณ์ → หูซ้าย → หูขวา → เริ่ม (mockup 04 4 จอ) + สลับ advisor จริง · oracle qc-L1.7app |
 | L1.5 | ✅ DONE 24 ก.ย. (engine 73/73 · api 21/21) | main | รอ: OpenRouter key (ยิงจริง) · DNS lucid → 72.62.196.201 · **TTS = fal.ai→ElevenLabs v3 [whispers] (มติเจ้าของ · ใช้ FAL key เดิม)** ตัวอย่างส่ง TG แล้ว รอเลือกเสียง |
 | L2.4/2.5 | ✅ DONE 24 ก.ย. (87/87 · onset 99.5% ≤10 นาที บนจำลอง · F1 0.98 จำลอง — คาดจริง 0.5–0.7) | main | ปรับเทียบ R2 |
 | L2.6/2.7 | ✅ DONE 24 ก.ย. (106/106 · fuzz 2,200 คืน 0 ข้อผิด) | main | R2: พิจารณาลด maxCuesPerNight · ปรับเกณฑ์ตื่น 0.15 g จากคืนจริง |

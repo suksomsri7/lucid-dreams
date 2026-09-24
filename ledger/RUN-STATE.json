@@ -1,16 +1,15 @@
 {
  "run": "APP-RUN Phase 1",
- "wo": "L1.7ui+L3e",
+ "wo": "L1.7ui(resume)+L3e(restart)+L1.6s",
  "step": "building",
- "branch": "wo/L1.7ui + wo/L3e",
- "worktree": "/root/projects/lucid-dreams-L1.7ui · -L3e",
- "builder": "sonnet+opus",
+ "branch": "wo/L1.7ui + wo/L3e + wo/L1.6s",
+ "worktree": "/root/projects/lucid-dreams-L1.7ui · -L3e · -L1.6s",
+ "builder": "sonnet+opus+opus",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T14:20Z",
+ "lastCheckpoint": "2026-09-24T13:10Z",
  "lastCommit": "L2.6/2.7 merged",
  "blockedOn": [
-  "เจ้าของ: DNS A record lucid.suksomsri.cloud → 72.62.196.201",
-  "เจ้าของ: OpenRouter API key",
-  "เจ้าของ: เลือกเสียงกระซิบ (Sarah/Laura/Charlotte) จากตัวอย่าง TG 3439–3445"
+  "เจ้าของ: DNS lucid → 72.62.196.201",
+  "เจ้าของ: OpenRouter key"
  ]
 }
