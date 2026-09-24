@@ -53,7 +53,7 @@ export function GlassCard({
       contentStyle={[noPadding ? undefined : styles.padded, contentStyle]}
     >
       {title === undefined ? null : (
-        <View style={styles.header}>
+        <View style={[styles.header, noPadding ? styles.headerPadded : undefined]}>
           <SectionLabel night={night}>{title}</SectionLabel>
         </View>
       )}
@@ -65,4 +65,12 @@ export function GlassCard({
 const styles = StyleSheet.create({
   padded: { padding: spacing.lg, gap: spacing.md },
   header: { marginBottom: -4 },
+  // `noPadding` leaves the whole content box unpadded on purpose (edge-to-edge row
+  // dividers) — but the title label still sits inside `radius.card`'s own top-left
+  // curve at x=0/y=0 and gets visually clipped by the surface's `overflow: hidden`
+  // mask without its own inset (found via `settings.tsx`'s `?fixture=` screenshot,
+  // WO L3ui — every section label in mockup `09-settings.png` was cut to its last
+  // few characters before this fix). Padded cards do not need this: their shared
+  // `padded` content style already insets everything, header included.
+  headerPadded: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: -4 + spacing.xs },
 });

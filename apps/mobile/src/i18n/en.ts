@@ -433,7 +433,7 @@ export const en: Translations = {
   'settings.section.sound': 'Sound',
   'settings.section.sleep': 'Sleep',
   'settings.section.data': 'Data',
-  'settings.devices.searchOther': '+ Find a device',
+  'settings.devices.searchOther': 'Find a device',
   'settings.devices.row.value': '{name} · {battery}%',
   'settings.devices.eye.value': 'None yet · optional',
   'settings.devices.notConnected': 'None yet',

@@ -429,7 +429,7 @@ export const th = {
   'settings.section.sound': 'เสียง',
   'settings.section.sleep': 'การนอน',
   'settings.section.data': 'ข้อมูล',
-  'settings.devices.searchOther': '+ ค้นหาอุปกรณ์',
+  'settings.devices.searchOther': 'ค้นหาอุปกรณ์',
   'settings.devices.row.value': '{name} · {battery}%',
   'settings.devices.eye.value': 'ยังไม่มี · ไม่บังคับ',
   'settings.devices.notConnected': 'ยังไม่มี',
