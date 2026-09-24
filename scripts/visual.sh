@@ -2,7 +2,7 @@
 # ถ่ายภาพจอจาก web export เพื่อเทียบ mockup : ./scripts/visual.sh <worktree> <wo> <route1,route2,...> [lang=th]
 # ผล: <main repo>/.qc-shots/<wo>/<route>-<lang>.png  (โปรไฟล์ chromium ชั่วคราว ลบทิ้งทุกครั้ง)
 set -u
-wt="$1"; wo="$2"; routes="$3"; lang="${4:-th}"
+wt="$1"; wo="$2"; routes="$3"; lang="${4:-th}"; size="${5:-390,844}"
 out="/root/projects/lucid-dreams/.qc-shots/$wo"; mkdir -p "$out"
 dist="$wt/apps/mobile/dist"; [ -f "$dist/index.html" ] || { echo "ไม่มี $dist/index.html"; exit 1; }
 port=$((41000 + RANDOM % 1000))
@@ -15,7 +15,7 @@ IFS=',' read -ra R <<< "$routes"
 for r in "${R[@]}"; do
   name=$(echo "$r" | sed 's#^/##; s#/#_#g; s#[?&=]#-#g'); [ -z "$name" ] && name=index
   XDG_RUNTIME_DIR=/tmp/xdg-chromium timeout 60 /snap/bin/chromium --headless --no-sandbox --disable-gpu --hide-scrollbars \
-    --user-data-dir="$d" --window-size=390,844 --lang=$lang --virtual-time-budget=8000 \
+    --user-data-dir="$d" --window-size=$size --lang=$lang --virtual-time-budget=8000 \
     --screenshot="$out/$name-$lang.png" "http://127.0.0.1:$port$r" 2>/dev/null
   [ -s "$out/$name-$lang.png" ] && echo "shot $out/$name-$lang.png" || echo "FAILED $r"
 done
