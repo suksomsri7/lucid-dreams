@@ -2,11 +2,12 @@
  * ข้อสอบ L2.7 — ตัวจับตื่น + โหมดตัวจับเวลา · builder ห้ามแก้
  * สัญญา: createWakeDetector({ motionHigh?: 0.05, hrJump?: 0.20 }) → { feed(epoch): { awake: boolean; cause: 'MOTION'|'HR'|null; since: number|null } ; reset() }
  *        detectWakeBouts(epochs) → { startT: number; endT: number; cause: string }[]
- *        timerModeParams(params) → NightParams  (remThreshold 0.75 · maxCuesPerNight 4 · source TIMER)
+ *        timerModeParams(params) → NightParams & { mode:'TIMER' }  (maxCuesPerNight 4 · guard เท่าเดิม · มติ 24 ก.ย.: โหมดจับเวลาไม่ใช้ p-threshold แต่ยิงตามหน้าต่าง prior)
+ *        timerCueWindows(onsetT, endT, params?) → { startT: number; endT: number }[]  (≤ 4 หน้าต่างที่ remTimePrior สูงสุดต่อรอบ 90 นาที · ทั้งหมดหลัง guard · ไม่ซ้อนกัน)
  */
 import { describe, it, expect } from 'vitest';
 import * as engine from '../src/index';
-const { simulateNight, detectWakeBouts, createWakeDetector, timerModeParams, DEFAULT_NIGHT_PARAMS } = engine as any;
+const { simulateNight, detectWakeBouts, createWakeDetector, timerModeParams, timerCueWindows, DEFAULT_NIGHT_PARAMS } = engine as any;
 const sleepAt = '2026-09-24T16:00:00.000Z';
 const truthBouts = (n: any) => { const b: any[] = []; let cur: any = null; n.truth.forEach((s: any, i: number) => { const w = s.stage === 'WAKE' && s.t > n.onsetT && i < n.truth.length - 12; if (w && !cur) cur = { startT: s.t, endT: s.t }; else if (w && cur) cur.endT = s.t; else if (!w && cur) { b.push(cur); cur = null; } }); return b; };
 
@@ -33,5 +34,10 @@ describe('L2.7 wake detector', () => {
     d.feed(q(690, 70)); d.feed(q(720, 70)); d.feed(q(750, 70)); const r = d.feed(q(780, 70)); expect(r.awake).toBe(true); expect(r.cause).toBe('HR');
   });
   it('W5 epoch null (เซนเซอร์หลุด) ไม่ทำให้ตื่นและไม่พัง', () => { const d = createWakeDetector({}); for (let i = 0; i < 10; i++) expect(d.feed({ t: i * 30, hrMean: null, hrSd: null, motion: null, battery: null, source: 'TIMER' }).awake).toBe(false); });
-  it('W6 timerModeParams: threshold 0.75 · maxCuesPerNight 4 · ค่าอื่นคงเดิม', () => { const p = timerModeParams(DEFAULT_NIGHT_PARAMS); expect(p.remThreshold).toBe(0.75); expect(p.maxCuesPerNight).toBe(4); expect(p.guardHours).toBe(DEFAULT_NIGHT_PARAMS.guardHours); });
+  it('W6 timerModeParams: mode TIMER · maxCuesPerNight 4 · guard คงเดิม', () => { const p = timerModeParams(DEFAULT_NIGHT_PARAMS); expect(p.mode).toBe('TIMER'); expect(p.maxCuesPerNight).toBe(4); expect(p.guardHours).toBe(DEFAULT_NIGHT_PARAMS.guardHours); });
+  it('W7 timerCueWindows: ≤ 4 หน้าต่าง · ทั้งหมดหลัง guard 2 ชม.+ · ไม่ซ้อน · เรียงเวลา · ยาว 5–20 นาที', () => {
+    const onset = 1000, end = onset + 8 * 3600; const w = timerCueWindows(onset, end, DEFAULT_NIGHT_PARAMS);
+    expect(w.length).toBeGreaterThan(0); expect(w.length).toBeLessThanOrEqual(4);
+    for (let i = 0; i < w.length; i++) { expect(w[i].startT).toBeGreaterThanOrEqual(onset + 2 * 3600); expect(w[i].endT - w[i].startT).toBeGreaterThanOrEqual(300); expect(w[i].endT - w[i].startT).toBeLessThanOrEqual(1200); if (i > 0) expect(w[i].startT).toBeGreaterThanOrEqual(w[i - 1].endT); }
+  });
 });
