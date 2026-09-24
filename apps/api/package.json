@@ -1,0 +1,14 @@
+{
+  "name": "@lucid/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "เซิร์ฟเวอร์ AI (ว่างไว้ — เริ่มจริงที่ L1.5)",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -b"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "lucid-dreams",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Lucid Dream — iOS app + Apple Watch + headphones (Phase 1)",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "qc": "./scripts/qc-L1.1.sh",
+    "fitness": "tsx scripts/fitness.mts",
+    "typecheck": "tsc -b",
+    "tsc": "tsc",
+    "test": "pnpm --filter @lucid/engine test",
+    "web:export": "./scripts/heavy.sh export \"cd apps/mobile && NODE_OPTIONS=--max-old-space-size=3584 npx expo export --platform web\""
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3",
+    "typescript": "~6.0.3"
+  }
+}

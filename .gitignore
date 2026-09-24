@@ -1,0 +1,40 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+build/
+*.tsbuildinfo
+.tsbuildinfo/
+
+# expo
+.expo/
+.expo-shared/
+web-build/
+apps/mobile/dist/
+
+# native projects (สร้างใหม่ได้ด้วย expo prebuild — CNG)
+apps/mobile/ios/
+apps/mobile/android/
+# ต้องขึ้นต้นด้วย / ไม่งั้นจะกิน src/platform/ios/ · src/platform/android/ ด้วย
+/ios/build/
+/android/build/
+/android/.gradle/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+DerivedData/
+
+# heavy jobs (scripts/heavy.sh)
+.heavy/
+
+# env / ความลับ
+.env
+.env.*
+!.env.example
+
+# เครื่องมือ/ระบบ
+.DS_Store
+*.log
+.qc-shots/
+coverage/

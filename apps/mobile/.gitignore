@@ -1,0 +1,7 @@
+# ต้องขึ้นต้นด้วย / ทุกบรรทัด — `ios/` เปล่า ๆ จะกิน src/platform/ios/ ด้วย
+# (เจอตอน L1.1: implementation ทั้งโฟลเดอร์หลุดจาก git เงียบ ๆ)
+/.expo/
+/dist/
+/.tsbuild/
+/ios/
+/android/
