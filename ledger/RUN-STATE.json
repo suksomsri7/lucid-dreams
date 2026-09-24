@@ -14,16 +14,16 @@
     "เจ้าของ: รุ่น iPhone/Watch/หูฟัง",
     "เจ้าของ: สั่ง build",
     "owner: confirm anchor sound v2-C (TG 3478)",
-    "owner: pick sleep-mask icon D/E/F"
+    "owner: pick icon G/H/I"
   ],
   "icons": {
-    "status": "round-2 sleep-mask minimal delivered (D/E/F)",
+    "status": "round-3 minimal clean, distinct structures (G/H/I)",
     "files": [
-      "ledger/design-icon/icon-D-mask-flat.png",
-      "ledger/design-icon/icon-E-mask-night.png",
-      "ledger/design-icon/icon-F-mask-outline.png"
+      "ledger/design-icon/icon-G-two-lenses.png",
+      "ledger/design-icon/icon-H-mask-zoom.png",
+      "ledger/design-icon/icon-I-face-mask.png"
     ],
-    "waitingOwner": "pick D/E/F (A/B/C round 1 rejected: owner wants minimal sleep mask) -> full iOS icon set",
-    "tg": "3506-3509"
+    "waitingOwner": "pick G/H/I (rounds 1-2 rejected: not minimal / only colour changed)",
+    "tg": "3510-3513"
   }
 }

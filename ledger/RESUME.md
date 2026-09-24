@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 02:30 UTC · 🎨 ไอคอนรอบ 3 (เจ้าของบอกรอบ 2 เปลี่ยนแค่สี ขอ **มินิมอล คลีน**) → G สองเลนส์ · H หน้ากากซูม · I วงหน้าสวมหน้ากาก (`design-icon/icons-mask2.html`) รอเลือก · บทเรียน: แต่ละแบบต้องต่างที่โครง ไม่ใช่สี
 - 2026-09-25 02:00 UTC · 🎨 เจ้าของสั่ง **ไอคอนใหม่ minimal แบบหน้ากากปิดตา** → ทำ 3 แบบ D/E/F (`design-icon/icons-mask.html` · TG 3506–3509) รอเลือก · A/B/C รอบแรกตกไป
 - 2026-09-25 01:30 UTC · 🎨 **ไอคอนแอป 3 แบบส่งแล้ว** (`ledger/design-icon/` A พระจันทร์เสี้ยว · B ตาหลับ · C ทรงกลมกระซิบ · TG 3499–3503) · รอเจ้าของเลือก → ทำชุดไอคอน iOS เต็ม (1024 + watch + adaptive) + `app.config icon` · ยังรอ R1 (ASC app + Team ID + ASC key) และยืนยันเสียง anchor (TG 3478) · ⚠️ TG 3504 "--inbox" = ข้อความหลุดจากคำสั่ง ไม่ใช่ข้อความถึงเจ้าของ
 - 2026-09-25 00:30 UTC · 🏁 **โค้ด Phase 1 ครบ 24/24 · L3.F ปิดแล้ว** (ทุกชุดเขียว · 15 จอ TH/EN) · handover `HANDOVER-2026-09-25-DREAMING-P1.md` · **ตอนนี้ = รอ R1** ดู `R1-CHECKLIST.md`: เจ้าของสร้างแอป Dreaming ใน ASC + ส่ง Team ID/ASC key → Fable ใส่ `EXPO_APPLE_TEAM_ID` + eas credentials → แจ้งพร้อม → เจ้าของสั่ง `eas build --profile r1-internal` (Fable ห้ามยิงเอง) · session ใหม่เริ่มที่นี่ได้เลย
