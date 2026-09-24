@@ -144,6 +144,15 @@ class AndroidLiveStatus implements LiveStatus {
   async stop(): Promise<void> {
     // nothing shown — safe
   }
+
+  /**
+   * Nothing draws a stop button on this platform yet (the ongoing notification is Phase 2), so
+   * there is nothing to listen to. Returns the same no-op unsubscriber as the other listeners
+   * here rather than throwing: a night on the web QC bundle subscribes to this at start-up.
+   */
+  onStopRequested(_listener: () => void): Unsubscribe {
+    return noop();
+  }
 }
 
 class AndroidHealthImport implements HealthImport {

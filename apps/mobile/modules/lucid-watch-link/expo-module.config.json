@@ -1,0 +1,8 @@
+{
+  "$comment": "apps/mobile/modules/lucid-watch-link — local Expo module, autolinked because Expo's default nativeModulesDir is <app>/modules (expo-modules-autolinking/build/commands/autolinkingOptions.js). Apple only: WCSession has no Android twin, so the Android SensorSource stub in src/platform/android stays as it is. JS side: index.ts, consumed through src/platform/ios/watchBridge.ts.",
+  "platforms": ["apple"],
+  "apple": {
+    "modules": ["LucidWatchLinkModule"],
+    "podspecPath": "ios/LucidWatchLink.podspec"
+  }
+}

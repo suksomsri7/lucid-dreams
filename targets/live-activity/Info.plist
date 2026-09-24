@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Checked in rather than left to `@bacons/apple-targets` (which writes this exact plist on the
+  first prebuild if it is missing): the plugin reads `NSExtension.NSExtensionPointIdentifier`
+  back on later runs to recognise which target is which, and this one shares its extension
+  point with the watch complication in `targets/watch-complication` — the pair is only told
+  apart by WATCHOS_DEPLOYMENT_TARGET. Keeping both plists in git means that never depends on
+  what a previous prebuild left on disk.
+
+  NSSupportsLiveActivities belongs to the **app** target, not here — it is set in
+  `apps/mobile/app.config.ts`'s `ios.infoPlist`.
+-->
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Dreaming</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>th</string>
+	</array>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.widgetkit-extension</string>
+	</dict>
+</dict>
+</plist>

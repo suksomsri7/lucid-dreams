@@ -5,14 +5,17 @@
  * epoch) and sends `{t, hrMean, hrSd, motion, battery}`. This class does three things
  * and nothing else:
  *
- *  1. validates every payload against the engine's `SensorEpochSchema` — a watch
- *     message is untrusted input (APP-RUN §0.5 S8): out-of-range HR and replayed or
- *     backwards epochs are dropped here, and again in the engine;
+ *  1. validates every payload with the engine's own `normalizeEpochs` + `SensorEpochSchema` —
+ *     a watch message is untrusted input (APP-RUN §0.5 S8): out-of-range HR and replayed or
+ *     backwards epochs are dropped here, and again in the engine. Using the engine's
+ *     normaliser rather than a local copy of the same rules is deliberate: it is the code a
+ *     replayed diagnostics night goes through (`replay.ts`), so a live night and a replay
+ *     cannot be judged differently;
  *  2. keeps a status snapshot for the Diagnostics screen;
  *  3. never decides anything about REM — that is `packages/engine`.
  */
 
-import { epochIndexOf, SensorEpochSchema, type SensorEpoch } from '@lucid/engine';
+import { epochIndexOf, normalizeEpochs, SensorEpochSchema, type SensorEpoch } from '@lucid/engine';
 
 import type { SensorSource, SensorStatus, Unsubscribe } from '../types';
 import { watchBridge, type WatchEpochPayload, type WatchLinkStatus } from './watchBridge';
@@ -120,7 +123,7 @@ export class WatchSensorSource implements SensorSource {
       return;
     }
 
-    const candidate = {
+    const candidate: SensorEpoch = {
       t: epochIndexOf(seconds * 1000),
       hrMean: toNullableNumber(payload.hrMean),
       hrSd: toNullableNumber(payload.hrSd),
@@ -129,7 +132,21 @@ export class WatchSensorSource implements SensorSource {
       source: this.kind,
     };
 
-    const parsed = SensorEpochSchema.safeParse(candidate);
+    // The engine's own normaliser first (WO L2.2n): it is what `replay.ts` runs over a recorded
+    // night, so a live epoch and a replayed one are put on the 30 s grid and range-checked by the
+    // *same* code — the alternative was a second, hand-written copy of "HR out of 25..220 is not
+    // evidence" here, and two copies of a rule is how they drift. It returns an empty array when
+    // it dropped the epoch.
+    const [normalized] = normalizeEpochs([candidate]);
+    if (!normalized) {
+      this.error = 'EPOCH_REJECTED:hrMean';
+      this.emitStatus();
+      return;
+    }
+
+    // Then the schema, which catches everything `normalizeEpochs` does not look at: a battery
+    // above 1, a negative motion energy, an absurd hrSd.
+    const parsed = SensorEpochSchema.safeParse(normalized);
     if (!parsed.success) {
       // out-of-range HR / battery: keep the night going, record why
       this.error = `EPOCH_REJECTED:${parsed.error.issues[0]?.path.join('.') ?? 'unknown'}`;

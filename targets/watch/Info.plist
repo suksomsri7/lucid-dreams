@@ -10,10 +10,18 @@
 	<string>Dreaming</string>
 	<key>CFBundleName</key>
 	<string>LucidWatch</string>
+	<!-- Thai and English are equal (DESIGN §2 rule 7). The strings themselves live in
+	     Localizable.xcstrings next to this file; this key makes the pair explicit in the
+	     built bundle the same way apps/mobile/app.config.ts does for the phone. -->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>th</string>
+	</array>
 	<key>WKApplication</key>
 	<true/>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>app.luciddream.ios</string>
+	<string>app.dreaming.ios</string>
 	<key>WKRunsIndependentlyOfCompanionApp</key>
 	<false/>
 	<key>UIBackgroundModes</key>

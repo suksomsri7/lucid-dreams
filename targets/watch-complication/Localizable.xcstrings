@@ -1,0 +1,96 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "complication.description" : {
+      "comment" : "Shown under the complication's name in the watch-face editor.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nights in a row you ran a night with Dreaming."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "จำนวนคืนติดกันที่คุณใช้ Dreaming"
+          }
+        }
+      }
+    },
+    "complication.nights" : {
+      "comment" : "Rectangular family, main line. %lld = nights in a row.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld nights in a row"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ติดกัน %lld คืน"
+          }
+        }
+      }
+    },
+    "complication.nights.unknown" : {
+      "comment" : "Rectangular family, main line, before the phone has ever sent a streak. A dash, never a zero (DESIGN §2.2).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "— nights in a row"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ติดกัน — คืน"
+          }
+        }
+      }
+    },
+    "complication.title" : {
+      "comment" : "Complication name in the watch-face editor, and the small label above the number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nights in a row"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "คืนติดกัน"
+          }
+        }
+      }
+    },
+    "complication.unit.short" : {
+      "comment" : "Circular family: the one word that fits under the number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nights"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "คืน"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
