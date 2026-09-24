@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#fff;font-family:system-ui}
+.icon{width:1024px;height:1024px;position:relative;overflow:hidden}
+/* A — Crescent glass: พระจันทร์เสี้ยวกระจกลอยบนฟ้าค่ำ + จุดกระซิบโคจร */
+#A{background:radial-gradient(900px 700px at 30% 20%,#7d6cff 0%,#3b2fa8 45%,#141642 100%)}
+#A .glow{position:absolute;left:262px;top:262px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55),rgba(255,255,255,0) 70%);filter:blur(30px)}
+#A .moon{position:absolute;left:292px;top:262px;width:440px;height:440px;border-radius:50%;background:linear-gradient(160deg,#ffffff,#e6e2ff 60%,#c9c2ff);box-shadow:0 40px 90px rgba(0,0,0,.35),inset 0 -20px 40px rgba(120,100,255,.35)}
+#A .bite{position:absolute;left:420px;top:190px;width:430px;height:430px;border-radius:50%;background:radial-gradient(900px 700px at 30% 20%,#7d6cff 0%,#3b2fa8 45%,#141642 100%);background-attachment:fixed}
+#A .dot{position:absolute;left:706px;top:668px;width:64px;height:64px;border-radius:50%;background:#5ee6c0;box-shadow:0 0 40px 12px rgba(94,230,192,.55)}
+/* B — Closed eye + spark: ตาหลับ (นอน) กับประกายรู้ตัว บนพื้นกระจกอ่อน */
+#B{background:linear-gradient(160deg,#f3efff 0%,#dcd4ff 45%,#bfe0ff 100%)}
+#B .card{position:absolute;inset:112px;border-radius:260px;background:rgba(255,255,255,.55);border:2px solid rgba(255,255,255,.9);box-shadow:0 30px 80px rgba(80,60,200,.18),inset 0 2px 0 #fff}
+#B svg{position:absolute;left:0;top:0}
+/* C — Whisper orb: ทรงกลมกระจกมืด มีคลื่นกระซิบ + วงแหวน */
+#C{background:radial-gradient(800px 800px at 50% 40%,#2b2a6e 0%,#141642 55%,#0b0f1a 100%)}
+#C .orb{position:absolute;left:192px;top:192px;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(157,140,255,.75),rgba(157,140,255,.15) 55%,rgba(157,140,255,0) 72%);box-shadow:inset 0 0 0 3px rgba(255,255,255,.18),0 0 120px 30px rgba(120,100,255,.25)}
+#C .ring{position:absolute;left:262px;top:262px;width:500px;height:500px;border-radius:50%;border:3px solid rgba(255,255,255,.28)}
+#C svg{position:absolute;left:0;top:0}
+</style></head><body>
+<div class="icon" id="A"><div class="glow"></div>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024"><defs><mask id="m"><rect width="1024" height="1024" fill="#fff"/><circle cx="640" cy="410" r="215" fill="#000"/></mask>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#e6e2ff"/><stop offset="1" stop-color="#c9c2ff"/></linearGradient>
+<filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="40" stdDeviation="40" flood-color="#000" flood-opacity=".35"/></filter></defs>
+<circle cx="512" cy="482" r="230" fill="url(#g)" mask="url(#m)" filter="url(#sh)"/></svg>
+<div class="dot"></div></div>
+<div class="icon" id="B"><div class="card"></div>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" stroke-linecap="round">
+ <path d="M282 540 C 380 430, 644 430, 742 540" stroke="#3b2fa8" stroke-width="54"/>
+ <path d="M330 560 L 312 612 M 420 522 L 412 580 M 512 508 L 512 570 M 604 522 L 612 580 M 694 560 L 712 612" stroke="#3b2fa8" stroke-width="28" opacity=".9"/>
+ <path d="M690 268 l 22 60 l 60 22 l -60 22 l -22 60 l -22 -60 l -60 -22 l 60 -22 z" fill="#6b5cff"/>
+ <circle cx="612" cy="392" r="12" fill="#6b5cff" opacity=".7"/>
+</svg></div>
+<div class="icon" id="C"><div class="orb"></div><div class="ring"></div>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" stroke="#5ee6c0" stroke-width="26" stroke-linecap="round">
+ <path d="M312 512 v0 M372 470 v84 M432 420 v184 M492 380 v264 M552 420 v184 M612 460 v104 M672 490 v44 M732 505 v14"/>
+ <path d="M300 512 h12" stroke-width="26"/>
+</svg></div>
+</body></html>
