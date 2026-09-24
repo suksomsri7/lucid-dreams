@@ -67,9 +67,10 @@ describe('sqlite store', () => {
 
       // 30 minutes later both of a's hits are inside the window.
       expect(store.countHitsSince('dev:a', t0 + 30 * 60_000 - 60 * 60_000)).toBe(2);
-      // 70 minutes after the first one, only the second is.
-      expect(store.countHitsSince('dev:a', t0 + 70 * 60_000 - 60 * 60_000)).toBe(1);
-      expect(store.countHitsSince('dev:b', t0 + 70 * 60_000 - 60 * 60_000)).toBe(0);
+      // 65 minutes later the first hit has fallen out of the window and the second has not
+      // (the window is exclusive: a hit exactly one hour old no longer counts).
+      expect(store.countHitsSince('dev:a', t0 + 65 * 60_000 - 60 * 60_000)).toBe(1);
+      expect(store.countHitsSince('dev:b', t0 + 65 * 60_000 - 60 * 60_000)).toBe(0);
       store.close();
     }
   });

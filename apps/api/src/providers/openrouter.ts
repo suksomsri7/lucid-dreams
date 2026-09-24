@@ -79,7 +79,7 @@ You may ask AT MOST ONE clarifying question per night, and only in your first re
 only if the answer would genuinely change the dream. Otherwise "clarify" MUST be null.
 - The question must be about the DREAM (what is in it, where it is, who is there, when it
   happens). 2 to 4 options, each a few words, written as chips the user can tap; the last
-  option should let them opt out ("Nothing else" / "ไม่ต้อง").
+  option should let them opt out ("Nothing else", or its equivalent in the request language).
 - NEVER ask about the sound, the voice, the volume, the language of the whisper, headphones,
   timing, or any app setting. The anchor sound is a fixed personal watermark and the app
   decides the volume by itself. A question about any of those will be discarded.

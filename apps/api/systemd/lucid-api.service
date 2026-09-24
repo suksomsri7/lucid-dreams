@@ -1,0 +1,32 @@
+# systemd unit ของเซิร์ฟเวอร์ AI (APP-RUN §0.3 ข้อ 5 · §0.6)
+# ติดตั้ง:
+#   cp apps/api/systemd/lucid-api.service /etc/systemd/system/lucid-api.service
+#   systemctl daemon-reload && systemctl enable --now lucid-api
+#   journalctl -u lucid-api -f -o cat | jq      # log เป็น JSON บรรทัดละคำขอ
+[Unit]
+Description=Lucid Dream AI API (Hono + SQLite + OpenRouter)
+Documentation=file:/root/projects/lucid-dreams/apps/api/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/projects/lucid-dreams/apps/api
+# กุญแจทั้งหมดอยู่ในไฟล์นี้ (600) ไม่อยู่ใน unit และไม่อยู่ใน repo
+EnvironmentFile=/root/projects/lucid-dreams/apps/api/.env
+# รัน TypeScript ตรง ๆ ด้วย tsx (โมโนรีโปนี้ไม่มีขั้น build สำหรับเซิร์ฟเวอร์)
+ExecStart=/usr/bin/env node --import tsx src/main.ts
+Restart=always
+RestartSec=3
+# ชุดนี้กินหน่วยความจำน้อย · เพดานกันกรณีรั่วไม่ให้ลาก VPS ล้ม (reference_vps_oom_claude_remote)
+MemoryMax=512M
+# ปิดทางยกสิทธิ์ · /tmp ส่วนตัว (ไม่ใช้ ProtectSystem=strict เพราะต้องเขียนไฟล์ SQLite)
+NoNewPrivileges=yes
+PrivateTmp=yes
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lucid-api
+
+[Install]
+WantedBy=multi-user.target

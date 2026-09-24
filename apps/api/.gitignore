@@ -1,0 +1,5 @@
+# ฐานข้อมูลของเซิร์ฟเวอร์ (device token hash · ตัวนับ rate · แคช TTS) — ห้ามเข้า repo
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
