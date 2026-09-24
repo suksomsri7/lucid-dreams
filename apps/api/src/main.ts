@@ -16,6 +16,8 @@
 
 import { createMockPlanProvider } from './providers/mock';
 import { createOpenRouterProvider } from './providers/openrouter';
+import { createOpenRouterScoreProvider } from './providers/openrouter-score';
+import { mockScoreProvider, type ScoreProvider } from './providers/score';
 import { resolveTtsProvider, type TtsProvider } from './providers/tts';
 import { createFalTtsProvider } from './providers/tts-fal';
 import { resolveFfmpegPath } from './anchor';
@@ -32,6 +34,25 @@ function intFromEnv(name: string, fallback: number): number {
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
 }
 
+/** One place for "which model, reached how" — `/ai/plan` and `/ai/score` share it. */
+function openRouterSettings(apiKey: string): {
+  apiKey: string;
+  model: string;
+  fallbackModel: string;
+  referer: string;
+  title: string;
+  timeoutMs: number;
+} {
+  return {
+    apiKey,
+    model: process.env.AI_MODEL?.trim() || 'anthropic/claude-opus-5',
+    fallbackModel: process.env.AI_MODEL_FALLBACK?.trim() || 'anthropic/claude-sonnet-5',
+    referer: process.env.AI_REFERER?.trim() || 'https://lucid.suksomsri.cloud',
+    title: process.env.AI_TITLE?.trim() || 'Lucid Dreams',
+    timeoutMs: intFromEnv('AI_TIMEOUT_MS', 20_000),
+  };
+}
+
 function resolvePlanProvider(): PlanProvider {
   const apiKey = process.env.OPENROUTER_API_KEY?.trim();
 
@@ -46,17 +67,30 @@ function resolvePlanProvider(): PlanProvider {
     process.exit(1);
   }
 
-  const model = process.env.AI_MODEL?.trim() || 'anthropic/claude-opus-5';
-  const fallbackModel = process.env.AI_MODEL_FALLBACK?.trim() || 'anthropic/claude-sonnet-5';
-  logger.info('provider.openrouter', { model, fallbackModel });
+  const settings = openRouterSettings(apiKey);
+  logger.info('provider.openrouter', { model: settings.model, fallbackModel: settings.fallbackModel });
+  return createOpenRouterProvider(settings);
+}
 
-  return createOpenRouterProvider({
-    apiKey,
-    model,
-    fallbackModel,
-    referer: process.env.AI_REFERER?.trim() || 'https://lucid.suksomsri.cloud',
-    title: process.env.AI_TITLE?.trim() || 'Lucid Dreams',
-    timeoutMs: intFromEnv('AI_TIMEOUT_MS', 20_000),
+/**
+ * The morning provider (`/ai/score` · `/ai/weekly`, L3.2).
+ *
+ * Same key and same model as the plan: one `AI_MODEL` for the whole product, because two
+ * model settings is two things to get wrong on the night the owner changes one of them.
+ * The only tuneable of its own is the answer budget, which is smaller than a plan's.
+ * Reached only after {@link resolvePlanProvider}, so a missing key here means
+ * `AI_ALLOW_MOCK=1` was set on purpose.
+ */
+function resolveScoreProvider(): ScoreProvider {
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
+  if (!apiKey) {
+    logger.warn('score.mock', { reason: 'no OPENROUTER_API_KEY, AI_ALLOW_MOCK=1' });
+    return mockScoreProvider;
+  }
+
+  return createOpenRouterScoreProvider({
+    ...openRouterSettings(apiKey),
+    maxTokens: intFromEnv('AI_SCORE_MAX_TOKENS', 700),
   });
 }
 
@@ -97,6 +131,7 @@ async function main(): Promise<void> {
     port,
     hostname: process.env.HOST?.trim() || '127.0.0.1',
     provider: resolvePlanProvider(),
+    scoreProvider: resolveScoreProvider(),
     ttsProvider,
     store: 'sqlite',
     dbPath,

@@ -16,6 +16,18 @@
  * so "left ear only" / "right ear only" are two different **stereo files**, one channel
  * zeroed, per the WO's own suggested fallback.
  *
+ * WO L2.2n re-checked this against SDK 57 (still no pan) and added the other half of the
+ * contract: `IosAudioPlayer.playOneShot` now verifies that a call asking for `pan: -1`/`1` was
+ * handed a `-l.wav`/`-r.wav` file, and records an `ERROR` audio event if it was not. The `-c|l|r`
+ * suffix produced by {@link panSuffix} is therefore part of an interface, not just a cache key —
+ * renaming it silently turns "both ears proved working" into a claim nobody checked.
+ *
+ * 🔎 Known, deliberately unchanged: a centre render (`pan: 0`) writes the full sample to *both*
+ * channels, so it is perceptibly louder than the one-sided renders the ear test calibrates with.
+ * Equalising it (×0.707 on centre) would change the level the user just approved on the ear-test
+ * screens, which is not a change to make without hearing it on a real device — noted as a debt in
+ * `ledger/wo-notes/L2.2n.md` for R1 to judge by ear.
+ *
  * The whispered sentence after the melody (`anchorPhraseFor(lang)`) is **not** rendered
  * here — that is server-side TTS (`POST /ai/tts`, cached per `anchorPhraseKey`), still
  * unbuilt on the app side. This file only ever plays the tone; the phrase is a debt,

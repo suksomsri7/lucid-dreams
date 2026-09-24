@@ -21,6 +21,17 @@
     }
   },
   "references": [{ "path": "../../packages/data" }, { "path": "../../packages/engine" }],
-  "include": ["app/**/*.ts", "app/**/*.tsx", "src/**/*.ts", "src/**/*.tsx", "app.config.ts", "expo-env.d.ts"],
+  // `modules/**` holds the local Expo modules (WO L2.2n). A `composite` project must list every
+  // file it compiles, and `src/platform/ios/*` imports these — without the pattern below `tsc -b`
+  // fails with TS6307 ("file is not listed within the file list of project").
+  "include": [
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "modules/**/*.ts",
+    "app.config.ts",
+    "expo-env.d.ts"
+  ],
   "exclude": ["node_modules", "dist", ".expo", ".tsbuild", "ios", "android"]
 }

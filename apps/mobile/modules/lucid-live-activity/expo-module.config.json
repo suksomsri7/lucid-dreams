@@ -1,0 +1,8 @@
+{
+  "$comment": "apps/mobile/modules/lucid-live-activity — local Expo module that starts/updates/ends the night's Live Activity through ActivityKit. The view it renders lives in the widget extension targets/live-activity (a separate binary); this module only owns the ActivityKit calls. Consumed through src/platform/ios/IosPeripherals.ts (IosLiveStatus). Apple only: Android's equivalent is a foreground-service notification, still a stub in src/platform/android.",
+  "platforms": ["apple"],
+  "apple": {
+    "modules": ["LucidLiveActivityModule"],
+    "podspecPath": "ios/LucidLiveActivity.podspec"
+  }
+}

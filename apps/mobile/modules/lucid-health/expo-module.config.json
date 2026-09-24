@@ -1,0 +1,8 @@
+{
+  "$comment": "apps/mobile/modules/lucid-health — local Expo module: read-only HealthKit bridge (sleep stages + heart rate) used the morning after a night as the reference answer for our own REM estimate. Consumed through src/platform/ios/IosPeripherals.ts (IosHealthImport) and src/health/appleSleep.ts. Apple only; Health Connect on Android stays a stub in src/platform/android.",
+  "platforms": ["apple"],
+  "apple": {
+    "modules": ["LucidHealthModule"],
+    "podspecPath": "ios/LucidHealth.podspec"
+  }
+}

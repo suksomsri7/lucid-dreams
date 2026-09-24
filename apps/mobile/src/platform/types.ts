@@ -145,6 +145,13 @@ export interface AudioPlayer {
 export interface LiveStatusContent {
   /** Theme emoji, e.g. a whale (DESIGN §3.4). */
   emoji: string;
+  /**
+   * Already-translated theme title, e.g. "Diving with whale sharks" (WO L2.2n). Together with
+   * `emoji` it is the first line of the lock-screen card in mockup `05-night.png` frame b —
+   * before this field existed the card could only show the emoji, which is not what the mockup
+   * shows.
+   */
+  title: string;
   /** Already-translated one-line status; this layer never translates. */
   headline: string;
   cuesPlayed: number;
@@ -159,6 +166,19 @@ export interface LiveStatus {
   start(content: LiveStatusContent): Promise<void>;
   update(content: LiveStatusContent): Promise<void>;
   stop(): Promise<void>;
+  /**
+   * The stop button *on* the status surface was pressed (WO L2.2n).
+   *
+   * On iOS that surface is the lock-screen Live Activity, whose button is a deep link back into
+   * the app; on Android it will be the notification action. Either way it is the same kind of
+   * event as `SensorSource.onCommand`: an instant "the user asked to stop from outside the app",
+   * which the night wires straight to `NightController.userStop()`.
+   *
+   * It lives on `LiveStatus` rather than in a sixth interface because the thing that owns the
+   * button is the thing that draws it — DESIGN §3.4 groups the lock screen and the watch face
+   * together under one heading ("outside the app"), and this is that group's only input.
+   */
+  onStopRequested(listener: () => void): Unsubscribe;
 }
 
 // ---------------------------------------------------------------------------

@@ -19,7 +19,10 @@ module.exports = {
   // mindAndBody workout session overnight without dying (DESIGN §8.1).
   deploymentTarget: '11.0',
 
-  frameworks: ['SwiftUI', 'HealthKit', 'CoreMotion', 'WatchConnectivity'],
+  // WidgetKit is here for `StreakStore.swift`'s `WidgetCenter.shared.reloadAllTimelines()`
+  // — the watch app itself draws no widget, it only tells WidgetKit that the number behind
+  // the complication in `targets/watch-complication` changed (WO L2.2).
+  frameworks: ['SwiftUI', 'HealthKit', 'CoreMotion', 'WatchConnectivity', 'WidgetKit'],
 
   entitlements: {
     // The watch reads live heart rate through HKLiveWorkoutBuilder and writes the
@@ -28,6 +31,13 @@ module.exports = {
     'com.apple.developer.healthkit.access': [],
     // Required for a workout session to keep running while the wrist is down.
     'com.apple.developer.healthkit.background-delivery': true,
+    // Shared with `targets/watch-complication` only: the complication runs in its own
+    // process and can read the streak nowhere else (see `StreakStore.swift`). The iPhone's
+    // container of the same name is a *different* place — App Groups do not sync between
+    // devices — which is why the number travels over WatchConnectivity first.
+    // ⚠️ `type: 'watch'` is not in apple-targets' app-groups-by-default list, so this has to
+    // be written out here; the complication target inherits it from the main app instead.
+    'com.apple.security.application-groups': ['group.app.dreaming'],
   },
 
   colors: {
