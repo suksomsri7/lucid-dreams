@@ -1,17 +1,29 @@
 {
- "run": "APP-RUN Phase 1",
- "wo": "R1",
- "step": "waiting-owner: ASC app + Team ID + ASC API key → eas build r1-internal (owner orders)",
- "branch": null,
- "worktree": null,
- "builder": null,
- "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-25T00:30Z",
- "lastCommit": "L3.F closed 24/24",
- "blockedOn": [
-  "เจ้าของ: สร้างแอป Dreaming ใน ASC (ทีมเดิม · app.dreaming.ios)",
-  "เจ้าของ: Team ID + ASC API key (.p8 · Key ID · Issuer ID)",
-  "เจ้าของ: รุ่น iPhone/Watch/หูฟัง",
-  "เจ้าของ: สั่ง build"
- ]
+  "run": "APP-RUN Phase 1",
+  "wo": "R1",
+  "step": "waiting-owner: ASC app + Team ID + ASC API key → eas build r1-internal (owner orders)",
+  "branch": null,
+  "worktree": null,
+  "builder": null,
+  "startedAt": "2026-09-24",
+  "lastCheckpoint": "2026-09-25T00:30Z",
+  "lastCommit": "L3.F closed 24/24",
+  "blockedOn": [
+    "เจ้าของ: สร้างแอป Dreaming ใน ASC (ทีมเดิม · app.dreaming.ios)",
+    "เจ้าของ: Team ID + ASC API key (.p8 · Key ID · Issuer ID)",
+    "เจ้าของ: รุ่น iPhone/Watch/หูฟัง",
+    "เจ้าของ: สั่ง build",
+    "owner: pick app icon A/B/C",
+    "owner: confirm anchor sound v2-C (TG 3478)"
+  ],
+  "icons": {
+    "status": "delivered-3-options",
+    "files": [
+      "ledger/design-icon/icon-A-crescent.png",
+      "ledger/design-icon/icon-B-closed-eye.png",
+      "ledger/design-icon/icon-C-whisper-orb.png"
+    ],
+    "waitingOwner": "pick A/B/C -> build full iOS icon set (1024 + watch + adaptive) + app.config icon",
+    "tg": "3499-3503"
+  }
 }
