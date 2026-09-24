@@ -33,7 +33,7 @@
 1. **GitHub repo** — สร้าง `suksomsri7/lucid-dreams` (private) แล้วบอก Fable (SSH ของเครื่องนี้เป็น suksomsri7 อยู่แล้ว push ได้ทันที · ไม่มี repo = ไม่มีที่พักโค้ดนอกเครื่อง ⇒ เครื่องพัง = งานหาย)
 2. **Apple Developer team + bundle id** (`th.co.<...>.luciddreams`) และบัญชี Expo/EAS สำหรับโปรเจกต์นี้ (ห้ามใช้ token ของ SiamDive/SHARK/Coach ข้ามโปรเจกต์)
 3. **Claude API key** แยกสำหรับ Lucid Dreams (ใส่ใน `.env` ของเซิร์ฟเวอร์ ไม่เข้า repo)
-4. **เครื่องทดสอบ**: รุ่น iPhone (ต้อง iOS 26 ถึงเห็น glass จริง) · รุ่น Apple Watch · รุ่นหูฟัง · จะซื้อ Polar H10 ไหม
+4. **เครื่องทดสอบ**: รุ่น iPhone (ต้อง iOS 26 ถึงเห็น glass จริง) · รุ่น Apple Watch · รุ่นหูฟัง (Polar H10 = ยังไม่ซื้อ มติ 24 ก.ย.)
 5. **โฮสต์เซิร์ฟเวอร์ AI เล็ก** (Node) — บน VPS นี้หลัง nginx (โดเมนย่อย เช่น `lucid.suksomsri.cloud`) หรือ Vercel — แนะนำ VPS (มี pattern อยู่แล้ว · ไม่มีบิล build)
 
 ### 0.4 ขั้นตอนต่อใบ (ทุกใบเหมือนกัน)
@@ -83,7 +83,7 @@
 | **L1.4** | ห้องที่ปรึกษา UI: บทสนทนา · ชิปธีม · composer พิมพ์/ไมค์ (Apple Speech ถอดสด TH/EN) · การ์ดแผนย่อในแชท · "ประวัติ" | Sonnet | L1.2 | 18 | 02 · 03 · 06ก | — | ไมค์จริง |
 | **L1.5** | สมองที่ปรึกษา (เซิร์ฟเวอร์ `apps/api` Node + Postgres · systemd `lucid-api` · device token · rate limit · `/ai/plan` = ข้อความผู้ใช้ → DreamPlan JSON (ธีม · seedLines · anchorPhrase · ambience · ≤1 คำถามเป็นตัวเลือก) · `/ai/tts` (เสียงสมอ) · แคชต่อธีม · ฝั่งแอป `advisor.ts` state: ask→clarify(≤1)→plan→edit) | Opus | L1.4 | 26 | 03 · 04ก | 🔒 | — |
 | **L1.6** | เสียงสมอ + คลังเสียงพื้น + **ทดสอบจำเสียง** (เล่นสุ่ม 2–5 รอบ เว้น 1–3 วิ · ถาม · ต้องถูก 2 รอบติด · บันทึกผล) + เสียงของฉัน (อัด 10 วิ → normalize) | Opus | L1.5 | 20 | 04ข (บน) | — | ระดับเสียงจริง |
-| **L1.7** | เครื่องเล่นเสียง: bed ต่อเนื่อง + cue ซ้อน (เฟด 3/3 วิ) + Now Playing + **Live Activity** (native module) + interruption handling + **ตรวจอุปกรณ์ 5 ข้อ** (`readiness.ts` ใน engine) → ปุ่มเริ่มเปิด/ปิด | Opus | L1.6 | 24 | 04ข (ล่าง) · 05ข | 🔒 | R2 |
+| **L1.7** | เครื่องเล่นเสียง + หน้าตรวจอุปกรณ์ 3 หมวด: bed ต่อเนื่อง + cue ซ้อน (เฟด 3/3 วิ) + Now Playing + **Live Activity** (native module) + interruption handling + **หน้าตรวจอุปกรณ์ 3 หมวด** (ชีพจร/เสียง/ดวงตา · `readiness.ts` ใน engine · ต้องมี ≥1 ในหมวดบังคับ + iPhone/ห้ามรบกวน) → **หน้าทดสอบเสียง** แยก (จาก L1.6) → ปุ่มเริ่ม | Opus | L1.6 | 24 | 04ข (ล่าง) · 05ข | 🔒 | R2 |
 | **L1.8** | ชั้นข้อมูล SQLite (สคีมา DESIGN §7 · migration · repo functions) + ส่งออก CSV/JSON + **ลบทั้งหมด** + Data Protection + diagnostics export รวมข้อความ=ปิด | Opus | L1.1 | 22 | — | 🔒 | — |
 | **L2.1** | `packages/engine` แกน: types · clock ฉีดได้ · **ตัวจำลองคืน** (synthetic: onset/รอบ 90 นาที/REM/ตื่น/noise · seed) · ตัวเล่นซ้ำคืนจริงจาก diagnostics · harness วัด precision/recall | Opus | L1.1 | 20 | — | — | — |
 | **L2.2** | watchOS: 3 หน้า (พร้อม/ทำงาน/เช้า) · workout session mindAndBody · HR ต่อวินาที · accel 20 Hz → epoch 30 วิ · WCSession sendMessage + คิว transferUserInfo · ปุ่มหยุดกดค้าง · complication streak | Opus | L1.1 | 18 | 10 | 🔒 | **R2** |
@@ -138,13 +138,13 @@
 
 ### L1.6 — เสียงสมอ + จำเสียง (Opus · 20 ข้อ · ภาพ 04ข บน)
 - คลัง ambience 4 (คลื่นใต้น้ำ · ลม · ฝน · เงียบ) loop ไร้รอยต่อ · เสียงสมอ = TTS (หญิง/ชาย · กระซิบ/ปกติ · TH/EN) หรือ "เสียงของฉัน" (อัด 10 วิ → trim/normalize -16 LUFS) · ผสม anchor บน ambience ธีม
-- **ทดสอบจำเสียง** (`memorization.ts` ใน engine): สุ่มรอบ 2–5 · ช่วงสุ่ม 1–3 วิ · seed ฉีดได้ · ตอบถูก 2 รอบติดถึง pass · ผิด → รอบใหม่ · เก็บ `MemorizationResult {rounds, correct, volume}` · ผลนี้ติ๊ก "เสียงออกหูฟัง ✓" ให้ readiness
-- oracle: จำนวนรอบอยู่ใน 2–5 เสมอ (10,000 seed) · ต้องถูก 2 ติดกันเท่านั้น · เปลี่ยนเสียงสมอ → รีเซ็ตสถานะฝึก + เตือน · ไฟล์เสียงของฉันถูกลบต้นฉบับหลัง normalize · ระดับเสียงสมอสัมพัทธ์ bed ตรงสเปก
+- **หน้าทดสอบเสียงสมอ** (`memorization.ts` ใน engine): สุ่มรอบ 2–5 · ช่วงสุ่ม 1–3 วิ · seed ฉีดได้ · ตอบถูก 1 ครั้ง = ผ่าน (เจ้าของสั่ง: คลิกถูกต้อง → เริ่มคืนนี้) · ผิด → เล่นรอบใหม่อัตโนมัติ · ปรับระดับ เบาไป/ดังไป ในหน้านี้ · เก็บ `MemorizationResult {rounds, answer, attempts, volume}` · ผ่านแล้วปุ่ม "เริ่มคืนนี้" โผล่
+- oracle: จำนวนรอบอยู่ใน 2–5 เสมอ (10,000 seed) · ผิดแล้วรอบใหม่ต้องสุ่มใหม่ (ไม่ซ้ำเดิมเสมอ) · ถูก 1 ครั้ง = pass · เปลี่ยนเสียงสมอ → รีเซ็ตสถานะฝึก + เตือน · ไฟล์เสียงของฉันถูกลบต้นฉบับหลัง normalize · ระดับเสียงสมอสัมพัทธ์ bed ตรงสเปก
 
 ### L1.7 — เครื่องเล่นเสียง + Live Activity + ตรวจอุปกรณ์ (Opus · 24 ข้อ · 🔒 · ภาพ 04ข ล่าง · 05ข)
 - `react-native-track-player` (หรือ AVAudioEngine ผ่าน module) : แทร็ก bed ต่อเนื่อง + แทร็ก cue ซ้อน (เฟดเข้า 3 วิ · ออก 3 วิ) · ตั้ง output volume แบบ absolute จาก engine · Now Playing · interruption → หยุด cue ทันที กลับ bed เมื่อจบ · route change (หูฟังหลุด) → หยุด cue + แจ้ง readiness
 - Live Activity (ActivityKit ผ่าน native module): ธีม · สถานะ · กระซิบ n/8 · ปุ่มหยุด (deep link) · อัปเดตทุกครั้งสถานะเปลี่ยน
-- `readiness.ts` (engine): 5 ข้อ → `ReadinessReport` · ปุ่มเริ่ม enabled เฉพาะ all pass + memorization pass · ข้อความ "แก้ก่อนเริ่ม: <ข้อแรกที่ไม่ผ่าน>"
+- `readiness.ts` (engine): `DeviceRegistry` 3 หมวด (HEART · AUDIO · EYE) · แต่ละอุปกรณ์ `{category, name, connected, battery?, lastDataAt?}` · กติกา: HEART ≥ 1 ต่อและมีข้อมูลใน 10 วิ · AUDIO ≥ 1 ต่อและแบตพอถึงเวลาปลุก · EYE ไม่บังคับ · + iPhone ชาร์จ/≥50% · ห้ามรบกวนอนุญาตเสียง → `ReadinessReport` · ปุ่ม "ถัดไป · ทดสอบเสียง" enabled เมื่อผ่าน · ข้อความ "ต้องมีอุปกรณ์วัดชีพจร" ฯลฯ · หน้าทดสอบเสียงแยก (L1.6) เป็นด่านสุดท้ายก่อน "เริ่มคืนนี้"
 - oracle: cue เล่นได้เฉพาะเมื่อ engine สั่ง (มี guard ชั้น player อีกชั้น) · หูฟังหลุดกลางคืน → cue ที่ค้างถูกยกเลิก · readiness 5 กรณีไม่ผ่านให้ข้อความถูกข้อ · แบตหูฟัง < ชั่วโมงที่เหลือถึงเวลาปลุก = ไม่ผ่าน · S7 ครบ
 
 ### L1.8 — ชั้นข้อมูล (Opus · 22 ข้อ · 🔒)
