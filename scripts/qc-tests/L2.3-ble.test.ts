@@ -13,7 +13,7 @@ const u8 = (...b: number[]) => new Uint8Array(b);
 
 describe('L2.3 BLE HRM parser', () => {
   it('B1 flags=0x00 bpm 8 บิต', () => { expect(parseHeartRateMeasurement(u8(0x00, 62))).toMatchObject({ bpm: 62, rrMs: [] }); });
-  it('B2 flags=0x01 bpm 16 บิต little-endian', () => { expect(parseHeartRateMeasurement(u8(0x01, 0x2c, 0x01)).bpm).toBe(300 > 220 ? undefined : 300) ; expect(parseHeartRateMeasurement(u8(0x01, 0x2c, 0x01))).toBeNull(); expect(parseHeartRateMeasurement(u8(0x01, 0x3e, 0x00)).bpm).toBe(62); });
+  it('B2 flags=0x01 bpm 16 บิต little-endian · 300 bpm นอกช่วง → null', () => { expect(parseHeartRateMeasurement(u8(0x01, 0x2c, 0x01))).toBeNull(); expect(parseHeartRateMeasurement(u8(0x01, 0x3e, 0x00)).bpm).toBe(62); });
   it('B3 sensor contact bits (0x06 = supported+contact · 0x04 = supported ไม่สัมผัส · 0x00 = ไม่รองรับ → null)', () => {
     expect(parseHeartRateMeasurement(u8(0x06, 60)).sensorContact).toBe(true); expect(parseHeartRateMeasurement(u8(0x04, 60)).sensorContact).toBe(false); expect(parseHeartRateMeasurement(u8(0x00, 60)).sensorContact).toBeNull();
   });

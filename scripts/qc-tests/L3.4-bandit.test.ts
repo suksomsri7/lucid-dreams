@@ -10,7 +10,8 @@
  */
 import { describe, it, expect } from 'vitest';
 import * as engine from '../src/index';
-const { ARMS, armKey, nightReward, createBandit, personalModelFromBandit, explainLearning, mulberry32 } = engine as any;
+const { ARMS, armKey, nightReward, createBandit, personalModelFromBandit, explainLearning } = engine as any;
+const mulberry32 = (seed: number) => { const g = (engine as any).mulberry32(seed); const f = () => (typeof g === 'function' ? g() : g.next()); return f; };
 
 describe('L3.4 reward', () => {
   it('B1 สูตร reward ตาม §5.5', () => {
