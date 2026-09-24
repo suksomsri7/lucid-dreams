@@ -1,8 +1,8 @@
 # L3.3 + L3.4 + L3.5 + L3.6 — คืนควบคุม/reality check/เตือน · การเรียนรู้ฝั่งแอป · บันทึก · ตั้งค่า
 
 ใบงาน: **L3.3** (คืนควบคุม + expo-notifications + reality check) · **L3.4** (app-side learning loop persistence) · **L3.5** (บันทึก, ภาพ 08) · **L3.6** (ตั้งค่า + Boost night + ลบทั้งหมด + compliance, ภาพ 09)
-worktree `lucid-dreams-L3ui` · branch `wo/L3ui` (autosave commits `8de5c0a`→`d0744f4`→`a348b91` ก่อนโควตาตัด แล้ว `43bcf60`/`84f5a22` จากรอบนี้)
-ผลรวม: `pnpm typecheck` exit 0 · `pnpm fitness` OK (ไม่มี Thai leak นอก i18n) · `pnpm --filter @lucid/engine test` 130/130 (ไม่แตะ) · `pnpm --filter @lucid/data test` 16/16 (ไม่แตะ) · `expo export --platform web` ผ่าน · **`scripts/qc-L3ui.sh` 33/33 ✅**
+worktree `lucid-dreams-L3ui` · branch `wo/L3ui` (autosave commits `8de5c0a`→`d0744f4`→`a348b91` ก่อนโควตาตัด แล้ว `43bcf60`/`84f5a22` จากรอบแรกของฉัน แล้ว `13fa025` = Fable merge main เข้ามา แล้วรอบตรวจ parity ของ Fable ดู §7)
+ผลรวม (หลัง §7): `pnpm typecheck` exit 0 · `pnpm fitness` OK (ไม่มี Thai leak นอก i18n) · `pnpm --filter @lucid/engine test` 130/130 (ไม่แตะ) · `pnpm --filter @lucid/data test` 16/16 (ไม่แตะ) · `expo export --platform web` ผ่าน · **`scripts/qc-L3ui.sh` 33/33 ✅**
 dep ใหม่ 1 ตัว: `expo-notifications` (`~57.0.21`, ตาม SDK 57)
 
 ---
@@ -42,13 +42,32 @@ Commit `a348b91` (autosave ล่าสุดก่อนตัด) มีขอ
 | 09 ตั้งค่า | ตรงโครงสร้างครบ 4 กลุ่ม (อุปกรณ์/เสียง/การนอน/ข้อมูล) หลังแก้บั๊ก header clipping — มีแถว "Boost night (WBTB)" เพิ่มจาก mockup ตามคอมเมนต์เดิมในโค้ด (WBTB ตัดสินใจหลัง mockup วาด, DESIGN §4-09 "ไม่มีกลุ่มอื่น" เลยวางท้ายกลุ่ม "การนอน" แทนเปิดกลุ่มที่ 5) — subtitle บรรทัดเดียวกับ mockup ไม่มี (ข้อ 2.3) — ภาษา "EN"/"อังกฤษ" (ข้อ 2.4) |
 | ทดสอบ EN ด้วย (ทั้งสองหน้า) | ไม่มีตัวอักษรไทยหลุด ไม่มี layout พัง — **ยกเว้นบั๊กที่พบแต่ไม่แก้** ดูข้อ 5 |
 
-## 5. หนี้ที่ทิ้งไว้ / ของที่เจอแต่ไม่แก้
+## 5. หนี้ที่ทิ้งไว้ / ของที่เจอแต่ไม่แก้ (สถานะก่อน §7 — ดู §7 สำหรับของที่แก้แล้ว)
 
-1. **EN: แถวรายการคืนใน journal ตัดคำวันที่** ("Thu, Sep 2…" แทน "Thu, Sep 24") เพราะข้อความ value ฝั่งอังกฤษยาวกว่าไทยมาก ("Theme match 8 · Lucid ✓ · Whispers 3") บีบให้ label เหลือที่น้อยจน `numberOfLines={2}` ตัด — `nightLabel`/`nightValue`/`Row.tsx` เป็นของ **L2.10 เดิม ไม่ได้แตะใน WO นี้** (เช็กกับ `c4f3e58` แล้วเหมือนกันทุกตัวอักษร) และไม่มี mockup ภาษาอังกฤษให้เทียบ — บันทึกเป็นหนี้ให้ WO ถัดไปที่แตะ `Row`/history-row ตัดสินใจ (ขยายคอลัมน์ label, ย่อ value, หรือ wrap 2 บรรทัดแยกฝั่ง)
-2. **`apps/mobile/PrivacyInfo.xcprivacy` จะชนตอน merge เข้า `main`** — ระหว่างทำ WO นี้ `main` ขยับไปข้างหน้า (L2.2n native merge, commit `ea5772c`) ซึ่งมีไฟล์เดียวกันแล้ว **และเป็นเวอร์ชันที่ถูกต้องกว่า**: ของ `main` ถูก generate จริงจาก `ios.privacyManifests` ใน `app.config.ts` ผ่าน `expo prebuild` (verified ใน `project.pbxproj` ตาม comment ในไฟล์) ส่วนของที่สร้างในรอบนี้เป็นไฟล์เขียนมือแยกต่างหาก ไม่ได้ผูกกับ build จริง — **ตอน merge ควรใช้ของ `main` แทนของ L3ui ทั้งไฟล์** (ลบของ L3ui ทิ้ง ไม่ต้อง 3-way merge เนื้อหา)
-3. **H-5/L1.1 debt เคลียร์แล้วในความหมาย "มีไฟล์"** แต่ยังไม่เคยรัน `expo prebuild` จริงบน Linux เพื่อยืนยันว่าไฟล์ landing ใน `ios/Dreaming/PrivacyInfo.xcprivacy` ถูกต้อง (ของ `main` ทำแล้วผ่าน L2.2n; ของ L3ui เป็นไฟล์เขียนมือ ไม่เคยผ่าน prebuild) — จะกลายเป็นเรื่องไม่มีนัยสำคัญถ้าทำตามข้อ 2 (ใช้ของ main)
+1. ~~**EN: แถวรายการคืนใน journal ตัดคำวันที่**~~ — **แก้แล้วใน §7 ข้อ 1** (เปลี่ยนเป็น 2 บรรทัด)
+2. ~~**`apps/mobile/PrivacyInfo.xcprivacy` จะชนตอน merge เข้า `main`**~~ — **Fable merge แล้ว (`13fa025`), เก็บของ `main` ไว้ตามคำแนะนำข้อนี้พอดี — เคลียร์**
+3. **H-5/L1.1 debt** — ของ `main` ผ่าน `expo prebuild` จริงแล้วตาม L2.2n (ดู `main`'s ไฟล์เอง comment) ไม่มีอะไรค้างจากฝั่ง L3ui อีก
 
-## 6. คำเตือนสำหรับรอบ merge
+## 6. คำเตือนสำหรับรอบ merge (ประวัติ — merge เกิดแล้วที่ `13fa025`)
 
-- `git diff --stat main..HEAD` ตอนนี้ **ไม่ใช่ diff ที่แท้จริงของ L3ui** อีกต่อไป เพราะ `main` ขยับไปไกลกว่าตอนแยก branch (L2.2n merge ระหว่างทำงาน) — diff ที่แท้จริงของ WO นี้คือ `git diff --stat c4f3e58..HEAD` (29 ไฟล์ ดูหัวไฟล์นี้ §1 + ของเดิมจาก builder ก่อนหน้า)
-- Merge จะต้อง resolve `apps/mobile/PrivacyInfo.xcprivacy` (ข้อ 5.2) และตรวจว่า `src/platform/*`/`targets/watch/*` ที่ L2.2n แก้ไม่ชนกับอะไรที่ L3ui แตะ (L3ui ไม่ได้แตะไฟล์กลุ่มนั้นเลย — เช็ก `git diff --stat c4f3e58..HEAD` แล้วไม่มี `platform/`/`targets/` ปรากฏ ปลอดภัย)
+- Fable merge main เข้า worktree นี้แล้ว (`13fa025`) — resolve `PrivacyInfo.xcprivacy` (เก็บของ `main`) และ `src/night/session.ts` (เก็บ `main`'s `themeTitle()` + ของ L3ui's control-night wiring) ครบแล้ว — **ห้ามแตะสองจุดนี้ซ้ำ** ตามที่ Fable สั่งไว้ในรอบตรวจ §7
+- `git diff --stat c4f3e58..HEAD` ยังใช้ดู diff ที่แท้จริงของ L3ui ได้ (ไม่รวมของ L2.2n ที่ merge เข้ามา) ถ้าต้องเทียบอีกรอบ
+
+## 7. รอบตรวจ parity โดย Fable (หลัง merge main เข้า `13fa025`)
+
+Fable รัน oracle ได้ 33/33 หลัง merge แล้วชี้ 3 จุดที่ภาพจริงยังไม่ตรง mockup:
+
+| # | ที่ Fable ชี้ | แก้ยังไง |
+|---|---|---|
+| 1 | แถวคืนใน journal ควรเป็น **2 บรรทัด** (บรรทัด 1: วันที่+ธีม ตัวหนา · บรรทัด 2: ตรงธีม/รู้ตัว/กระซิบ ตัว sub) ไม่ใช่บรรทัดเดียวชิดขวา — นี่คือจุดเดียวกับที่ทำให้ EN ตัดคำวันที่ (หนี้ #1 เดิม) | เพิ่มคอมโพเนนต์ `NightRow` ในตัว `journal.tsx` เอง (ไม่แตะ `Row.tsx` ที่ใช้ร่วมกับ `settings.tsx` ทั้งไฟล์ — แถวเดี่ยวบรรทัดเดียวที่นั่นถูกต้องอยู่แล้วตาม mockup 09) — label กับ value วางซ้อนคอลัมน์เดียว มี chevron ทางขวา เหมือน `EventRow`'s pattern (title+sub ซ้อนกัน) แต่มี `onPress`/`last` divider แบบ `Row`. ผลพลอยได้: EN ไม่ตัดคำวันที่อีกแล้ว (เทียบ `journal-08-en.png` ก่อน/หลัง) — **หนี้ #1 เดิมปิดแล้ว** |
+| — | ลบบรรทัด subtitle "ทุกคืนที่ผ่านมาและตัวเลขรวม" ใต้หัว "บันทึก" (mockup 08 ไม่มี) | เอา `<Sub>{t('journal.subtitle')}</Sub>` ออกจาก `journal.tsx`'s header — คีย์ i18n ยังอยู่ (ไม่มีใครใช้แล้ว แต่ไม่ผิดกติกาอะไร ลบคีย์เสี่ยงเกินจำเป็น) |
+| 2 | ป้ายชื่อกลุ่ม (อุปกรณ์/เสียง/การนอน/ข้อมูล) ต้องอยู่ **นอก/เหนือ** การ์ดกระจก ไม่ใช่ข้างในการ์ด | เอา `title=` ออกจาก `GlassCard` ทั้ง 4 ที่ใน `settings.tsx`, ใช้ `SectionLabel` (มีอยู่แล้วใน `src/ui/Type.tsx`, export ผ่าน barrel `../../src/ui` โดย `export * from './Type'` อยู่แล้ว ไม่ต้องแก้ barrel) เป็น sibling ก่อนการ์ด แล้วดึงการ์ดขึ้นชิดป้ายด้วย `style={styles.cardTight}` (`marginTop: -(spacing.lg - spacing.xs)`) เพื่อหักล้าง `Screen`'s `gap: spacing.lg` ระหว่างกลุ่ม ไม่ให้ป้ายกับการ์ดของมันเองห่างเท่ากับระหว่างกลุ่ม — **`GlassCard.tsx` คืนกลับเป็นโค้ดเดิมก่อน WO นี้ทุกตัวอักษร** (revert `headerPadded` ทิ้งทั้งหมด เพราะไม่มีใครใช้คู่ `title`+`noPadding` อีกแล้ว) |
+| 3 | สวิตช์ "ปรับให้เองทุกคืน" ต้อง **เขียวเต็ม ไม่จาง** (mockup โชว์ active) — ถ้าล็อก ON ตามดีไซน์ ให้บอกผ่านบรรทัด sub อย่างเดียว ไม่ใช่ทำสวิตช์จาง | ตัด prop `disabled` ออกจาก `<Switch value onValueChange={() => undefined} .../>` — `Switch.tsx`'s `disabled` เดิมใส่ `opacity:0.4` ทั้งปุ่ม (`styles.disabled`) ทำให้ดูจาง ตอนนี้แสดงสีเขียว (`colors.rem`) เต็มความเข้มเหมือนสวิตช์ปกติ ส่วน "ล็อก" ยังคงจริง (`onValueChange` เป็น no-op เหมือนเดิม) เพียงแต่ไม่ได้สื่อสารด้วย opacity อีกต่อไป — sub line "ปรับให้เองทุกคืน" (ข้อความอธิบายใต้ label) ทำหน้าที่บอกแทน |
+
+ยอมรับตามเดิม (Fable บอกไว้ชัดว่าไม่ต้องแก้): volume stepper (−/+) แทนแถว "15% ›" · ตำแหน่งไอคอนอุปกรณ์ทางขวา
+
+### ไฟล์ที่แก้เพิ่มรอบนี้
+`app/(tabs)/journal.tsx` (ลบ `Row` ออกจาก import, เพิ่ม `Icon`+`Pressable`, เพิ่ม `NightRow`+styles, ลบ subtitle) · `app/(tabs)/settings.tsx` (import `SectionLabel`, 4 จุด title→sibling label + `cardTight`, ลบ `disabled` จากสวิตช์ auto-adjust) · `src/ui/GlassCard.tsx` (revert กลับเดิม)
+
+### Oracle + parity หลังแก้
+`scripts/qc-L3ui.sh` 33/33 (เคยตกชั่วคราวที่ M7.1/M8.2 ระหว่างแก้ เพราะคอมเมนต์ใหม่ที่เขียนมี Thai อยู่ — แก้แล้วก่อน re-export) · `pnpm --filter @lucid/engine test` 130/130 · `pnpm --filter @lucid/data test` 16/16 · `expo export --platform web` ผ่าน (รันซ้ำหลังแก้ทุกจุด) · ถ่ายภาพใหม่ทั้ง TH/EN (`/root/qc/l3ui-shots.js`) แล้วสร้าง `parity-08.png`/`parity-09.png` ใหม่ — ทั้งสองหน้าตรงโครงสร้าง mockup แล้วทั้ง TH/EN, ไม่มีการตัดคำ EN อีก, ป้ายกลุ่มอยู่นอกการ์ดครบ 4 กลุ่ม, สวิตช์ auto-adjust เขียวเต็ม
