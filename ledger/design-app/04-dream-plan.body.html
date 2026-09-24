@@ -27,26 +27,38 @@
 .pc{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink2);min-height:22px}
 .pc svg.i{color:var(--rem)}
 
-/* ── จอ ค · ทดสอบเสียงสมอ ทีละข้าง (ซ้าย → ขวา) ────────────────────── */
-.vrow{display:flex;align-items:center;font-size:11.5px;color:var(--mut)}
-.qs{font-size:13px;font-weight:600}
-.scale.s5 div{height:30px;border-radius:11px;font-size:13.5px}
-.note .fade{opacity:.45}
-.ear{padding:11px 13px 12px}
-.eh{display:flex;align-items:center;gap:9px}
-.eb{width:26px;height:26px;border-radius:13px;flex:none;display:flex;align-items:center;justify-content:center;
-  font-size:12.5px;font-weight:700;color:var(--acc);background:var(--acc-bg)}
-.eh .h2{font-size:13.5px;flex:none}
+/* ── จอ ค / ง · ทดสอบหูซ้าย แล้วหูขวา (หน้าละข้าง) ──────────────────── */
+.ehd{display:flex;align-items:center;gap:13px;padding:2px 2px 0}
+.ebig{width:64px;height:64px;border-radius:32px;flex:none;display:flex;align-items:center;
+  justify-content:center;font-size:27px;font-weight:700;color:var(--acc);letter-spacing:.01em}
+.ehd .sub{line-height:1.5}
+.cue{padding:10px 14px;display:flex;align-items:center;gap:11px}
+.cue .ti{flex:1;min-width:0}
+.cue .ti b{display:block;font-size:13.5px;font-weight:600}
+.cue .ti .sub{font-size:11.5px;margin-top:1px}
 .pbs{width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--ink)}
 .pbs svg.i{fill:currentColor;stroke:none;width:11px;height:11px;margin-left:2px}
-.eh .wave{flex:1;height:26px;gap:2px;justify-content:flex-end;overflow:hidden}
-.eh .wave i{width:2.5px}
-.ear .qs{margin-top:9px}
-.ear .scale{margin-top:6px}
-.ear .ok{margin-top:9px}
+.vrow{display:flex;align-items:center;font-size:11.5px;color:var(--mut)}
+.vol{padding:12px 15px 11px}
+.vol .slider{margin:13px 0 9px}
+.vol .lbl{text-align:center;line-height:1.45}
+.lvl{display:flex;align-items:center;gap:7px;padding:0 5px;color:var(--mut);font-size:11.5px}
+.play{padding:14px 14px 13px;display:flex;flex-direction:column;align-items:center}
+.pbig{width:84px;height:84px;border-radius:42px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.pbig svg.i{fill:currentColor;stroke:none;width:29px;height:29px;margin-left:4px}
+.play .plb{font-size:13.5px;font-weight:600;margin-top:8px}
+.play .wave{height:30px;gap:3px;margin-top:9px;width:100%;justify-content:center;overflow:hidden}
+.play .wave i{width:2.5px}
+.qs{font-size:13px;font-weight:600}
+.ask{padding:14px 15px 13px}
+.ask .scale{margin-top:7px}
+.ask .ok{margin-top:10px}
+.scale.s5 div{height:30px;border-radius:11px;font-size:13.5px}
+.ctr{text-align:center}
+.note .fade{opacity:.45}
 </style>
 
-<p class="cap">04 · แผนคืนนี้ → ตรวจอุปกรณ์ → ทดสอบเสียงสมอ <span>— ก) สัญญาของคืนนี้ · ข) ขั้น 1/2 แอปสแกนแล้วบอกว่าพบอะไรใน 3 หมวด · ค) ขั้น 2/2 ทดสอบเสียงสมอ <b>ทีละข้าง หูซ้าย → หูขวา</b> นับรอบให้ถูกทั้งสองข้าง ปุ่ม “เริ่มคืนนี้” จึงโผล่</span></p>
+<p class="cap">04 · แผนคืนนี้ → ตรวจอุปกรณ์ → ทดสอบหูซ้าย → ทดสอบหูขวา <span>— ก) สัญญาของคืนนี้ · ข) ขั้น 1/3 แอปสแกนแล้วบอกว่าพบอะไรใน 3 หมวด · ค) ขั้น 2/3 ทดสอบ <b>หูซ้าย</b> · ง) ขั้น 3/3 ทดสอบ <b>หูขวา</b> — <b>หน้าละข้าง</b> (มติเจ้าของ 24 ก.ย.) นับรอบให้ถูกทั้งสองข้าง ปุ่ม “เริ่มคืนนี้” จึงโผล่</span></p>
 
 <div class="rowf">
 
@@ -118,20 +130,20 @@
 
       <div class="sp"></div>
       <a class="btn pri blk big">ไปต่อ · ตรวจอุปกรณ์</a>
-      <div class="lbl" style="text-align:center;margin-top:10px">แก้แผนได้โดยพิมพ์บอก</div>
+      <div class="lbl ctr" style="margin-top:10px">แก้แผนได้โดยพิมพ์บอก</div>
       <div style="height:10px"></div>
     </div>
     <div class="home"></div>
   </div>
 
-  <!-- ══ จอ ข · ตรวจอุปกรณ์ (ขั้น 1/2) ══ -->
+  <!-- ══ จอ ข · ตรวจอุปกรณ์ (ขั้น 1/3) ══ -->
   <div class="frame m">
     <div class="sbar">22:47<div class="isl"></div><div class="r">86%</div></div>
     <div class="nav">
       <div class="gbtn"><svg class="i"><use href="#i-back"/></svg></div>
       <div class="t">ตรวจอุปกรณ์</div>
       <div class="sp"></div>
-      <div class="lbl">ขั้น 1/2</div>
+      <div class="lbl">ขั้น 1/3</div>
     </div>
     <div class="mpg">
 
@@ -208,68 +220,96 @@
       </div>
 
       <div class="sp"></div>
-      <a class="btn pri blk">ถัดไป · ทดสอบเสียง</a>
+      <a class="btn pri blk">ถัดไป · ทดสอบหูซ้าย</a>
       <div style="height:10px"></div>
     </div>
     <div class="home"></div>
   </div>
 
-  <!-- ══ จอ ค · ทดสอบเสียงสมอ (ขั้น 2/2) ══ -->
+  <!-- ══ จอ ค · ทดสอบหูซ้าย (ขั้น 2/3) ══ -->
   <div class="frame m">
     <div class="sbar">22:49<div class="isl"></div><div class="r">86%</div></div>
     <div class="nav">
       <div class="gbtn"><svg class="i"><use href="#i-back"/></svg></div>
-      <div class="t">ทดสอบเสียงสมอ</div>
+      <div class="t">ทดสอบหูซ้าย</div>
       <div class="sp"></div>
-      <div class="lbl">ขั้น 2/2</div>
+      <div class="lbl">ขั้น 2/3</div>
     </div>
     <div class="mpg">
 
-      <div class="sub" style="line-height:1.55;margin:0 2px">ใส่หูฟัง แล้วฟังให้ดี — ผมจะเล่นเสียงสมอทีละข้าง สุ่มหลายรอบ</div>
+      <div class="ehd">
+        <span class="glass ebig">L</span>
+        <div class="sub">ใส่หูฟัง แล้วฟังข้างซ้ายให้ดี — ผมจะเล่นเสียงสมอสุ่มหลายรอบ</div>
+      </div>
 
-      <div class="card" style="padding:10px 14px;display:flex;align-items:center;gap:10px">
+      <div class="card cue">
         <span class="glass pbs"><svg class="i"><use href="#i-play"/></svg></span>
-        <div class="ti" style="flex:1;min-width:0">
-          <b style="font-size:13.5px">“คุณกำลังฝันอยู่…”</b>
-          <div class="sub" style="font-size:11.5px">ลายน้ำของคุณ · ไทย · เสียงเดิมทุกคืน</div>
+        <div class="ti">
+          <b>“คุณกำลังฝันอยู่…”</b>
+          <div class="sub">ลายน้ำของคุณ · ไทย</div>
         </div>
       </div>
 
       <!-- ระดับเสียง = ค่าเริ่มต้นของคืนนี้เท่านั้น -->
-      <div class="card" style="padding:12px 15px 3px">
+      <div class="card vol">
         <div class="vrow"><span>เบาไป</span><div class="sp"></div><span>ดังไป</span></div>
-        <div class="slider" style="margin:12px 0"><i style="width:15%"></i><b style="left:15%"></b></div>
-        <div class="lbl" style="text-align:center;margin-top:-4px;line-height:1.45">15% · ค่าเริ่มต้นคืนนี้ · แอปจะปรับเองตอนกลางคืน</div>
-        <div style="height:9px"></div>
+        <div class="slider"><i style="width:15%"></i><b style="left:15%"></b></div>
+        <div class="lbl">15% · ค่าเริ่มต้นคืนนี้ · แอปจะปรับเองตอนกลางคืน</div>
       </div>
 
-      <!-- หูซ้าย -->
-      <div class="card ear">
-        <div class="eh">
-          <span class="eb">L</span>
-          <div class="h2">หูซ้าย</div>
-          <span class="glass pbs"><svg class="i"><use href="#i-play"/></svg></span>
-          <div class="wave"><i style="height:6px"></i><i style="height:11px"></i><i style="height:18px"></i><i style="height:9px"></i><i style="height:15px"></i><i style="height:22px"></i><i style="height:13px"></i><i style="height:8px"></i><i style="height:17px"></i><i style="height:21px"></i><i style="height:10px"></i><i style="height:16px"></i><i style="height:20px"></i><i style="height:9px"></i><i style="height:14px"></i><i style="height:7px"></i><i style="height:12px"></i><i style="height:19px"></i><i style="height:11px"></i><i style="height:8px"></i></div>
-        </div>
+      <div class="card play">
+        <span class="glass pbig"><svg class="i"><use href="#i-play"/></svg></span>
+        <div class="plb">เล่น</div>
+        <div class="wave"><i style="height:15px"></i><i style="height:9px"></i><i style="height:17px"></i><i style="height:25px"></i><i style="height:6px"></i><i style="height:7px"></i><i style="height:22px"></i><i style="height:8px"></i><i style="height:16px"></i><i style="height:23px"></i><i style="height:6px"></i><i style="height:21px"></i><i style="height:11px"></i><i style="height:6px"></i><i style="height:7px"></i><i style="height:18px"></i><i style="height:18px"></i><i style="height:7px"></i><i style="height:12px"></i><i style="height:7px"></i><i style="height:22px"></i><i style="height:18px"></i><i style="height:6px"></i><i style="height:23px"></i><i style="height:8px"></i><i style="height:12px"></i><i style="height:25px"></i><i style="height:25px"></i><i style="height:23px"></i><i style="height:6px"></i><i style="height:23px"></i><i style="height:23px"></i><i style="height:17px"></i><i style="height:6px"></i><i style="height:12px"></i><i style="height:6px"></i><i style="height:22px"></i><i style="height:9px"></i><i style="height:14px"></i><i style="height:18px"></i><i style="height:9px"></i><i style="height:22px"></i><i style="height:8px"></i><i style="height:23px"></i></div>
+      </div>
+      <div class="card ask">
         <div class="qs">ได้ยินกี่รอบ?</div>
-        <div class="scale s5">
-          <div>1</div><div>2</div><div class="on">3</div><div>4</div><div>5</div>
-        </div>
+        <div class="scale s5"><div>1</div><div>2</div><div class="on">3</div><div>4</div><div>5</div></div>
         <div class="ok"><span class="chip rem sm"><svg class="i xs"><use href="#i-check"/></svg>ถูกต้อง</span></div>
       </div>
 
-      <!-- หูขวา -->
-      <div class="card ear">
-        <div class="eh">
-          <span class="eb">R</span>
-          <div class="h2">หูขวา</div>
-          <span class="glass pbs"><svg class="i"><use href="#i-play"/></svg></span>
-          <div class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:20px"></i><i style="height:10px"></i><i style="height:16px"></i><i style="height:24px"></i><i style="height:12px"></i><i style="height:7px"></i><i style="height:18px"></i><i style="height:22px"></i><i style="height:11px"></i><i style="height:15px"></i><i style="height:21px"></i><i style="height:10px"></i><i style="height:13px"></i><i style="height:8px"></i><i style="height:17px"></i><i style="height:12px"></i><i style="height:9px"></i><i style="height:6px"></i></div>
+      <div class="sp"></div>
+      <a class="btn pri blk">ถัดไป · หูขวา</a>
+      <div class="lbl ctr" style="margin-top:9px">ตอบผิดจะเล่นใหม่ให้อัตโนมัติ</div>
+      <div style="height:8px"></div>
+    </div>
+    <div class="home"></div>
+  </div>
+
+  <!-- ══ จอ ง · ทดสอบหูขวา (ขั้น 3/3) ══ -->
+  <div class="frame m">
+    <div class="sbar">22:51<div class="isl"></div><div class="r">86%</div></div>
+    <div class="nav">
+      <div class="gbtn"><svg class="i"><use href="#i-back"/></svg></div>
+      <div class="t">ทดสอบหูขวา</div>
+      <div class="sp"></div>
+      <div class="lbl">ขั้น 3/3</div>
+    </div>
+    <div class="mpg">
+
+      <div class="ehd">
+        <span class="glass ebig">R</span>
+        <div class="sub">ตอนนี้ฟังข้างขวา — สุ่มหลายรอบเหมือนเดิม</div>
+      </div>
+
+      <div class="card cue">
+        <span class="glass pbs"><svg class="i"><use href="#i-play"/></svg></span>
+        <div class="ti">
+          <b>“คุณกำลังฝันอยู่…”</b>
+          <div class="sub">ลายน้ำของคุณ · ไทย</div>
         </div>
+      </div>
+
+      <div class="lvl"><svg class="i sm"><use href="#i-vol"/></svg>ระดับ 15% · จากหน้าหูซ้าย</div>
+
+      <div class="card play">
+        <span class="glass pbig"><svg class="i"><use href="#i-play"/></svg></span>
+        <div class="plb">เล่น</div>
+        <div class="wave"><i style="height:14px"></i><i style="height:22px"></i><i style="height:26px"></i><i style="height:10px"></i><i style="height:8px"></i><i style="height:23px"></i><i style="height:23px"></i><i style="height:25px"></i><i style="height:11px"></i><i style="height:16px"></i><i style="height:8px"></i><i style="height:22px"></i><i style="height:7px"></i><i style="height:23px"></i><i style="height:6px"></i><i style="height:24px"></i><i style="height:11px"></i><i style="height:20px"></i><i style="height:26px"></i><i style="height:22px"></i><i style="height:18px"></i><i style="height:15px"></i><i style="height:19px"></i><i style="height:23px"></i><i style="height:19px"></i><i style="height:16px"></i><i style="height:14px"></i><i style="height:12px"></i><i style="height:10px"></i><i style="height:12px"></i><i style="height:7px"></i><i style="height:23px"></i><i style="height:14px"></i><i style="height:21px"></i><i style="height:20px"></i><i style="height:15px"></i><i style="height:19px"></i><i style="height:14px"></i><i style="height:24px"></i><i style="height:7px"></i><i style="height:8px"></i><i style="height:21px"></i><i style="height:18px"></i><i style="height:10px"></i></div>
+      </div>
+      <div class="card ask">
         <div class="qs">ได้ยินกี่รอบ?</div>
-        <div class="scale s5">
-          <div>1</div><div>2</div><div>3</div><div class="on">4</div><div>5</div>
-        </div>
+        <div class="scale s5"><div>1</div><div>2</div><div>3</div><div class="on">4</div><div>5</div></div>
         <div class="ok"><span class="chip rem sm"><svg class="i xs"><use href="#i-check"/></svg>ถูกต้อง</span></div>
       </div>
 
@@ -279,25 +319,25 @@
 
       <div class="sp"></div>
       <a class="btn pri blk big">เริ่มคืนนี้</a>
-      <div class="lbl" style="text-align:center;margin-top:9px">เริ่มแล้วจอจะมืดเอง</div>
+      <div class="lbl ctr" style="margin-top:9px">เริ่มแล้วจอจะมืดเอง</div>
       <div style="height:8px"></div>
     </div>
     <div class="home"></div>
   </div>
 
   <div class="note">
-    <b>ทำไมแยกเป็น 2 หน้า</b> — คนละเรื่องกัน: <b>ของพร้อม</b> (อุปกรณ์ต่อแล้ว แบตพอถึงเช้า) กับ <b>หูพร้อม</b> (เสียงออกหูฟังจริง และคุณจำเสียงนั้นได้) · รวมไว้จอเดียวจะกลายเป็นเช็กลิสต์ยาวที่คนกดผ่าน ๆ<br><br>
-    <b>ขั้น 1/2 · ตรวจอุปกรณ์</b> — ใช้อุปกรณ์อะไรก็ได้ แอปสแกน/เชื่อมต่อเองแล้ว<b>บอกว่าพบอะไร</b>ในแต่ละหมวด (ชื่อ · สถานะ · แบต) · ต้องมีอย่างน้อย 1 ในหมวด 💓 ชีพจร/การขยับ และ 1 ในหมวด 🎧 เสียง · 👁 ดวงตาเป็นของอนาคต ไม่บังคับ · ถ้าขาดหมวดบังคับ ปุ่มจะเป็นสีแดงจางและบอกตรง ๆ ว่าขาดอะไร<br>
+    <b>ทำไมแยกเป็น 3 หน้า · หน้าละเรื่อง</b> — <b>ของพร้อม</b> (อุปกรณ์ต่อแล้ว แบตพอถึงเช้า) · <b>หูซ้าย</b> · <b>หูขวา</b> · ผู้ใช้โฟกัสทีละอย่างก่อนนอน ไม่ต้องจำว่าค้างอะไรอยู่ · รวมไว้จอเดียวจะกลายเป็นเช็กลิสต์ยาวที่คนกดผ่าน ๆ<br><br>
+    <b>ขั้น 1/3 · ตรวจอุปกรณ์</b> — ใช้อุปกรณ์อะไรก็ได้ แอปสแกน/เชื่อมต่อเองแล้ว<b>บอกว่าพบอะไร</b>ในแต่ละหมวด (ชื่อ · สถานะ · แบต) · ต้องมีอย่างน้อย 1 ในหมวด 💓 ชีพจร/การขยับ และ 1 ในหมวด 🎧 เสียง · 👁 ดวงตาเป็นของอนาคต ไม่บังคับ · ถ้าขาดหมวดบังคับ ปุ่มจะเป็นสีแดงจางและบอกตรง ๆ ว่าขาดอะไร<br>
     <span class="btn dg sm" style="margin-top:6px">ต้องมีอุปกรณ์วัดชีพจร</span><br><br>
-    <b>ขั้น 2/2 · ทดสอบเสียงสมอ — ทีละข้าง</b> (มติเจ้าของ 24 ก.ย.) เล่น <b>หูซ้ายก่อน</b> แล้วจึง <b>หูขวา</b><br>
-    ทำไมต้องแยกซ้าย/ขวา: (1) พิสูจน์ว่า<b>หูฟังทำงานจริงทั้งสองข้าง</b> — ข้างที่แบตหมด/ไม่เข้าคู่จะถูกจับได้ตั้งแต่ก่อนนอน ไม่ใช่รู้ตอนเช้าว่ากระซิบไปข้างเดียว (2) เก็บ <b>EarTest{side, rounds, answer, attempts, volume}</b> ไว้เป็นข้อมูลตั้งต้นของ <b>มิติเสียงในอนาคต</b> (กระซิบจากด้านที่ผู้ใช้ไวกว่า)<br>
-    <b>จำนวนรอบสุ่ม 2–5 รอบ</b> (เว้นช่วงสุ่ม 1–3 วิ) แล้วถาม “ได้ยินกี่รอบ?” — ถ้ารู้ล่วงหน้าว่ากี่รอบ สมองไม่ต้องตั้งใจฟัง การนับเองบังคับให้ <b>ตั้งใจ</b> ซึ่งก็คือการฝึกจำเสียงแบบ TLR ที่วัดผลได้<br>
-    <b>ตอบผิด</b> = ไม่ดุ ไม่ล็อก แค่<b>เล่นข้างนั้นใหม่ด้วยจำนวนรอบที่สุ่มใหม่</b> (อีกข้างที่ผ่านแล้วไม่ต้องทำซ้ำ)<br>
-    <b>ก่อนผ่านครบสองข้าง</b> ปุ่มล่างยังเป็นปุ่มจางกดไม่ได้:<br>
-    <span class="btn gh sm fade" style="margin-top:6px">ทดสอบให้ครบสองข้างก่อนเริ่ม</span><br>
-    ผ่านทั้งสองข้างแล้วจึงกลายเป็นปุ่มดำ <b>“เริ่มคืนนี้”</b> → ambience → จอมืดเอง<br><br>
-    <b>ระดับเสียงในหน้านี้ = ค่าเริ่มต้นของคืนเท่านั้น</b> (§2 ข้อ 3.1) — กลางคืนเครื่องยนต์เป็นเจ้าของระดับเสียง บันทึกทุกครั้งว่าดังเท่าไร→ผลอะไร แล้วหาเพดานปลุกของคนนี้เอง<br><br>
-    ทั้ง 3 จอไม่มีแถบแท็บ — ทางออกมีทางเดียวคือเดินหน้าไปเริ่มคืน หรือย้อนกลับไปคุยต่อ
+    <b>ขั้น 2/3 หูซ้าย → ขั้น 3/3 หูขวา</b> (มติเจ้าของ 24 ก.ย.: <b>หน้าละข้าง</b>) — แยกหน้าเพื่อให้เหลือคำถามเดียวต่อหน้า: “ข้างนี้ได้ยินกี่รอบ” · พิสูจน์ว่า<b>หูฟังทำงานจริงทั้งสองข้าง</b> ข้างที่แบตหมด/ไม่เข้าคู่จะถูกจับได้ตั้งแต่ก่อนนอน ไม่ใช่รู้ตอนเช้าว่ากระซิบไปข้างเดียว<br>
+    <b>จำนวนรอบสุ่ม</b> (2–5 รอบ เว้นช่วงสุ่ม 1–3 วิ) แล้วถาม “ได้ยินกี่รอบ?” — ถ้ารู้ล่วงหน้าว่ากี่รอบ สมองไม่ต้องตั้งใจฟัง การนับเองบังคับให้ <b>ตั้งใจฟัง</b> ซึ่งก็คือการฝึกจำเสียงแบบ TLR ที่วัดผลได้<br>
+    <b>ตอบผิด</b> = ไม่ดุ ไม่ล็อก แค่<b>เล่นข้างนั้นใหม่อัตโนมัติด้วยจำนวนรอบที่สุ่มใหม่</b> (ข้างที่ผ่านแล้วไม่ต้องทำซ้ำ)<br>
+    <b>ก่อนตอบถูก</b> ปุ่มล่างของหน้านั้น (ถัดไป / เริ่มคืนนี้) ยังเป็นปุ่มจางกดไม่ได้:<br>
+    <span class="btn gh sm fade" style="margin-top:6px">ตอบให้ถูกก่อน</span><br>
+    ถูกครบสองข้างแล้วจึงขึ้นสรุป “หูฟังทั้งสองข้างพร้อม” และปุ่มดำ <b>“เริ่มคืนนี้”</b> → ambience → จอมืดเอง<br><br>
+    <b>เก็บ EarTest{side, rounds, answer, attempts, volume} แยกข้าง ทุกคืน</b> — ใช้เป็นข้อมูลตั้งต้นของ <b>มิติเสียง (spatial cue)</b> ในอนาคต เช่น กระซิบจากด้านที่ผู้ใช้ไวกว่า<br><br>
+    <b>ระดับเสียงในหน้าหูซ้าย = ค่าเริ่มต้นของคืนเท่านั้น</b> (§2 ข้อ 3.1) — หน้าหูขวาไม่มีตัวปรับซ้ำ แสดงเป็นบรรทัดเล็ก “ระดับ 15% · จากหน้าหูซ้าย” · กลางคืนเครื่องยนต์เป็นเจ้าของระดับเสียง บันทึกทุกครั้งว่าดังเท่าไร→ผลอะไร แล้วหาเพดานปลุกของคนนี้เอง<br><br>
+    ทั้ง 4 จอไม่มีแถบแท็บ — ทางออกมีทางเดียวคือเดินหน้าไปเริ่มคืน หรือย้อนกลับไปคุยต่อ
   </div>
 
 </div>
