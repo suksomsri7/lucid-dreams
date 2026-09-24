@@ -20,7 +20,7 @@
       "@/*": ["./src/*"]
     }
   },
-  "references": [{ "path": "../../packages/engine" }],
+  "references": [{ "path": "../../packages/data" }, { "path": "../../packages/engine" }],
   "include": ["app/**/*.ts", "app/**/*.tsx", "src/**/*.ts", "src/**/*.tsx", "app.config.ts", "expo-env.d.ts"],
   "exclude": ["node_modules", "dist", ".expo", ".tsbuild", "ios", "android"]
 }

@@ -3,7 +3,7 @@
  * Run: `pnpm fitness` (= `tsx scripts/fitness.mts`). Exit 1 on any failure.
  *
  * Checks (APP-RUN §0.2 rules 1, 7, 8 · §0.5 S1):
- *   A. `packages/engine` imports nothing from react-native / expo
+ *   A. `packages/engine` and `packages/data` import nothing from react-native / expo
  *   B. no Thai characters outside `apps/mobile/src/i18n/`
  *   C. iOS-only modules are imported only under `src/platform/ios/`
  *   D. no secret-shaped strings anywhere in the repo
@@ -89,27 +89,39 @@ async function exists(target: string): Promise<boolean> {
 }
 
 // ---------------------------------------------------------------------------
-// A. engine purity
+// A. purity of the logic packages
 // ---------------------------------------------------------------------------
 
 const FORBIDDEN_IN_ENGINE = /(?:from|import|require\()\s*['"](react-native|react-native\/.*|expo|expo-[a-z-]+|@expo\/[a-z-]+)['"]/;
 
-async function checkEnginePurity(): Promise<void> {
-  const engineSrc = path.join(ROOT, 'packages/engine');
-  const files = await walk(engineSrc, isCode);
-  checked.push(`A engine purity: ${files.length} file(s)`);
+/**
+ * Packages that must run under vitest on the VPS with no Expo runtime: the night engine
+ * (APP-RUN §0.2 rule 1) and the data layer (oracle L1.8 D21 — the expo-sqlite adapter lives in
+ * `apps/mobile/src/platform/`, never in `packages/data`).
+ */
+const PURE_PACKAGES = ['packages/engine', 'packages/data'];
 
-  for (const file of files) {
-    const source = await readFile(file, 'utf8');
-    const match = FORBIDDEN_IN_ENGINE.exec(source);
-    if (match) {
-      fail(
-        'A engine-purity',
-        relative(file),
-        `imports "${match[1]}" — the engine must stay pure TypeScript (APP-RUN §0.2 rule 1)`,
-      );
+async function checkEnginePurity(): Promise<void> {
+  let count = 0;
+
+  for (const pkg of PURE_PACKAGES) {
+    const files = await walk(path.join(ROOT, pkg), isCode);
+    count += files.length;
+
+    for (const file of files) {
+      const source = await readFile(file, 'utf8');
+      const match = FORBIDDEN_IN_ENGINE.exec(source);
+      if (match) {
+        fail(
+          'A package-purity',
+          relative(file),
+          `imports "${match[1]}" — ${pkg} must stay pure TypeScript (APP-RUN §0.2 rule 1)`,
+        );
+      }
     }
   }
+
+  checked.push(`A package purity: ${count} file(s) in ${PURE_PACKAGES.join(', ')}`);
 }
 
 // ---------------------------------------------------------------------------
