@@ -2,23 +2,29 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { isAcceptedFixtureRequested } from '../../src/dev/fixtures';
 import { useLocale, useT } from '../../src/i18n';
-import { acceptSafetyConsent, setConsentAi, useOnboardingState } from '../../src/store/onboarding';
-import { Button, GlassCard, Icon, Screen, Seg, Sub, Switch, Title, colors, spacing } from '../../src/ui';
+import { acceptSafetyConsent, useOnboardingState } from '../../src/store/onboarding';
+import { Button, GlassCard, Icon, Screen, Seg, Sub, Title, colors, spacing } from '../../src/ui';
 import type { IconName } from '../../src/ui';
 
 /**
  * Onboarding screen (a) — welcome + safety notes + consent (DESIGN §4-01 · mockup
  * `01-onboarding.png`, left frame · `01-onboarding.body.html`). Ported structure/order
  * 1:1 from the mockup source: logo → title → tagline → 3-note card → accept checkbox →
- * (spacer) → the "start" button, language `Seg` top-right.
+ * the "start" button pinned above the home indicator, language `Seg` top-right.
+ *
+ * No "send my dream text to AI" switch here (Fable parity review, correcting the WO's
+ * original instruction): the owner-approved mockup has no such control on this screen —
+ * `consentAi` still defaults to `false` in `src/store/onboarding.ts`; its switch will
+ * live in the Settings tab's data section (mockup 09, WO L3.6).
  */
 export default function OnboardingWelcomeScreen() {
   const { t } = useT();
   const { locale, setLocale } = useLocale();
   const router = useRouter();
-  const { consentSafety, consentAi } = useOnboardingState();
-  const [accepted, setAccepted] = useState(consentSafety.accepted);
+  const { consentSafety } = useOnboardingState();
+  const [accepted, setAccepted] = useState(() => consentSafety.accepted || isAcceptedFixtureRequested());
 
   const canStart = accepted;
 
@@ -29,7 +35,21 @@ export default function OnboardingWelcomeScreen() {
   };
 
   return (
-    <Screen testID="screen-onboarding-welcome" withTabBarInset={false} contentStyle={{ flexGrow: 1 }}>
+    <Screen
+      testID="screen-onboarding-welcome"
+      withTabBarInset={false}
+      footer={
+        <Button
+          testID="onboarding-start-button"
+          tone="pri"
+          block
+          size="big"
+          label={t('onboarding.welcome.start')}
+          disabled={!canStart}
+          onPress={handleStart}
+        />
+      }
+    >
       <View style={{ flexDirection: 'row' }}>
         <View style={{ flex: 1 }} />
         <View style={{ minWidth: 160 }}>
@@ -98,42 +118,6 @@ export default function OnboardingWelcomeScreen() {
           <Text style={{ fontSize: 14.5, fontWeight: '600', color: colors.ink }}>{t('onboarding.consent.accept')}</Text>
         </GlassCard>
       </Pressable>
-
-      {/*
-       * WO L1.3 asks for a "send my dream text to AI" switch on this card, default off —
-       * but `ledger/design-app/01-onboarding.body.html` (the mockup source, read before
-       * writing any JSX) has no such control anywhere on this screen: the 3-note card
-       * ends at the "data stays on this phone" note, and the only interactive element
-       * besides the checkbox/button is the language `Seg`. This is flagged as
-       * disagreement N-1 in `ledger/wo-notes/L1.3.md` — kept here (small, "soft" card,
-       * clearly secondary to the checkbox) because the WO instruction is explicit and
-       * the underlying `consentAi` state has to exist end-to-end regardless (oracle
-       * O2.3/O2.4); Fable's parity review is the right place to decide whether it stays
-       * here, moves to Settings (where DESIGN §2 rule 6's opt-out more naturally
-       * belongs), or is dropped from this screen until the mockup is updated to show it.
-       */}
-      <View style={{ height: spacing.sm }} />
-      <GlassCard variant="soft">
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 13.5, fontWeight: '600', color: colors.ink }}>{t('onboarding.consent.aiLabel')}</Text>
-            <Sub style={{ marginTop: 2 }}>{t('onboarding.consent.aiHint')}</Sub>
-          </View>
-          <Switch testID="onboarding-consent-ai-switch" value={consentAi} onValueChange={setConsentAi} />
-        </View>
-      </GlassCard>
-
-      <View style={{ flex: 1, minHeight: spacing.xl }} />
-
-      <Button
-        testID="onboarding-start-button"
-        tone="pri"
-        block
-        size="big"
-        label={t('onboarding.welcome.start')}
-        disabled={!canStart}
-        onPress={handleStart}
-      />
     </Screen>
   );
 }

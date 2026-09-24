@@ -84,8 +84,6 @@ export const th = {
   'onboarding.consent.local.title': 'ข้อมูลอยู่ในเครื่อง',
   'onboarding.consent.local.body': 'เสียงและบันทึกฝันเก็บในโทรศัพท์ของคุณ',
   'onboarding.consent.accept': 'รับทราบ',
-  'onboarding.consent.aiLabel': 'ส่งข้อความฝันให้ AI ช่วยให้คะแนน',
-  'onboarding.consent.aiHint': 'ปิดได้ทุกเมื่อในตั้งค่า',
   'onboarding.welcome.start': 'เริ่ม',
   'onboarding.lang.th': 'ไทย',
   'onboarding.lang.en': 'EN',

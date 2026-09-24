@@ -5,6 +5,7 @@ import { Modal, Pressable, Text, View } from 'react-native';
 
 import { summarizeDevices, type DeviceCategory, type DeviceEntry } from '@lucid/engine';
 
+import { applyDeviceFoundFixture } from '../../src/dev/fixtures';
 import { useT, type TranslationKey } from '../../src/i18n';
 import {
   HEADPHONES_DEVICE_ID,
@@ -49,6 +50,9 @@ export default function OnboardingDevicesScreen() {
 
   useEffect(() => {
     refreshDevicesFromPlatform();
+    // Web-only QC fixture (`?fixture=devices`, Fable parity review) — no-op everywhere
+    // else, see `src/dev/fixtures.ts`. Runs after the real platform read so it wins.
+    applyDeviceFoundFixture();
     setDevices(deviceRegistry.list());
     return deviceRegistry.subscribe(setDevices);
   }, []);
@@ -86,7 +90,20 @@ export default function OnboardingDevicesScreen() {
   };
 
   return (
-    <Screen testID="screen-onboarding-devices" withTabBarInset={false}>
+    <Screen
+      testID="screen-onboarding-devices"
+      withTabBarInset={false}
+      footer={
+        <Button
+          testID="onboarding-devices-ready"
+          tone="pri"
+          block
+          size="big"
+          label={t('onboarding.devices.ready')}
+          onPress={handleReady}
+        />
+      }
+    >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
         <Title style={{ flex: 1 }}>{t('onboarding.devices.title')}</Title>
         <Text style={{ fontSize: 11.5, fontWeight: '500', color: colors.mut }}>{t('onboarding.devices.step')}</Text>
@@ -160,15 +177,6 @@ export default function OnboardingDevicesScreen() {
         </View>
         <Sub style={{ flex: 1, lineHeight: 17 }}>{t('onboarding.devices.info')}</Sub>
       </GlassCard>
-
-      <Button
-        testID="onboarding-devices-ready"
-        tone="pri"
-        block
-        size="big"
-        label={t('onboarding.devices.ready')}
-        onPress={handleReady}
-      />
 
       <DeviceSearchSheet category={searchCategory} onClose={() => setSearchCategory(null)} />
     </Screen>
