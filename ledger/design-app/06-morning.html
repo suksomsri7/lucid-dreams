@@ -262,12 +262,14 @@ h1.big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
 </svg>
 <body>
 <style>
-.micb{width:96px;height:96px;border-radius:48px;display:flex;align-items:center;justify-content:center;
+.micb{width:90px;height:90px;border-radius:45px;display:flex;align-items:center;justify-content:center;
   background:rgba(107,92,255,.22);border:1px solid var(--gline);
   box-shadow:0 16px 36px rgba(107,92,255,.30), inset 0 1px 0 rgba(255,255,255,.8);
   backdrop-filter:blur(24px) saturate(160%);color:var(--acc)}
-.micb svg.i{width:38px;height:38px;stroke-width:1.5}
-.rec{display:flex;flex-direction:column;align-items:center;gap:9px;align-self:center}
+.micb svg.i{width:36px;height:36px;stroke-width:1.5}
+.rec{display:flex;flex-direction:column;align-items:center;gap:8px;align-self:center}
+.rec .tl2{font-size:13.5px;font-weight:600;color:var(--acc)}
+.chat.morn{gap:9px}
 .chat.tight{gap:7px}
 .bub.qb{font-size:13.5px;padding:9px 13px;line-height:1.4}
 .chat.tight .scale div{height:30px;border-radius:11px;font-size:12px}
@@ -275,7 +277,7 @@ h1.big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
 .vc svg.i{margin-top:3px;opacity:.9}
 </style>
 <div class="wrap">
-<p class="cap">06 · ตอนเช้า — เล่าฝันในห้องเดียวกัน <span>— ก) AI ทัก + ไมค์ใหญ่ ถอดเสียงสด · ข) ตอบ 4 ข้อเป็นชิป แล้ว AI สรุปผล</span></p>
+<p class="cap">06 · ตอนเช้า — เล่าฝันในห้องเดียวกัน <span>— ก) AI ทัก + เลือกได้: ไมค์ใหญ่ถอดเสียงสด หรือพิมพ์เล่า · ข) ตอบ 4 ข้อเป็นชิป แล้ว AI สรุปผล</span></p>
 <div class="rowf">
 
   <!-- ══ จอ ก · กำลังเล่าฝัน ══ -->
@@ -283,28 +285,34 @@ h1.big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
     <div class="sbar"><span>6:52</span><div class="isl"></div><span class="r">🔋 68%</span></div>
     <div class="nav"><div class="t">คืนนี้</div><div class="sp"></div><div class="lk">ประวัติ</div></div>
     <div class="mpg hastab">
-      <div class="chat">
+      <div class="chat morn">
         <div class="ai-hd"><div class="av"><svg class="i sm"><use href="#i-spark"/></svg></div>ที่ปรึกษาความฝัน</div>
-        <div class="bub ai">อรุณสวัสดิ์ ☀️ เมื่อคืนผมกระซิบ 3 ครั้ง ไม่ปลุกคุณเลย · เล่าฝันให้ฟังหน่อย</div>
+        <div class="bub ai">อรุณสวัสดิ์ ☀️ เมื่อคืนผมกระซิบ 3 ครั้ง ไม่ปลุกคุณเลย · เล่าฝันให้ฟังหน่อย <b>พูดหรือพิมพ์ก็ได้</b></div>
         <div class="opts"><div class="chip">จำไม่ได้เลย</div></div>
         <div class="sp"></div>
         <div class="rec">
           <div class="micb"><svg class="i"><use href="#i-mic"/></svg></div>
           <div class="pill"><span class="dot"></span>กำลังฟัง · 0:42</div>
-          <div class="wave">
+          <div class="wave" style="height:32px">
             <i style="height:10px"></i><i style="height:18px"></i><i style="height:28px"></i><i style="height:14px"></i>
-            <i style="height:22px"></i><i style="height:34px"></i><i style="height:20px"></i><i style="height:12px"></i>
-            <i style="height:26px"></i><i style="height:32px"></i><i style="height:16px"></i><i style="height:24px"></i>
+            <i style="height:22px"></i><i style="height:32px"></i><i style="height:20px"></i><i style="height:12px"></i>
+            <i style="height:26px"></i><i style="height:30px"></i><i style="height:16px"></i><i style="height:24px"></i>
             <i style="height:30px"></i><i style="height:18px"></i><i style="height:10px"></i><i style="height:22px"></i>
             <i style="height:28px"></i><i style="height:14px"></i><i style="height:20px"></i><i style="height:32px"></i>
             <i style="height:24px"></i><i style="height:12px"></i><i style="height:18px"></i><i style="height:9px"></i>
           </div>
+          <div class="tl2">พิมพ์แทน</div>
         </div>
         <div class="bub me voice" style="align-items:flex-start">
           <svg class="i sm" style="margin-top:4px"><use href="#i-mic"/></svg>
-          <span>ผมอยู่ใต้น้ำ น้ำใสมาก เห็นแสงเป็นลำ ๆ … มีตัวใหญ่สีเทาว่ายผ่านข้างผมไปช้า ๆ แล้วผมนึกได้ว่าผมหายใจใต้น้ำอยู่<span class="mt" style="color:rgba(255,255,255,.75)">กำลังถอดเสียงสด</span></span>
+          <span>ผมอยู่ใต้น้ำ น้ำใสมาก … ตัวใหญ่สีเทาว่ายผ่านข้างผมไปช้า ๆ<span class="mt" style="color:rgba(255,255,255,.75)">กำลังถอดเสียงสด</span></span>
         </div>
         <div class="pill" style="align-self:center"><svg class="i xs"><use href="#i-play"/></svg>เปิดเสียงเมื่อคืนช่วยนึก</div>
+        <div class="composer">
+          <div class="ph">หรือพิมพ์เล่าที่นี่…</div>
+          <div class="ic"><svg class="i"><use href="#i-edit"/></svg></div>
+          <div class="ic acc"><svg class="i"><use href="#i-send"/></svg></div>
+        </div>
       </div>
     </div>
     <div class="tabbar">
