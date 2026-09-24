@@ -156,24 +156,26 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
           contentContainerStyle={styles.listContent}
           keyboardShouldPersistTaps="handled"
           renderItem={({ item }) => (
-            <View style={styles.flip}>
-              <MessageRow
-                message={item}
-                plan={advisor.plan}
-                night={isNight}
-                locale={locale}
-                t={t}
-                onChipPress={handleChipPress}
-                onStart={handleStart}
-              />
-            </View>
+            <MessageRow
+              message={item}
+              plan={advisor.plan}
+              night={isNight}
+              locale={locale}
+              t={t}
+              onChipPress={handleChipPress}
+              onStart={handleStart}
+            />
           )}
           ListFooterComponent={
             // Inverted lists swap header/footer visually — the footer is what renders at
             // the *top* of the screen, which is where the "AI header pill" belongs
             // (mockup 02: it sits above the very first message, and scrolls off the top
-            // as the conversation grows, same as any other item above it would).
-            <View style={[styles.flip, styles.aiHeader]}>
+            // as the conversation grows, same as any other item above it would). No manual
+            // counter-transform needed: RN's `inverted` FlatList already applies (and
+            // cancels) the flip per cell/header/footer itself — see
+            // `VirtualizedListCellRenderer.js`'s `inversionStyle` — an extra one here would
+            // triple-flip the content into actually rendering upside down.
+            <View style={styles.aiHeader}>
               <View style={styles.aiHeaderAvatar}>
                 <Icon name="spark" size={13} color={colors.acc} />
               </View>
@@ -256,9 +258,6 @@ const styles = StyleSheet.create({
   navLink: { color: colors.acc, fontWeight: '500' },
   list: { flex: 1 },
   listContent: { gap: spacing.sm, paddingVertical: spacing.sm },
-  // Undoes the `inverted` FlatList's whole-list `scaleY(-1)` per row/header so bubbles
-  // and text render right-side-up while the list still scrolls newest-at-bottom.
-  flip: { transform: [{ scaleY: -1 }] },
   aiHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingBottom: spacing.sm },
   aiHeaderAvatar: {
     width: 22,
@@ -269,7 +268,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accSurfaceSoft,
   },
   messageBlock: { gap: spacing.sm },
-  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, alignSelf: 'flex-start', maxWidth: 320 },
+  // No `maxWidth` cap: the row already lives inside `styles.top`'s `paddingHorizontal`,
+  // so it naturally can't exceed the frame width — capping it further than that made the
+  // 6 theme chips wrap 2-per-row instead of 3-per-row like mockup 02's `.opts.wide`.
+  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, alignSelf: 'flex-start' },
   planBlock: { gap: spacing.sm, alignSelf: 'stretch' },
   footer: { paddingHorizontal: spacing.xl, paddingTop: spacing.sm, gap: spacing.xs },
   micWarning: { textAlign: 'center' },

@@ -20,6 +20,7 @@
 import { Platform } from 'react-native';
 
 import { deviceRegistry, HEADPHONES_DEVICE_ID, WATCH_DEVICE_ID } from '../devices/registry';
+import { completeOnboarding } from '../store/onboarding';
 
 const FIXTURES_ENABLED = __DEV__ || Platform.OS === 'web';
 
@@ -76,4 +77,18 @@ export type AdvisorFixture = 'advisor-start' | 'advisor-plan';
 export function advisorFixtureRequested(): AdvisorFixture | null {
   const value = readFixtureParam();
   return value === 'advisor-start' || value === 'advisor-plan' ? value : null;
+}
+
+/**
+ * These fixtures screenshot the advisor room itself (tab 1), which `app/_layout.tsx`'s
+ * onboarding gate would otherwise redirect away from on a fresh, un-onboarded web QC
+ * session (`hasOnboarded` starts `false`, `src/store/onboarding.ts`). Called once from
+ * `RootLayout` — safe to call every render, `completeOnboarding()` is already a no-op
+ * once `hasOnboarded` is `true`. Deliberately narrow to `advisor-*`: the L1.3 fixtures
+ * (`devices`/`accepted`) screenshot the onboarding screens themselves and must NOT skip
+ * past them this way.
+ */
+export function applyOnboardingBypassForAdvisorFixture(): void {
+  if (advisorFixtureRequested() === null) return;
+  completeOnboarding();
 }
