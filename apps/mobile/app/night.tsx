@@ -173,7 +173,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, testID }: StatCardProps) {
   return (
-    <GlassSurface tint="regular" night radius={radius.card} contentStyle={styles.statCard} testID={testID}>
+    <GlassSurface tint="regular" night radius={radius.card} style={styles.statCardOuter} contentStyle={styles.statCard} testID={testID}>
       <Text style={[typeScale.label, styles.statLabel]}>{label}</Text>
       <Text style={[typeScale.h2, styles.statValue]} numberOfLines={1}>
         {value}
@@ -189,7 +189,13 @@ const styles = StyleSheet.create({
   timerChipRow: { alignItems: 'flex-start' },
   orbWrap: { alignItems: 'center', paddingVertical: spacing.xxl },
   statsRow: { flexDirection: 'row', gap: spacing.sm },
-  statCard: { flex: 1, paddingVertical: spacing.md, paddingHorizontal: spacing.sm, alignItems: 'center', gap: 5 },
+  // `flex: 1` has to live on `GlassSurface`'s outer `style`, not `contentStyle` — the
+  // outer box is the actual flex child of `statsRow`; `contentStyle`'s View sizes to
+  // *that* box (GlassSurface.tsx's own header explains why the split exists). Putting
+  // `flex: 1` on `contentStyle` alone (the original bug here) left each card sized to
+  // its own text instead of splitting the row evenly, unlike the mockup.
+  statCardOuter: { flex: 1 },
+  statCard: { paddingVertical: spacing.md, paddingHorizontal: spacing.sm, alignItems: 'center', gap: 5 },
   statLabel: { color: night.mut, textTransform: 'none' },
   statValue: { color: night.text },
   cuesLine: { textAlign: 'center', color: night.sub, marginTop: spacing.lg },

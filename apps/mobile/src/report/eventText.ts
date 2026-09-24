@@ -90,8 +90,10 @@ export function describeEvent(event: NightEvent, ctx: EventTextContext): EventRo
       const matchesApple = ctx.appleRemEpochTs.has(ctx.epochSecondsFrom(event.at));
       const base = t(event.response === 'WOKE' ? 'report.event.cue.sub.woke' : 'report.event.cue.sub.notWoke');
       return {
+        // 🔊 only on real whisper rows (mockup 07's own icon), never on SEED (its own
+        // "planting the image" row has no icon there either).
         time,
-        title: t('report.event.cue', { n: index, percent: formatPercent(event.volume) }),
+        title: `\u{1F50A} ${t('report.event.cue', { n: index, percent: formatPercent(event.volume) })}`,
         sub: matchesApple ? `${base}${t('report.event.cue.sub.appleMatch')}` : base,
       };
     }

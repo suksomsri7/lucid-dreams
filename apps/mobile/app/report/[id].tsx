@@ -37,7 +37,7 @@ import {
 import { describeEvent } from '../../src/report/eventText';
 import { fixtureNightReport } from '../../src/report/fixture';
 import { AppleRemLine } from '../../src/report/AppleRemLine';
-import { Band, Button, Chip, EventRow, GlassCard, Screen, StepNav, Sub, colors, spacing, typeScale } from '../../src/ui';
+import { BAND_SEGMENT_COLOR, BAND_TICK_COLOR, Band, Button, Chip, EventRow, GlassCard, Screen, StepNav, Sub, colors, spacing, typeScale } from '../../src/ui';
 
 export default function NightReportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -183,29 +183,48 @@ export default function NightReportScreen() {
         </View>
 
         <View style={styles.legend}>
-          {band.guardHours !== null ? <Sub style={styles.legendLine}>{t('report.band.legend.guard', { h: band.guardHours })}</Sub> : null}
-          <Sub style={styles.legendLine}>{t('report.band.legend.watch')}</Sub>
-          <Sub style={styles.legendLine}>{t('report.band.legend.rem')}</Sub>
-          <Sub style={styles.legendLine}>
-            {band.cueTimes.length === 0
-              ? t('report.band.legend.cues.none')
-              : t('report.band.legend.cues', { times: band.cueTimes.map((iso) => fmtTime(iso, locale)).join(' · ') })}
-          </Sub>
-          <Sub style={styles.legendLine}>
-            {band.wakeTimes.length === 0
-              ? t('report.band.legend.wake.none')
-              : t('report.band.legend.wake', { times: band.wakeTimes.map((iso) => fmtTime(iso, locale)).join(' · ') })}
-          </Sub>
-          <Sub style={styles.legendLine}>
-            {band.longestAppleRange === null
-              ? t('report.band.legend.apple.none')
-              : t('report.band.legend.apple', {
-                  range: `${fmtTime(band.longestAppleRange.startIso, locale)}–${fmtTime(band.longestAppleRange.endIso, locale)}`,
-                })}
-          </Sub>
-          <Sub style={styles.legendLine} testID="report-apple-precision">
-            {match === null ? t('report.apple.none') : t('report.apple.precision', { percent: Math.round(match.precision * 100) })}
-          </Sub>
+          {band.guardHours !== null ? (
+            <LegendItem shape="box" color={BAND_SEGMENT_COLOR.guard} label={t('report.band.legend.guard', { h: band.guardHours })} />
+          ) : null}
+          <LegendItem shape="box" color={BAND_SEGMENT_COLOR.watch} label={t('report.band.legend.watch')} />
+          <LegendItem shape="box" color={BAND_SEGMENT_COLOR.rem} label={t('report.band.legend.rem')} />
+          <LegendItem
+            shape="tick"
+            color={BAND_TICK_COLOR.cue}
+            label={
+              band.cueTimes.length === 0
+                ? t('report.band.legend.cues.none')
+                : t('report.band.legend.cues', { times: band.cueTimes.map((iso) => fmtTime(iso, locale)).join(' · ') })
+            }
+          />
+          <LegendItem
+            shape="tick"
+            color={BAND_TICK_COLOR.wake}
+            label={
+              band.wakeTimes.length === 0
+                ? t('report.band.legend.wake.none')
+                : t('report.band.legend.wake', { times: band.wakeTimes.map((iso) => fmtTime(iso, locale)).join(' · ') })
+            }
+          />
+          <LegendItem
+            shape="line"
+            color={colors.rem}
+            label={
+              band.longestAppleRange === null
+                ? t('report.band.legend.apple.none')
+                : t('report.band.legend.apple', {
+                    range: `${fmtTime(band.longestAppleRange.startIso, locale)}–${fmtTime(band.longestAppleRange.endIso, locale)}`,
+                  })
+            }
+          />
+        </View>
+        <View style={styles.precisionRow}>
+          <Chip
+            label={match === null ? t('report.apple.none') : t('report.apple.precision', { percent: Math.round(match.precision * 100) })}
+            tone={match === null ? 'default' : 'rem'}
+            size="sm"
+            testID="report-apple-precision"
+          />
         </View>
 
         {isControl ? (
@@ -267,6 +286,29 @@ export default function NightReportScreen() {
   );
 }
 
+interface LegendItemProps {
+  /** `box` = guard/watch/rem segment · `tick` = cue/wake mark · `line` = the thin Apple-REM line. */
+  shape: 'box' | 'tick' | 'line';
+  color: string;
+  label: string;
+  testID?: string;
+}
+
+/** One `.lg span` (mockup 07's compact 2-line legend) — a small colour swatch, same tokens the `Band`/`AppleRemLine` above paint with (`BAND_SEGMENT_COLOR`/`BAND_TICK_COLOR`), plus its caption. Wraps inline instead of the one-per-line list this replaced. */
+function LegendItem({ shape, color, label, testID }: LegendItemProps) {
+  return (
+    <View style={styles.legendItem} testID={testID}>
+      <View
+        style={[
+          shape === 'box' ? styles.legendSwatchBox : shape === 'tick' ? styles.legendSwatchTick : styles.legendSwatchLine,
+          { backgroundColor: color },
+        ]}
+      />
+      <Text style={[typeScale.chipSm, styles.legendText]}>{label}</Text>
+    </View>
+  );
+}
+
 interface ResultStatProps {
   value: string;
   label: string;
@@ -289,8 +331,13 @@ const styles = StyleSheet.create({
   bandWrap: { marginTop: spacing.sm },
   timelineRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.xs },
   timelineLabel: { color: colors.mut },
-  legend: { marginTop: spacing.sm, gap: 2 },
-  legendLine: { fontSize: 11 },
+  legend: { flexDirection: 'row', flexWrap: 'wrap', marginTop: spacing.sm, gap: 6 },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  legendSwatchBox: { width: 11, height: 8, borderRadius: 3 },
+  legendSwatchTick: { width: 3, height: 11, borderRadius: 2 },
+  legendSwatchLine: { width: 14, height: 3, borderRadius: 2 },
+  legendText: { color: colors.mut, fontSize: 10.5 },
+  precisionRow: { marginTop: spacing.xs, alignItems: 'flex-start' },
   controlNote: { marginTop: spacing.sm, fontWeight: '600', color: colors.ink2 },
   eventsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, paddingBottom: spacing.xs },
   eventsList: { paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
