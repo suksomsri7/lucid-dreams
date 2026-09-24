@@ -120,6 +120,8 @@ export interface RemTuning {
   motionQuiet: number;
   /** Motion (g) above which an epoch counts as a real movement, not a twitch. */
   motionMove: number;
+  /** Motion (g) that is awake-sized: one such epoch is enough to apply the penalty. */
+  motionWakeLevel: number;
   /** Epochs of the motion window (4 = the 2 min of DESIGN §5.3). */
   motionWindowEpochs: number;
   /** Movement epochs inside that window before the sleeper is treated as moving. */
@@ -136,6 +138,10 @@ export interface RemTuning {
   updatePasses: number;
   /** Maximum a single weight may move in one call to {@link updateWeights}. */
   maxWeightStep: number;
+  /** Decision threshold the update must not spoil (DESIGN §5.1 `REM_LIKELY` = 0.70). */
+  decisionThreshold: number;
+  /** How much F1 on the learning night may drop before the update is thrown away. */
+  updateF1Guard: number;
 }
 
 /**
@@ -146,7 +152,7 @@ export const DEFAULT_REM_TUNING: RemTuning = {
   priorCold: -3.2,
   coldMin: 60,
   warmRampMin: 10,
-  priorBase: -1.5,
+  priorBase: -1.9,
   priorCycleAmp: 0.55,
   priorCyclePeak: 0.92,
   cycleMin: 90,
@@ -155,11 +161,12 @@ export const DEFAULT_REM_TUNING: RemTuning = {
   hrWindowEpochs: 10,
   hrSdWindowEpochs: 3,
   hrRelMin: -3,
-  hrRelMax: 1.5,
+  hrRelMax: 1.0,
   hrSdRelMin: -2,
   hrSdRelMax: 3,
   motionQuiet: 0.02,
   motionMove: 0.06,
+  motionWakeLevel: 0.15,
   motionWindowEpochs: 4,
   motionMoveEpochs: 2,
   motionQuietValue: 0.5,
@@ -168,6 +175,8 @@ export const DEFAULT_REM_TUNING: RemTuning = {
   learningRate: 0.02,
   updatePasses: 2,
   maxWeightStep: 0.05,
+  decisionThreshold: 0.7,
+  updateF1Guard: 0.002,
 };
 
 /** Half-hour buckets in a day — the shape of a personal histogram. */
@@ -364,8 +373,11 @@ export function remFeatures(epoch: SensorEpoch, ctx: RemContext, window: RemWind
   const motions = motionSlice.map((e) => value(e.motion)).filter((v): v is number => v != null);
   if (motions.length > 0) {
     const moving = motions.filter((m) => m > tuning.motionMove).length;
+    const awake = motions.some((m) => m > tuning.motionWakeLevel);
     const mean = motions.reduce((a, m) => a + m, 0) / motions.length;
-    if (moving >= tuning.motionMoveEpochs) motionLow = tuning.motionMovePenalty;
+    // One awake-sized swing is enough; a twitch needs company before it counts as moving
+    // (REM does twitch — DESIGN §5.2 "นิ่งมาก แต่ขยับสั้นก่อน/หลังช่วง").
+    if (awake || moving >= tuning.motionMoveEpochs) motionLow = tuning.motionMovePenalty;
     else if (mean <= tuning.motionQuiet) motionLow = tuning.motionQuietValue;
     else motionLow = 0; // a single twitch: REM does that, it is not evidence either way
   }
@@ -622,7 +634,38 @@ export function updateWeights(
     const delta = clamp(next[key] - current[key], -cap, cap);
     out[key] = clamp(current[key] + delta, REM_WEIGHT_MIN, REM_WEIGHT_MAX);
   }
+
+  // The gradient minimises log-loss, but the app decides at a *threshold* (0.70). Those two
+  // are not the same thing: a run of log-loss-improving updates can quietly squeeze every
+  // probability below 0.70 and the night goes silent (measured: 60 updates from deliberately
+  // bad weights → log-loss 0.78 → 0.31 while F1 fell 0.86 → 0.15). So an update that makes
+  // the very night it learned from worse *at the threshold* is thrown away.
+  const before = f1AtThreshold(rows, labels, current, tuning.decisionThreshold);
+  const after = f1AtThreshold(rows, labels, out, tuning.decisionThreshold);
+  if (after < before - Math.max(0, tuning.updateF1Guard)) return current;
   return out;
+}
+
+/** F1 of one night at a decision threshold, computed straight from features + weights. */
+function f1AtThreshold(
+  rows: readonly { t: number; features: RemFeatures }[],
+  labels: ReadonlyMap<number, number>,
+  weights: RemWeights,
+  threshold: number,
+): number {
+  let tp = 0;
+  let fp = 0;
+  let fn = 0;
+  for (const row of rows) {
+    const y = labels.get(row.t) === 1;
+    const predicted = remProbability(row.features, weights) >= threshold;
+    if (predicted && y) tp += 1;
+    else if (predicted && !y) fp += 1;
+    else if (!predicted && y) fn += 1;
+  }
+  const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
+  const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
+  return precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : 0;
 }
 
 /** Epoch length, re-exported so callers of this module need not import `clock.ts` too. */

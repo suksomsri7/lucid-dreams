@@ -63,6 +63,14 @@ export const ONSET_MOTION_MOVE = 0.25;
 export const ONSET_MAX_TWITCH_EPOCHS = 4;
 /** The window mean may reach `motionQuiet × this` — one twitch must not void 10 min. */
 export const ONSET_MOTION_MEAN_FACTOR = 2;
+/** Share of the quiet window that must actually carry motion data (dropout tolerance). */
+export const ONSET_MIN_COVERAGE = 0.6;
+/**
+ * Below this share of usable epochs the record cannot support a 10 min quiet window at all,
+ * and the night falls back to the timer — "ถ้าทุกแหล่งหลุด → โหมดตัวจับเวลา" (DESIGN §5.1)
+ * read as "if the sources are gone *enough*", which is what a flapping watch really does.
+ */
+export const ONSET_TIMER_COVERAGE = 0.5;
 /** Never declare onset before this much data has arrived (15 min · oracle N2). */
 export const ONSET_MIN_DATA_SEC = 900;
 /**
@@ -105,6 +113,10 @@ export interface OnsetOptions {
   maxTwitchEpochs?: number;
   /** The window mean motion may reach `motionQuiet × this`. */
   motionMeanFactor?: number;
+  /** Share of the quiet window that must carry motion data (0..1). */
+  minCoverage?: number;
+  /** Below this share of usable epochs, fall back to the timer. */
+  timerCoverage?: number;
   /** Minimum seconds of data before onset may be declared. */
   minDataSec?: number;
   /** Floor for the reported `onsetT`, seconds after the first epoch. */
@@ -169,6 +181,8 @@ export function createOnsetDetector(options: OnsetOptions = {}): OnsetDetector {
   const motionMove = Math.max(options.motionMove ?? ONSET_MOTION_MOVE, motionQuiet);
   const maxTwitchEpochs = Math.max(0, Math.round(options.maxTwitchEpochs ?? ONSET_MAX_TWITCH_EPOCHS));
   const motionMeanFactor = Math.max(1, options.motionMeanFactor ?? ONSET_MOTION_MEAN_FACTOR);
+  const minCoverage = clamp(options.minCoverage ?? ONSET_MIN_COVERAGE, 0.1, 1);
+  const timerCoverage = clamp(options.timerCoverage ?? ONSET_TIMER_COVERAGE, 0, 1);
   const minDataSec = options.minDataSec ?? ONSET_MIN_DATA_SEC;
   const minLatencySec = options.minLatencySec ?? ONSET_MIN_LATENCY_SEC;
 
@@ -177,7 +191,8 @@ export function createOnsetDetector(options: OnsetOptions = {}): OnsetDetector {
   let baselineCount = 0;
   let baselineHr: number | null = null;
   /** `true` while every epoch so far carried neither heart rate nor motion. */
-  let sensorSilent = true;
+  let epochsSeen = 0;
+  let epochsWithData = 0;
   let onsetT: number | null = null;
   let via: OnsetVia | null = null;
   const window: QuietEntry[] = [];
@@ -206,9 +221,9 @@ export function createOnsetDetector(options: OnsetOptions = {}): OnsetDetector {
         hrSum += entry.hr;
       }
     }
-    // Motion is the load-bearing signal: without it there is no quiet window at all
-    // (the no-sensor timer below is the answer for that case).
-    if (motionSeen < needEpochs) return false;
+    // Motion is the load-bearing signal, but a watch that drops every third epoch still
+    // says plenty: judge the epochs that arrived, as long as enough of them did.
+    if (motionSeen < Math.max(1, Math.ceil(needEpochs * minCoverage))) return false;
     if (twitches > maxTwitchEpochs) return false;
     if (motionSum / motionSeen > motionQuiet * motionMeanFactor) return false;
 
@@ -227,7 +242,8 @@ export function createOnsetDetector(options: OnsetOptions = {}): OnsetDetector {
 
       const motion = value(epoch.motion);
       const hr = value(epoch.hrMean);
-      if (motion != null || hr != null) sensorSilent = false;
+      epochsSeen += 1;
+      if (motion != null || hr != null) epochsWithData += 1;
 
       if (hr != null && baselineCount < baselineEpochs) {
         baselineSum += hr;
@@ -240,8 +256,10 @@ export function createOnsetDetector(options: OnsetOptions = {}): OnsetDetector {
 
       if (onsetT != null) return reading();
 
-      // No sensor has ever said anything: fall back to the timer (DESIGN §5.1).
-      if (sensorSilent) {
+      // Not enough sensor to ever fill a quiet window (usually: nothing at all) →
+      // the timer decides, exactly as DESIGN §5.1 prescribes for "no watch".
+      const coverage = epochsSeen > 0 ? epochsWithData / epochsSeen : 0;
+      if (coverage <= timerCoverage) {
         const deadline = startT + noSensorTimeoutSec;
         if (t >= deadline) {
           onsetT = deadline;
