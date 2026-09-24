@@ -1,0 +1,5 @@
+.expo/
+dist/
+.tsbuild/
+ios/
+android/

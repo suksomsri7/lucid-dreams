@@ -1,0 +1,42 @@
+{
+  "name": "@lucid/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lucid Dream — แอปมือถือ (Expo SDK 54 · expo-router · TS strict)",
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "export:web": "expo export --platform web",
+    "prebuild:ios": "expo prebuild --platform ios",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~6.1.2",
+    "@lucid/engine": "workspace:*",
+    "expo": "~54.0.37",
+    "expo-audio": "~1.1.1",
+    "expo-battery": "~10.0.8",
+    "expo-blur": "~15.0.8",
+    "expo-constants": "~18.0.14",
+    "expo-device": "~8.0.10",
+    "expo-file-system": "~19.0.24",
+    "expo-glass-effect": "~0.1.10",
+    "expo-linking": "~8.0.12",
+    "expo-router": "~6.0.24",
+    "expo-sharing": "~14.0.8",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-web": "~0.21.0"
+  },
+  "devDependencies": {
+    "@bacons/apple-targets": "^5.0.0",
+    "@types/react": "~19.1.17",
+    "typescript": "~5.9.2"
+  }
+}
