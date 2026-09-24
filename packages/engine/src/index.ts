@@ -178,6 +178,36 @@ export {
 export { type ReplayInput, type ReplayReport, replayNight, replayNightReport } from './replay';
 
 export {
+  ONSET_NO_SENSOR_TIMEOUT_SEC,
+  ONSET_BASELINE_EPOCHS,
+  ONSET_QUIET_EPOCHS,
+  ONSET_QUIET_SEC,
+  ONSET_HR_DROP_RATIO,
+  ONSET_MOTION_QUIET,
+  ONSET_MOTION_MOVE,
+  ONSET_MAX_TWITCH_EPOCHS,
+  ONSET_MIN_DATA_SEC,
+  ONSET_MIN_LATENCY_SEC,
+  BED_VOLUME_FULL,
+  BED_VOLUME_BED,
+  BED_FADE_SEC,
+  SEED_WHISPER_OFFSETS_SEC,
+  GUARD_MIN_HOURS,
+  type OnsetOptions,
+  type OnsetReading,
+  type OnsetVia,
+  type OnsetDetector,
+  type OnsetResult,
+  createOnsetDetector,
+  detectOnset,
+  seedWhisperTimes,
+  seedWhisperDue,
+  type BedFadeOptions,
+  bedVolumePlan,
+  guardUntil,
+} from './onset';
+
+export {
   type RemMetrics,
   remMetrics,
   type StageFractions,
