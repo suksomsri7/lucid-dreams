@@ -51,10 +51,11 @@ jobs:
           test -f dist/index.html
 
       - name: audit
-        # APP-RUN §0.5 S9. Reported, not blocking — as of 24 Sep 2026 all 17 "high"
-        # advisories sit in build-time tooling that never ships in the app bundle:
-        #   @xmldom/xmldom  <- @bacons/apple-targets (devDep, runs during prebuild)
-        #   postcss, image-size <- expo (@expo/cli)
-        # Flip this to a blocking step as soon as those two chains are patched upstream.
+        # APP-RUN §0.5 S9. Reported, not blocking — after the SDK 57 upgrade (24 Sep 2026)
+        # every remaining "high" advisory (13) sits in one build-time chain that never
+        # ships in the app bundle:
+        #   @xmldom/xmldom <- @bacons/apple-targets (devDep, only runs during prebuild)
+        # SDK 57 already cleared the postcss / image-size advisories that came via expo.
+        # Flip this to a blocking step as soon as apple-targets bumps @expo/prebuild-config.
         continue-on-error: true
         run: pnpm audit --audit-level high
