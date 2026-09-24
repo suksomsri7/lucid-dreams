@@ -48,7 +48,15 @@ import type { Context } from 'hono';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
-import { ANCHOR_SAMPLE_RATE, AnchorMixError, mixAnchor, pcmToWav, resolveFfmpegPath } from './anchor';
+import {
+  ANCHOR_SAMPLE_RATE,
+  ANCHOR_SIGNATURE_GAIN,
+  ANCHOR_WHISPER_DELAY_MS,
+  AnchorMixError,
+  mixAnchor,
+  pcmToWav,
+  resolveFfmpegPath,
+} from './anchor';
 import { createLogger, silentLogger, type Logger } from './logger';
 import { createMemoryStore, type CachedAudio, type DeviceRecord, type Store } from './store';
 import {
@@ -538,8 +546,13 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
       return c.json({ error: spoken.error, detail }, whisperStatus[spoken.error]);
     }
 
+    // Everything that can change the bytes is in the key, including the two mix numbers:
+    // the day the owner says "start the whisper a little later", the old files stop being
+    // found instead of being served forever (the melody and the sentence are in there via
+    // `signature.hash` and the hash of the clip). The `anchor|` prefix keeps these rows in
+    // a different namespace from the plain `/ai/tts` ones.
     const key = sha256(
-      `anchor|${seed}|${lang}|${voiceKey}|${signature.hash}|${sha256(spoken.audio.audio)}`,
+      `anchor|${ANCHOR_WHISPER_DELAY_MS}|${ANCHOR_SIGNATURE_GAIN}|${seed}|${lang}|${voiceKey}|${signature.hash}|${sha256(spoken.audio.audio)}`,
     );
 
     const headers = (cache: 'HIT' | 'MISS'): Record<string, string> => ({
