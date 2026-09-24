@@ -43,6 +43,11 @@ jobs:
         # L1.8 — the SQLite layer runs against real SQLite (sql.js / wasm), no device needed
         run: pnpm --filter @lucid/data test
 
+      - name: api tests
+        # L1.5 — Hono server on an ephemeral port with the mock provider and the in-memory
+        # store: no OPENROUTER_API_KEY, no SQLite native module, no network.
+        run: pnpm --filter @lucid/api test
+
       - name: fitness
         run: pnpm fitness
 

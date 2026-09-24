@@ -14,6 +14,7 @@
     "tsc": "tsc",
     "test": "pnpm --filter @lucid/engine test",
     "test:data": "pnpm --filter @lucid/data test",
+  "test:api": "pnpm --filter @lucid/api test",
     "engine:sim": "tsx packages/engine/src/cli/sim.ts",
     "web:export": "./scripts/heavy.sh export \"cd apps/mobile && NODE_OPTIONS=--max-old-space-size=3584 npx expo export --platform web\""
   },

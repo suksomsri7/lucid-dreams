@@ -2,15 +2,20 @@
   "name": "@lucid/api",
   "version": "0.0.0",
   "private": true,
-  "description": "เซิร์ฟเวอร์ AI (ว่างไว้ — เริ่มจริงที่ L1.5)",
+  "description": "เซิร์ฟเวอร์ AI ของ Lucid Dream (Hono + SQLite · OpenRouter) — L1.5",
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
+    "start": "node --import tsx src/main.ts",
+    "dev": "node --import tsx src/main.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "tsc -b"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.6.2",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "vitest": "^3.2.7"
   },
@@ -19,6 +24,6 @@
     "@lucid/engine": "workspace:*",
     "better-sqlite3": "^13.0.3",
     "hono": "^4.13.9",
-    "zod": "^4.6.5"
+    "zod": "^4.1.13"
   }
 }

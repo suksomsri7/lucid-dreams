@@ -1,10 +1,44 @@
 /**
- * Placeholder. The AI server starts at L1.5 (APP-RUN §2).
+ * `@lucid/api` — public surface of the AI server package.
  *
- * Planned endpoints (DESIGN §8.2): `/ai/seed` `/ai/tts` `/ai/score` `/ai/weekly` + optional sync.
- * Every one of them must ship with: device-token auth, per-device rate limit, a zod body
- * schema and a ≤ 32 KB body cap (APP-RUN §0.5 S2) — there is deliberately no code here yet,
- * so nothing can be deployed without those.
+ * The server is a library first and a process second (`main.ts`): that is what lets the
+ * oracle start it on an ephemeral port with a mock provider and an in-memory store, and it
+ * is why there is no module-level side effect anywhere in `src/` except in `main.ts`.
  */
 
-export const API_STATUS = 'not-implemented-until-L1.5' as const;
+export {
+  startServer,
+  createApp,
+  MAX_BODY_BYTES,
+  DEFAULT_RATE_LIMIT_PER_HOUR,
+  DEFAULT_DEVICE_LIMIT_PER_HOUR,
+  TOKEN_BYTES,
+  type StartServerOptions,
+  type RunningServer,
+} from './server';
+
+export { createMemoryStore, type Store, type DeviceRecord, type CachedAudio } from './store';
+export { createLogger, silentLogger, type Logger, type LogFields } from './logger';
+
+export {
+  createOpenRouterProvider,
+  OpenRouterError,
+  OPENROUTER_BASE_URL,
+  DREAM_PLAN_SYSTEM_PROMPT,
+  buildUserEnvelope,
+  type OpenRouterOptions,
+} from './providers/openrouter';
+
+export { createMockPlanProvider, brokenPlanProvider, type MockProviderOptions } from './providers/mock';
+
+export {
+  mockTtsProvider,
+  resolveTtsProvider,
+  sniffAudioContentType,
+  wavSilence,
+  TTS_MAX_TEXT,
+  type TtsProvider,
+  type TtsRequest,
+  type TtsLang,
+  type TtsVoice,
+} from './providers/tts';
