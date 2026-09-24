@@ -7,7 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { withDangerousMod, type ConfigPlugin } from '@expo/config-plugins';
+import { withDangerousMod, withEntitlementsPlist, type ConfigPlugin } from '@expo/config-plugins';
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 const INFO_PLIST_LOCALES = ['en', 'th'] as const;
@@ -53,6 +53,32 @@ const withInfoPlistLocales: ConfigPlugin = (config) =>
       return modConfig;
     },
   ]);
+
+/**
+ * Data Protection entitlement (WO L1.7ui, closes part of the debt `ExpoSqliteDriver.ts`'s
+ * `applyDataProtection()` logs: "relying on the iOS default class … until the native
+ * config plugin lands" / `ledger/wo-notes/L1.8.md`).
+ *
+ * `com.apple.developer.default-data-protection` sets the **default** protection class
+ * every file the app creates gets, unless something more specific overrides it later —
+ * `NSFileProtectionCompleteUntilFirstUserAuthentication` (not the stronger `Complete`,
+ * which would make the database unreadable exactly while the phone is locked and a
+ * night session is running, DESIGN §0.5 S4). Unlike `withInfoPlistLocales` above, this
+ * uses a standard Expo config-plugin modifier (`withEntitlementsPlist` merges a plist,
+ * no `.pbxproj` surgery), so it is safe to apply for real without a Mac to verify a
+ * build against — `expo prebuild -p ios --no-install` (this WO's §0 QC run) confirms
+ * the generated `ios/<project>/<project>.entitlements` gets the key.
+ *
+ * Still leaves the per-file explicit `setProtectionAsync` gap `ExpoSqliteDriver.ts`
+ * documents (expo-file-system 57 has no such API yet) — this plugin only makes the
+ * *default* class explicit and verifiable, which is what the comment there asked for.
+ */
+const withDataProtection: ConfigPlugin = (config) =>
+  withEntitlementsPlist(config, (modConfig) => {
+    modConfig.modResults['com.apple.developer.default-data-protection'] =
+      'NSFileProtectionCompleteUntilFirstUserAuthentication';
+    return modConfig;
+  });
 
 /**
  * Expo config for Lucid Dream (iOS first, Android-ready — APP-RUN §0.2 rule 8).
@@ -152,9 +178,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // `ledger/wo-notes/L1.3.md` — the file really does land). Cast to bridge that
     // type-vs-runtime gap rather than widen the whole `plugins` array's type.
     withInfoPlistLocales as unknown as string,
+    // Data Protection entitlement (WO L1.7ui) — see `withDataProtection` above.
+    withDataProtection as unknown as string,
   ],
 
   extra: {
+    /**
+     * Base URL of `apps/api` (`POST /device`, `POST /ai/plan` — WO L1.7ui wiring the
+     * real dream advisor). `EXPO_PUBLIC_API_BASE_URL` overrides it per environment
+     * (staging/prod, once those exist); the default matches `apps/api/src/main.ts`'s
+     * own default (`PORT` env, defaults to 8787) for local dev against
+     * `node --import tsx src/main.ts`.
+     */
+    apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8787',
     /**
      * โมดูลที่ใช้ได้เฉพาะ iOS — ห้าม import นอก `src/platform/ios/`
      * (APP-RUN §0.2 rule 8 · ตรวจโดย scripts/fitness.mts และ oracle S3.7)

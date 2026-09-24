@@ -10,7 +10,8 @@ import { useMemo, useRef, useState } from 'react';
 
 import { advisorFixtureRequested } from '../dev/fixtures';
 import type { Locale } from '../i18n';
-import { createMockAdvisorAdapter } from './adapter';
+import { saveTonightPlan } from '../store/night';
+import { createEngineAdvisorAdapter, createMockAdvisorAdapter } from './adapter';
 import type { AdvisorAdapter, AdvisorState, DreamPlan, Message } from './types';
 
 export interface UseAdvisorResult {
@@ -46,8 +47,17 @@ function snapshotOf(adapter: AdvisorAdapter): Snapshot {
 export function useAdvisor(lang: Locale): UseAdvisorResult {
   const adapterRef = useRef<AdvisorAdapter | null>(null);
   if (adapterRef.current === null) {
-    const seed = advisorFixtureRequested() === 'advisor-plan' ? 'plan' : undefined;
-    adapterRef.current = createMockAdvisorAdapter(lang, { seed });
+    // `createEngineAdvisorAdapter` (WO L1.7ui) is the default from here on — the real
+    // `packages/engine` state machine talking to `apps/api`'s `/ai/plan` (and, offline
+    // or unreachable, the engine's own on-device fallback plan; see `advisor.ts`'s "it
+    // never throws" invariant). The mock stays reachable behind `?fixture=advisor-plan`
+    // only, for QC screenshots that need the exact scripted whale-shark/turtle
+    // conversation instantly and deterministically — a live/offline-fallback plan would
+    // still render *something*, just not byte-for-byte the mockup's conversation.
+    adapterRef.current =
+      advisorFixtureRequested() === 'advisor-plan'
+        ? createMockAdvisorAdapter(lang, { seed: 'plan' })
+        : createEngineAdvisorAdapter(lang);
   }
   const adapter = adapterRef.current;
 
@@ -69,6 +79,12 @@ export function useAdvisor(lang: Locale): UseAdvisorResult {
       },
       start: () => {
         adapter.start();
+        // Hand-off to `app/plan/*` (WO L1.7ui): those are separate routes, not this
+        // component, so the plan the advisor just built has to cross through a shared
+        // store rather than React state/props (`src/store/night.ts`'s header explains
+        // why). Both adapters produce the same `DreamPlan` shape, so this line does not
+        // care which one is active.
+        if (adapter.plan) saveTonightPlan(adapter.plan, lang);
         setSnapshot(snapshotOf(adapter));
       },
     }),

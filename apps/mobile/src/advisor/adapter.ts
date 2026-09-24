@@ -18,6 +18,17 @@
  * `STARTED`, after which `say`/`edit`/`pickChip` all reject.
  */
 
+import {
+  createAdvisor,
+  type Advisor as EngineAdvisor,
+  type AdvisorTurn as EngineAdvisorTurn,
+  type AnchorLang,
+  type DreamPlan as EngineDreamPlan,
+  type PlanProvider,
+  type ThemeChip as EngineThemeChip,
+} from '@lucid/engine';
+
+import { requestDreamPlan } from '../api/client';
 import { translate, type Locale, type TranslationKey } from '../i18n';
 import type {
   AdvisorAdapter,
@@ -25,7 +36,9 @@ import type {
   AdvisorState,
   AmbienceKey,
   DreamPlan,
+  DreamPlanClarify,
   Message,
+  MessageChip,
   ThemeKey,
 } from './types';
 
@@ -330,6 +343,174 @@ export function createMockAdvisorAdapter(
       if (!plan) throw new Error('advisor: start() requires a plan');
       state = 'STARTED';
       return toResult();
+    },
+  };
+
+  return adapter;
+}
+
+// ---------------------------------------------------------------------------
+// createEngineAdvisorAdapter — the real thing (WO L1.7ui)
+// ---------------------------------------------------------------------------
+
+/**
+ * `PlanProvider` backed by `apps/api`'s `POST /ai/plan` (`src/api/client.ts`). Never
+ * throws in a way the caller has to special-case beyond the `PlanProvider` contract
+ * itself ("returns *unknown*, never trusted") — `requestDreamPlan` already throws on
+ * every failure mode, which is exactly what `createAdvisor()`'s `callProvider()`
+ * expects (`packages/engine/src/advisor.ts`: "a thrown error → `null` immediately").
+ */
+function createHttpPlanProvider(): PlanProvider {
+  return { plan: (request) => requestDreamPlan(request) };
+}
+
+/** `EngineDreamPlan` and the UI's `DreamPlan` (`types.ts`) are structurally identical —
+ * this makes that explicit and keeps the boundary type-checked instead of cast. */
+function toUiPlan(plan: EngineDreamPlan): DreamPlan {
+  return {
+    theme: {
+      emoji: plan.theme.emoji,
+      titleTh: plan.theme.titleTh,
+      titleEn: plan.theme.titleEn,
+      place: plan.theme.place ?? null,
+    },
+    seedLines: plan.seedLines,
+    anchorPhrase: plan.anchorPhrase,
+    ambienceKey: plan.ambienceKey,
+    clarify: plan.clarify ? { question: plan.clarify.question, options: plan.clarify.options } : null,
+  };
+}
+
+function toUiClarify(clarify: EngineAdvisorTurn['clarify']): DreamPlanClarify | null {
+  return clarify ? { question: clarify.question, options: clarify.options } : null;
+}
+
+export interface CreateEngineAdvisorAdapterOptions {
+  /** Test/fixture seam — defaults to the real HTTP provider. */
+  provider?: PlanProvider;
+  /** Test seam — defaults to the real clock (via the engine's own default). */
+  now?: () => string;
+}
+
+/**
+ * The real dream advisor: `packages/engine`'s `createAdvisor()` (the actual **บอก →
+ * สรุป → เริ่ม** state machine, DESIGN §3.3) talking to `apps/api` over HTTP, wrapped in
+ * the same `AdvisorAdapter` shape `createMockAdvisorAdapter` implements so
+ * `AdvisorRoom.tsx`/`PlanCardCompact.tsx`/`useAdvisor.ts` need not know which one they
+ * are driving (the swap-out plan `createMockAdvisorAdapter`'s header comment promised
+ * at L1.4).
+ *
+ * The engine's own `Advisor.messages` is the transcript this adapter renders from —
+ * **not** a re-implementation of the copy (that would drift from `advisor.ts`'s actual
+ * wording the moment either file changed). The opening "คืนนี้อยากฝันถึงอะไร" bubble is
+ * the one exception: the engine never pushes it (by design — DESIGN §3.3 says the room
+ * always opens with that question, but nothing about *who* has answered it yet, so the
+ * engine's own transcript starts empty), so this adapter seeds the same `introMessage`
+ * helper the mock uses, for pixel-identical opening screens either way.
+ *
+ * Chip/plan-card placement is derived from the **`AdvisorTurn` the call just returned**,
+ * not by re-reading `engineAdvisor.state` later — `applyTurn` is called synchronously
+ * right after every `say`/`pickChip`/`edit`, so there is never a chance for a second
+ * call to land in between and misattribute a chip row to the wrong bubble.
+ */
+export function createEngineAdvisorAdapter(
+  lang: Locale,
+  options: CreateEngineAdvisorAdapterOptions = {},
+): AdvisorAdapter {
+  const engineLang: AnchorLang = lang;
+  const provider = options.provider ?? createHttpPlanProvider();
+  const themeChips: EngineThemeChip[] = THEME_CHIPS.map((def) => ({
+    key: def.key,
+    emoji: def.emoji,
+    titleTh: translate('th', def.chipLabelKey),
+    titleEn: translate('en', def.chipLabelKey),
+  }));
+  // No custom `clock` passed to `createAdvisor()`: it only stamps each `AdvisorMessage`
+  // (rendered but not asserted on anywhere in this WO — the mock's `?fixture=` path
+  // stays the one deterministic, testable conversation), so the engine's own
+  // `systemClock` default is fine here.
+  const engineAdvisor: EngineAdvisor = createAdvisor({ provider, lang: engineLang, themeChips });
+
+  const now = options.now ?? (() => new Date().toISOString());
+  let uiMessages: Message[] = [introMessage(lang, now)];
+  let renderedCount = 0;
+  let uiPlan: DreamPlan | null = null;
+
+  function applyTurn(turn: EngineAdvisorTurn | { state: 'PLAN'; plan: EngineDreamPlan }): AdvisorResult {
+    const state: AdvisorState = turn.state;
+    const clarify = 'clarify' in turn ? toUiClarify(turn.clarify) : null;
+    uiPlan = turn.plan ? toUiPlan(turn.plan) : uiPlan;
+
+    const engineMessages = engineAdvisor.messages;
+    const fresh = engineMessages.slice(renderedCount);
+    renderedCount = engineMessages.length;
+
+    const mapped = fresh.map((message, index) => {
+      const isLastAssistant = index === fresh.length - 1 && message.role === 'assistant';
+      let chips: MessageChip[] | undefined;
+      let planCompact: boolean | undefined;
+      if (isLastAssistant && state === 'CLARIFY' && clarify) {
+        chips = clarify.options.map((option) => ({ key: option, label: option }));
+      }
+      if (isLastAssistant && state === 'PLAN' && turn.plan) {
+        planCompact = true;
+      }
+      const uiMessage: Message = {
+        id: nextId(message.role === 'assistant' ? 'ai' : 'me'),
+        kind: message.role === 'assistant' ? 'ai' : 'me',
+        text: message.text,
+        at: message.at,
+        ...(message.fromVoice ? { fromVoice: true } : {}),
+        ...(chips ? { chips } : {}),
+        ...(planCompact ? { planCompact: true } : {}),
+      };
+      return uiMessage;
+    });
+
+    uiMessages = [...uiMessages, ...mapped];
+    return { state, plan: uiPlan, clarify };
+  }
+
+  function requireNotStarted(): void {
+    if (engineAdvisor.state === 'STARTED') throw new Error('advisor: conversation already started');
+  }
+
+  const adapter: AdvisorAdapter = {
+    get state() {
+      return engineAdvisor.state;
+    },
+    get plan() {
+      return uiPlan;
+    },
+    get messages() {
+      return uiMessages;
+    },
+    get clarifyCount() {
+      return engineAdvisor.clarifyCount;
+    },
+
+    async say(text, sayOptions = {}) {
+      requireNotStarted();
+      const turn = await engineAdvisor.say(text, sayOptions);
+      return applyTurn(turn);
+    },
+
+    async pickChip(key) {
+      requireNotStarted();
+      const turn = await engineAdvisor.pickChip(key);
+      return applyTurn(turn);
+    },
+
+    async edit(text) {
+      requireNotStarted();
+      const result = await engineAdvisor.edit(text);
+      return applyTurn({ state: result.state, plan: result.plan });
+    },
+
+    start() {
+      const result = engineAdvisor.start();
+      uiPlan = toUiPlan(result.plan);
+      return { state: 'STARTED', plan: uiPlan, clarify: null };
     },
   };
 
