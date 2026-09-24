@@ -70,6 +70,59 @@ export type CueType = 'WHISPER' | 'SPOKEN' | 'TONE_PHRASE' | 'AMBIENCE_UP';
 export const VOLUME_MIN = 0.08;
 export const VOLUME_MAX = 0.35;
 
+/**
+ * Gate rails of the cue controller (DESIGN §5.3 "จังหวะ"). They live here, next to the
+ * volume rails, because both `cueGate.ts` and {@link DEFAULT_NIGHT_PARAMS} must read the
+ * *same* number — a gate that is stricter than the params (or the other way round)
+ * would be invisible until someone counted whispers in a report.
+ */
+
+/** No cue unless the sleeper has been still for this long, in seconds. */
+export const CUE_MOTION_QUIET_SEC = 120;
+/** Minimum seconds between two cues (5 minutes = the COOLDOWN state). */
+export const CUE_SPACING_SEC = 300;
+/** Cap for the whole night. */
+export const MAX_CUES_PER_NIGHT = 8;
+/** Cap inside one REM bout. */
+export const MAX_CUES_PER_REM = 3;
+
+// ---------------------------------------------------------------------------
+// Night state machine (DESIGN §5.1)
+// ---------------------------------------------------------------------------
+
+/**
+ * The state the night is in. The audio player may only make a cue sound in `CUE`
+ * (§0.5 S7), and `cueGate()` only ever says yes in `REM_LIKELY` — everything else,
+ * including the two "quiet" states `GUARD` and `COOLDOWN`, is a refusal.
+ */
+export type NightState =
+  | 'IDLE'
+  | 'PRE_SLEEP'
+  | 'FALLING_ASLEEP'
+  | 'GUARD'
+  | 'WATCHING'
+  | 'REM_LIKELY'
+  | 'CUE'
+  | 'COOLDOWN'
+  | 'AWAKE'
+  | 'MORNING'
+  | 'ENDED';
+
+/** All states, in the order of the diagram in DESIGN §5.1. */
+export const NIGHT_STATES: readonly NightState[] = [
+  'IDLE',
+  'PRE_SLEEP',
+  'FALLING_ASLEEP',
+  'GUARD',
+  'WATCHING',
+  'REM_LIKELY',
+  'CUE',
+  'COOLDOWN',
+  'AWAKE',
+  'MORNING',
+  'ENDED',
+];
+
 /** Everything one night's engine needs to know before it starts. */
 export interface NightParams {
   /** Hours after sleep onset during which cues are forbidden (DESIGN §5.3, default 3). */
@@ -98,9 +151,9 @@ export const DEFAULT_NIGHT_PARAMS: NightParams = {
   guardHours: 3,
   remThreshold: 0.7,
   cueDelaySec: 60,
-  cueSpacingMin: 5,
-  maxCuesPerNight: 8,
-  maxCuesPerRem: 3,
+  cueSpacingMin: CUE_SPACING_SEC / 60,
+  maxCuesPerNight: MAX_CUES_PER_NIGHT,
+  maxCuesPerRem: MAX_CUES_PER_REM,
   volumeStart: 0.15,
   volumeMin: VOLUME_MIN,
   volumeMax: VOLUME_MAX,
