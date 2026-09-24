@@ -24,8 +24,10 @@ import {
 import { applyDeviceFoundFixture, applyPlanFixture, fixturePhoneStatus } from '../../src/dev/fixtures';
 import {
   HEADPHONES_DEVICE_ID,
+  MATTRESS_DEVICE_ID,
   WATCH_DEVICE_ID,
   deviceRegistry,
+  liveHeartRate,
   refreshDevicesFromPlatform,
 } from '../../src/devices/registry';
 import { useT, type TranslationKey } from '../../src/i18n';
@@ -44,17 +46,10 @@ import {
   spacing,
 } from '../../src/ui';
 
-const HEART_SEARCH_KEYS: TranslationKey[] = [
-  'onboarding.devices.search.heart.chestStrap',
-  'onboarding.devices.search.heart.armband',
-  'onboarding.devices.search.heart.mattress',
-];
 const AUDIO_SEARCH_KEYS: TranslationKey[] = [
   'onboarding.devices.search.audio.bluetooth',
   'onboarding.devices.search.audio.speaker',
 ];
-
-type SearchableCategory = 'HEART' | 'AUDIO';
 
 const BLOCKER_KEY: Partial<Record<ReadinessReason, TranslationKey>> = {
   HEART_NONE: 'ready.blocker.HEART_NONE',
@@ -78,7 +73,7 @@ export default function PlanDevicesScreen() {
   const { plan, earTests, hydrated } = useNightState();
 
   const [devices, setDevices] = useState<DeviceEntry[]>(() => deviceRegistry.list());
-  const [searchCategory, setSearchCategory] = useState<SearchableCategory | null>(null);
+  const [audioSearchOpen, setAudioSearchOpen] = useState(false);
   const [phone, setPhone] = useState<{ charging: boolean; battery: number } | null>(null);
   const [dndOk, setDndOk] = useState<boolean>(true);
 
@@ -171,6 +166,12 @@ export default function PlanDevicesScreen() {
   function heartSubtitle(entry: DeviceEntry): string {
     const parts = [t('onboarding.devices.status.connected')];
     if (entry.id === WATCH_DEVICE_ID) parts.push(t('onboarding.devices.status.watchDetail'));
+    if (entry.id === MATTRESS_DEVICE_ID) parts.push(t('onboarding.devices.status.mattressDetail'));
+    // The live pulse, exactly as mockup 04(b) writes its device line ("connected · heart 62 ·
+    // L2.3. Absent for a device that does not measure one (the phone on the mattress) and for
+    // one that has not measured one yet, rather than shown as a zero.
+    const bpm = liveHeartRate(entry.id);
+    if (bpm !== null) parts.push(t('onboarding.devices.status.heartRate', { bpm: Math.round(bpm) }));
     if (entry.battery !== null) parts.push(t('onboarding.devices.status.battery', { battery: Math.round(entry.battery * 100) }));
     return parts.join(' · ');
   }
@@ -233,7 +234,11 @@ export default function PlanDevicesScreen() {
         ) : (
           <DeviceRow name={t('onboarding.devices.heart.empty.title')} sub={t('onboarding.devices.heart.empty.sub')} muted first />
         )}
-        <SearchOtherRow label={t('onboarding.devices.searchOther')} onPress={() => setSearchCategory('HEART')} testID="ready-search-heart" />
+        <SearchOtherRow
+          label={t('onboarding.devices.searchOther')}
+          onPress={() => router.push('/plan/find-devices')}
+          testID="ready-search-heart"
+        />
       </CategoryCard>
 
       <CategoryCard emoji="🎧" title={t('onboarding.devices.audio.title')} badge={t('onboarding.devices.audio.required')} testID="ready-category-audio">
@@ -244,7 +249,7 @@ export default function PlanDevicesScreen() {
         ) : (
           <DeviceRow name={t('onboarding.devices.audio.empty.title')} sub={t('onboarding.devices.audio.empty.sub')} muted first />
         )}
-        <SearchOtherRow label={t('onboarding.devices.searchOther')} onPress={() => setSearchCategory('AUDIO')} testID="ready-search-audio" />
+        <SearchOtherRow label={t('onboarding.devices.searchOther')} onPress={() => setAudioSearchOpen(true)} testID="ready-search-audio" />
       </CategoryCard>
 
       <CategoryCard emoji="👁" title={t('onboarding.devices.eye.title')} badge={t('onboarding.devices.eye.optional')} dimmed testID="ready-category-eye">
@@ -270,7 +275,7 @@ export default function PlanDevicesScreen() {
         <PhoneLine ok={dndOk} text={t('ready.devices.phone.dnd')} last />
       </GlassCard>
 
-      <DeviceSearchSheet category={searchCategory} onClose={() => setSearchCategory(null)} />
+      <AudioSearchSheet visible={audioSearchOpen} onClose={() => setAudioSearchOpen(false)} />
     </Screen>
   );
 }
@@ -360,16 +365,22 @@ function PhoneLine({ ok, text, first = false, last = false }: PhoneLineProps) {
   );
 }
 
-interface DeviceSearchSheetProps {
-  category: SearchableCategory | null;
+interface AudioSearchSheetProps {
+  visible: boolean;
   onClose: () => void;
 }
 
-/** Same "coming soon" placeholder as `onboarding/devices.tsx` — BLE scanning is L2.3. */
-function DeviceSearchSheet({ category, onClose }: DeviceSearchSheetProps) {
+/**
+ * The 🎧 half of "find another device". The 💓 half is a real page now (`/plan/find-devices`,
+ * WO L2.3) — this one cannot be: sleep headphones and speakers are **classic** Bluetooth (A2DP),
+ * which `react-native-ble-plx` does not see and no iOS app may pair on the user's behalf. So it
+ * names the two kinds that count and points at the one place that can actually do it, instead of
+ * keeping the "coming soon" chip L1.3 put here for something that is never coming.
+ */
+function AudioSearchSheet({ visible, onClose }: AudioSearchSheetProps) {
   const { t } = useT();
-  if (!category) return null;
-  const keys = category === 'HEART' ? HEART_SEARCH_KEYS : AUDIO_SEARCH_KEYS;
+  if (!visible) return null;
+  const keys = AUDIO_SEARCH_KEYS;
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose} testID="ready-device-search-sheet">
@@ -379,9 +390,9 @@ function DeviceSearchSheet({ category, onClose }: DeviceSearchSheetProps) {
             {keys.map((key) => (
               <View key={key} style={styles.sheetRow}>
                 <Text style={{ fontSize: 14, color: colors.ink }}>{t(key)}</Text>
-                <Chip label={t('onboarding.devices.search.comingSoon')} size="sm" disabled />
               </View>
             ))}
+            <Text style={styles.sheetHint}>{t('onboarding.devices.search.audio.hint')}</Text>
             <Button tone="gh" block label={t('common.close')} onPress={onClose} testID="ready-device-search-close" />
           </GlassCard>
         </Pressable>
@@ -440,4 +451,5 @@ const styles = StyleSheet.create({
   phoneLineText: { fontSize: 12.5, color: colors.ink2, flex: 1 },
   sheetBackdrop: { flex: 1, backgroundColor: 'rgba(17,19,24,0.35)', justifyContent: 'flex-end' },
   sheetRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.sm },
+  sheetHint: { fontSize: 12.5, lineHeight: 17, color: colors.mut },
 });

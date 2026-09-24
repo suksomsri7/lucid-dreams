@@ -14,19 +14,12 @@ import {
   refreshDevicesFromPlatform,
 } from '../../src/devices/registry';
 import { completeOnboarding } from '../../src/store/onboarding';
-import { Button, Chip, GlassCard, Icon, Screen, Sub, Title, colors, radius, spacing } from '../../src/ui';
+import { Button, GlassCard, Icon, Screen, Sub, Title, colors, radius, spacing } from '../../src/ui';
 
-const HEART_SEARCH_KEYS: TranslationKey[] = [
-  'onboarding.devices.search.heart.chestStrap',
-  'onboarding.devices.search.heart.armband',
-  'onboarding.devices.search.heart.mattress',
-];
 const AUDIO_SEARCH_KEYS: TranslationKey[] = [
   'onboarding.devices.search.audio.bluetooth',
   'onboarding.devices.search.audio.speaker',
 ];
-
-type SearchableCategory = 'HEART' | 'AUDIO';
 
 /**
  * Onboarding screen (b) — 3 device categories (DESIGN §4-01(b) · §3.2 step 3 · mockup
@@ -46,7 +39,7 @@ export default function OnboardingDevicesScreen() {
   const { t } = useT();
   const router = useRouter();
   const [devices, setDevices] = useState<DeviceEntry[]>(() => deviceRegistry.list());
-  const [searchCategory, setSearchCategory] = useState<SearchableCategory | null>(null);
+  const [audioSearchOpen, setAudioSearchOpen] = useState(false);
 
   useEffect(() => {
     refreshDevicesFromPlatform();
@@ -131,7 +124,7 @@ export default function OnboardingDevicesScreen() {
         <SearchOtherRow
           label={t('onboarding.devices.searchOther')}
           sub={t('onboarding.devices.searchOther.heartHint')}
-          onPress={() => setSearchCategory('HEART')}
+          onPress={() => router.push('/plan/find-devices')}
           testID="onboarding-search-heart"
         />
       </CategoryCard>
@@ -156,7 +149,7 @@ export default function OnboardingDevicesScreen() {
         )}
         <SearchOtherRow
           label={t('onboarding.devices.searchOther')}
-          onPress={() => setSearchCategory('AUDIO')}
+          onPress={() => setAudioSearchOpen(true)}
           testID="onboarding-search-audio"
         />
       </CategoryCard>
@@ -178,7 +171,7 @@ export default function OnboardingDevicesScreen() {
         <Sub style={{ flex: 1, lineHeight: 17 }}>{t('onboarding.devices.info')}</Sub>
       </GlassCard>
 
-      <DeviceSearchSheet category={searchCategory} onClose={() => setSearchCategory(null)} />
+      <AudioSearchSheet visible={audioSearchOpen} onClose={() => setAudioSearchOpen(false)} />
     </Screen>
   );
 }
@@ -291,20 +284,25 @@ function SearchOtherRow({ label, sub, onPress, testID }: SearchOtherRowProps) {
   );
 }
 
-interface DeviceSearchSheetProps {
-  category: SearchableCategory | null;
+interface AudioSearchSheetProps {
+  visible: boolean;
   onClose: () => void;
 }
 
 /**
- * The "find another device" row opens this — not in the mockup (which only shows the
- * happy path), but the WO asks for it and BLE scanning does not exist until L2.3, so
- * every option is shown with a "coming soon" chip instead of being a dead tap.
+ * The 🎧 half of "find another device" (WO L2.3 closes the 💓 half — that row now opens the real
+ * scanner at `/plan/find-devices`, which is reachable from here even though it lives under
+ * `app/plan/`: it needs no plan).
+ *
+ * This half stays a sheet, and stops promising a scanner that is never coming: sleep headphones
+ * and speakers are **classic** Bluetooth (A2DP), invisible to `react-native-ble-plx`, and no iOS
+ * app is allowed to pair them on the user's behalf. So it names the two kinds and points at the
+ * one place that can do it.
  */
-function DeviceSearchSheet({ category, onClose }: DeviceSearchSheetProps) {
+function AudioSearchSheet({ visible, onClose }: AudioSearchSheetProps) {
   const { t } = useT();
-  if (!category) return null;
-  const keys = category === 'HEART' ? HEART_SEARCH_KEYS : AUDIO_SEARCH_KEYS;
+  if (!visible) return null;
+  const keys = AUDIO_SEARCH_KEYS;
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose} testID="onboarding-device-search-sheet">
@@ -323,9 +321,11 @@ function DeviceSearchSheet({ category, onClose }: DeviceSearchSheetProps) {
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.sm }}
               >
                 <Text style={{ fontSize: 14, color: colors.ink }}>{t(key)}</Text>
-                <Chip label={t('onboarding.devices.search.comingSoon')} size="sm" disabled />
               </View>
             ))}
+            <Text style={{ fontSize: 12.5, lineHeight: 17, color: colors.mut }}>
+              {t('onboarding.devices.search.audio.hint')}
+            </Text>
             <Button tone="gh" block label={t('common.close')} onPress={onClose} testID="onboarding-device-search-close" />
           </GlassCard>
         </Pressable>

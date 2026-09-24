@@ -163,7 +163,16 @@ async function checkThaiOutsideI18n(): Promise<void> {
 // C. iOS-only modules confined to platform/ios
 // ---------------------------------------------------------------------------
 
-const IOS_ONLY_MODULES = ['expo-glass-effect', 'react-native-watch-connectivity', '@bacons/apple-targets'];
+const IOS_ONLY_MODULES = [
+  'expo-glass-effect',
+  'react-native-watch-connectivity',
+  '@bacons/apple-targets',
+  // WO L2.3: `react-native-ble-plx` is cross-platform *in principle*, but Phase 1 only implements
+  // it for iOS (`platform/ios/BleHeartRateSource.ts`) and the web QC bundle has no radio at all —
+  // importing it anywhere else would drag a native module into the web export and break the QC
+  // screenshots, which is exactly the failure this rule exists to prevent.
+  'react-native-ble-plx',
+];
 
 async function checkIosOnlyImports(): Promise<void> {
   const roots = [path.join(ROOT, 'apps/mobile/app'), path.join(ROOT, 'apps/mobile/src')];

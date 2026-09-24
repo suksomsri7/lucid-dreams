@@ -205,7 +205,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     infoPlist: {
       // เสียงพื้น (bed) ต้องเล่นต่อเนื่องทั้งคืนแม้จอดับ (DESIGN §8.2 · APP-RUN §0.5 S7)
       // double quotes on purpose: the L1.1 oracle (S4.1) greps for the literal "audio"
-      UIBackgroundModes: ["audio"],
+      //
+      // `bluetooth-central` (WO L2.3) keeps the heart-rate strap's notifications coming while
+      // the phone is locked all night — without it CoreBluetooth stops delivering the moment the
+      // app is suspended, and the night would run blind from lights-out. Listed here *and* added
+      // by the `react-native-ble-plx` config plugin below (`modes: ['central']`); the plugin
+      // de-duplicates, and having it visible in this file is what makes the entitlement
+      // reviewable without reading a plugin's source.
+      UIBackgroundModes: ["audio", "bluetooth-central"],
       NSHealthShareUsageDescription:
         'Dreaming reads your sleep and heart rate from Health so it can tell when you are dreaming and only whisper then.',
       NSHealthUpdateUsageDescription:
@@ -285,6 +292,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-router',
     // ขอสิทธิ์ไมค์ผ่าน config plugin ของ expo-audio (ข้อความจริงอยู่ใน infoPlist ด้านบน)
     ['expo-audio', { microphonePermission: MICROPHONE_PERMISSION }],
+    /**
+     * BLE heart-rate strap / armband (WO L2.3 · DESIGN §8.1).
+     *
+     * `isBackgroundEnabled` + `modes: ['central']` is what makes an all-night connection legal:
+     * the first adds Android's background-scan manifest bits (Phase 2, harmless now), the second
+     * adds `bluetooth-central` to `UIBackgroundModes` — the same key spelled out above.
+     * `bluetoothAlwaysPermission` is deliberately **not** passed: the plugin keeps whatever
+     * `NSBluetoothAlwaysUsageDescription` is already in `infoPlist` (checked in the plugin's own
+     * `withBluetoothPermissions.js`), and ours is the localised, reviewed one.
+     */
+    ['react-native-ble-plx', { isBackgroundEnabled: true, modes: ['central'] }],
     // ฝัง watchOS target จาก `targets/watch` ที่ราก repo (นอกโฟลเดอร์แอป) → ต้องบอก root
     [
       '@bacons/apple-targets',
@@ -321,7 +339,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
      * (แพ็กเกจไม่มี app.plugin.js) → ใส่ใน `plugins` ไม่ได้ จะทำให้ prebuild ล้ม
      * จึงประกาศไว้ที่นี่เพื่อให้เห็นชัดว่าโปรเจกต์ใช้ของนี้
      */
-    iosOnlyModules: ['expo-glass-effect'],
+    iosOnlyModules: ['expo-glass-effect', 'react-native-ble-plx'],
     router: {},
   },
 });

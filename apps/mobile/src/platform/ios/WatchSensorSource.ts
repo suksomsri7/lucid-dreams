@@ -31,6 +31,7 @@ export class WatchSensorSource implements SensorSource {
   private started = false;
   private link: WatchLinkStatus = { paired: false, appInstalled: false, reachable: false, model: null };
   private lastEpochT: number | null = null;
+  private lastBpm: number | null = null;
   private battery: number | null = null;
   private error: string | null = null;
 
@@ -88,6 +89,9 @@ export class WatchSensorSource implements SensorSource {
       connected: this.link.paired && this.link.appInstalled,
       reachable: this.started && this.link.reachable,
       lastEpochT: this.lastEpochT,
+      // The watch's only output is epochs, so "last reading" and "last epoch" are one number.
+      lastDataT: this.lastEpochT,
+      lastBpm: this.lastBpm,
       battery: this.battery,
       error: this.error,
     };
@@ -161,6 +165,10 @@ export class WatchSensorSource implements SensorSource {
     }
 
     this.lastEpochT = parsed.data.t;
+    // WO L2.3: the devices screen prints the mockup's own "heart 62" line from this
+    // (`SensorStatus.lastBpm`). Only overwritten when the epoch actually carried a heart rate —
+    // a motion-only epoch must not blank the last real reading a second later.
+    if (parsed.data.hrMean !== null) this.lastBpm = parsed.data.hrMean;
     if (parsed.data.battery !== null) this.battery = parsed.data.battery;
     this.error = null;
 

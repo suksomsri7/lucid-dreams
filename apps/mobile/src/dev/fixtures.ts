@@ -27,13 +27,25 @@
  *   store fixture needed here, that function builds its own plan.
  * - `?fixture=report` (WO L2.10) — `app/report/[id].tsx` renders `src/report/fixture.ts`'s
  *   canned `NightReport` instead of reading the (web-less) database.
+ * - `?fixture=ble` (WO L2.3) — `app/plan/find-devices.tsx` lists two canned BLE heart-rate
+ *   devices instead of scanning (the web bundle has no radio, and the owner has not bought a
+ *   strap yet — DESIGN §8.1 note of 24 Sep), and `app/plan/devices.tsx` shows the same strap
+ *   already connected in the 💓 category with a live heart rate.
  */
 
 import { Platform } from 'react-native';
 
 import type { DreamPlan } from '../advisor/types';
-import { deviceRegistry, HEADPHONES_DEVICE_ID, WATCH_DEVICE_ID } from '../devices/registry';
-import { translate, type Locale } from '../i18n';
+import { getSensorPrefs, rememberBleDevice, setPhoneOnMattress } from '../devices/prefs';
+import {
+  BLE_DEVICE_ID,
+  HEADPHONES_DEVICE_ID,
+  MATTRESS_DEVICE_ID,
+  WATCH_DEVICE_ID,
+  deviceRegistry,
+  setLiveHeartRate,
+} from '../devices/registry';
+import { getLocale, translate, type Locale } from '../i18n';
 import { getNightState, saveTonightPlan } from '../store/night';
 import { completeOnboarding } from '../store/onboarding';
 
@@ -54,10 +66,35 @@ function readFixtureParam(): string | null {
  * the real (empty, on web) platform read reported, rather than adding a second, hidden
  * entry alongside it.
  */
-/** `?fixture=devices` or `?fixture=ear-passed` (which builds on top of the same device set). */
+/** `?fixture=devices`, `?fixture=ear-passed` or `?fixture=ble` — all three want the same found-device set. */
 export function devicesFixtureRequested(): boolean {
   const value = readFixtureParam();
-  return value === 'devices' || value === 'ear-passed';
+  return value === 'devices' || value === 'ear-passed' || value === 'ble';
+}
+
+/** `?fixture=ble` (WO L2.3) — see the file header. */
+export function bleFixtureRequested(): boolean {
+  return readFixtureParam() === 'ble';
+}
+
+/**
+ * The canned scan result `app/plan/find-devices.tsx` shows on the web QC build. Generic,
+ * real-world model names on purpose: the owner owns neither device, so these stand for "whatever
+ * standard BLE Heart Rate Profile strap you bought" — the page treats them exactly as it would
+ * treat a real advertiser (guessed kind from the name, signal strength, tap to bond).
+ */
+export function fixtureBleScanResults(): { id: string; name: string; rssi: number; services: string[] }[] {
+  return [
+    { id: 'fixture-polar-h10', name: 'Polar H10 A1B2C3', rssi: -54, services: ['180d', '180f'] },
+    { id: 'fixture-garmin-hrm', name: 'Garmin HRM-Pro', rssi: -73, services: ['180d'] },
+  ];
+}
+
+/** The tap on the first row, replayed without a radio (`select()` throws on the web stub). */
+export function applyBleSelectFixture(device: { id: string; name: string | null }): boolean {
+  if (!bleFixtureRequested()) return false;
+  rememberBleDevice(device);
+  return true;
 }
 
 export function earPassedFixtureRequested(): boolean {
@@ -78,6 +115,33 @@ export function fixturePhoneStatus(): { charging: boolean; battery: number } | n
 export function applyDeviceFoundFixture(): void {
   if (!devicesFixtureRequested()) return;
   const now = new Date().toISOString();
+
+  // `?fixture=ble` only: the strap the user just tapped on `find-devices`, plus the phone on the
+  // mattress, both live. Written after `refreshDevicesFromPlatform()` (the devices screen calls
+  // the two in that order on every tick), so these replace the empty web readings rather than
+  // sitting beside them — same trick, and the same ids, as the watch/headphones rows below.
+  if (bleFixtureRequested()) {
+    // Guarded: this runs on the devices screen's 3 s tick, and flipping the preference every
+    // tick would re-persist and re-render for nothing.
+    if (!getSensorPrefs().phoneOnMattress) setPhoneOnMattress(true);
+    deviceRegistry.add({
+      id: BLE_DEVICE_ID,
+      category: 'HEART',
+      name: 'Polar H10 A1B2C3',
+      connected: true,
+      battery: 0.86,
+      lastDataAt: now,
+    });
+    setLiveHeartRate(BLE_DEVICE_ID, 62);
+    deviceRegistry.add({
+      id: MATTRESS_DEVICE_ID,
+      category: 'HEART',
+      name: translate(getLocale(), 'devices.mattress.name'),
+      connected: true,
+      battery: 0.78,
+      lastDataAt: now,
+    });
+  }
   deviceRegistry.add({
     id: WATCH_DEVICE_ID,
     category: 'HEART',
@@ -136,6 +200,7 @@ export function applyOnboardingBypassForAdvisorFixture(): void {
     value === 'plan' ||
     value === 'ear-passed' ||
     value === 'night' ||
+    value === 'ble' ||
     value === 'report' ||
     value === 'morning-record' ||
     value === 'morning-result' ||
@@ -147,7 +212,7 @@ export function applyOnboardingBypassForAdvisorFixture(): void {
 
 export function planFixtureRequested(): boolean {
   const value = readFixtureParam();
-  return value === 'plan' || value === 'ear-passed';
+  return value === 'plan' || value === 'ear-passed' || value === 'ble';
 }
 
 /** `?fixture=night` (WO L2.8) — see the file header. */

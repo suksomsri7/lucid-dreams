@@ -12,7 +12,8 @@
  * for (const e of epochs) for (const action of c.feed(e, pRem(e))) execute(action);
  * ```
  *
- * `startNightSession()` is the real thing: one `platform.watchSensorSource` epoch in,
+ * `startNightSession()` is the real thing: one `src/sensors/hub.ts` epoch in (merged from the
+ * watch, a BLE heart-rate strap and/or the phone on the mattress — WO L2.3),
  * one `NightAction[]` out, every action executed (`playAnchorOnce` gated on
  * `controller.state === 'CUE'` — the engine's own §0.5 S7 invariant, "the player may
  * only make a cue sound while state is CUE" — rather than re-asking `cueGate` a second
@@ -66,6 +67,7 @@ import { translate, type Locale, type TranslationKey } from '../i18n';
 import { pickTonightPlan } from '../learning';
 import { scheduleMorningReminder } from '../notifications';
 import { getPlatform, type PlatformBundle } from '../platform';
+import { buildNightSensorHub } from '../sensors/hub';
 import { ensureSettingsHydrated } from '../settings/store';
 import type { NightState as NightStoreState } from '../store/night';
 
@@ -427,8 +429,13 @@ export async function startNightSession(state: NightStoreState): Promise<NightSe
   }
 
   let handle: NightSessionHandle;
-  const unsubscribeEpoch = platform.watchSensorSource.onEpoch((epoch) => runtime.feed(epoch));
-  const unsubscribeCommand = platform.watchSensorSource.onCommand((command) => {
+  // WO L2.3: the night no longer listens to one watch — it listens to the hub that merges every
+  // source the sleeper actually has (watch · BLE strap · phone on the mattress) into one epoch
+  // every 30 s, and that keeps emitting empty epochs when they all go quiet, which is what lets
+  // the controller fall back to timer mode after 10 minutes (`src/sensors/hub.ts`).
+  const sensors = buildNightSensorHub(platform);
+  const unsubscribeEpoch = sensors.onEpoch((epoch) => runtime.feed(epoch));
+  const unsubscribeCommand = sensors.onCommand((command) => {
     if (command === 'stop') void handle.stop();
   });
   // The other "stop from outside the app": the Live Activity's button on the lock screen, which
@@ -438,10 +445,11 @@ export async function startNightSession(state: NightStoreState): Promise<NightSe
     void handle.stop();
   });
   try {
-    await platform.watchSensorSource.start();
+    await sensors.start();
   } catch {
-    // No watch reachable tonight — L2.7's timer fallback takes over once the controller
-    // notices 10 minutes with nothing readable.
+    // No source reachable tonight — L2.7's timer fallback takes over once the controller
+    // notices 10 minutes with nothing readable. (`AppSensorHub.start()` already swallows a
+    // single source failing; this catch is for the hub itself failing to arm its timer.)
   }
 
   let stopped = false;
@@ -455,7 +463,7 @@ export async function startNightSession(state: NightStoreState): Promise<NightSe
       unsubscribeEpoch();
       unsubscribeCommand();
       unsubscribeLiveStop();
-      await platform.watchSensorSource.stop().catch(() => undefined);
+      await sensors.stop().catch(() => undefined);
       await platform.audioPlayer.stopBed().catch(() => undefined);
       await platform.audioPlayer.dispose().catch(() => undefined);
       if (liveStarted) await platform.liveStatus.stop().catch(() => undefined);

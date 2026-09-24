@@ -18,6 +18,7 @@ import type {
   BatterySample,
   DeviceKind,
   SensorEpoch,
+  SensorSample,
   SensorSourceKind,
 } from '@lucid/engine';
 
@@ -45,6 +46,27 @@ export interface SensorStatus {
   reachable: boolean;
   /** Epoch seconds of the newest epoch received, `null` before the first one. */
   lastEpochT: number | null;
+  /**
+   * Unix seconds of the newest *reading* of any kind — WO L2.3.
+   *
+   * Not the same question as `lastEpochT`, and the difference decides whether the devices
+   * screen shows a strap as alive: a BLE strap notifies every second but only produces an
+   * epoch when something asked it to fold one (`onEpoch`), so during a night — where the hub
+   * consumes its samples instead — `lastEpochT` stays `null` while data pours in. For the
+   * Apple Watch, whose only output *is* epochs, the two are the same number.
+   */
+  lastDataT: number | null;
+  /**
+   * Newest heart rate this source has seen, bpm — `null` when the source does not measure
+   * one (phone on the mattress) or has not measured one yet (WO L2.3).
+   *
+   * Added so the devices screen can print the mockup's own device line — "connected · heart 62 ·
+   * 84% battery" (`04-dream-plan.png` frame b) — without a second, parallel channel for one
+   * number: it is a *level* the source can always answer for, which is exactly what
+   * `getStatus()` is for. It is deliberately not fed to the estimator from here; evidence
+   * only ever travels as epochs/samples (`onEpoch`/`onSample`), never as a status field.
+   */
+  lastBpm: number | null;
   /** Battery of the sensing device, 0..1. */
   battery: number | null;
   /** Last transport error, machine-readable, never user text. */
@@ -81,6 +103,72 @@ export interface SensorSource {
    * not a level that `getStatus()` could ever describe.
    */
   onCommand(listener: (command: 'stop') => void): Unsubscribe;
+}
+
+// ---------------------------------------------------------------------------
+// 1b. Sample-level sources — BLE strap, phone on the mattress (WO L2.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * A source that can hand over its readings **as they arrive**, not only as a finished
+ * 30 s epoch.
+ *
+ * Why this exists next to `SensorSource.onEpoch` rather than replacing it: a chest strap
+ * notifies once per heartbeat with RR intervals attached, and `@lucid/engine`'s
+ * `createSensorHub` can only weight sources by evidence (and turn RR into HRV) if it sees
+ * those individual readings — an epoch that has already been averaged has thrown that
+ * away. The Apple Watch, by contrast, *only* ever produces finished epochs (the watch app
+ * does the aggregation itself, WO L2.2n), so `onEpoch` stays the contract every source
+ * honours and this is the extra one the sources that can, offer.
+ *
+ * `src/sensors/hub.ts` subscribes to `onSample` when a source has it and to `onEpoch`
+ * otherwise — never both for the same source, which would double-count it.
+ */
+export interface SampleSensorSource extends SensorSource {
+  onSample(listener: (sample: SensorSample) => void): Unsubscribe;
+}
+
+/** One advertiser seen during a scan. Nothing is connected to yet (APP-RUN §0.5 S8). */
+export interface BleScanResult {
+  /** Opaque per-phone identifier (a CoreBluetooth UUID on iOS, not a MAC address). */
+  id: string;
+  name: string | null;
+  /** dBm, negative; `null` when the platform did not report it. */
+  rssi: number | null;
+  /** Advertised 16-bit service ids in short lower-case form, e.g. `['180d', '180f']`. */
+  services: string[];
+}
+
+/** Why a scan cannot start. `READY` is the only state that scans. */
+export type BleAvailability = 'READY' | 'OFF' | 'UNAUTHORIZED' | 'UNSUPPORTED';
+
+export interface BleBondedDevice {
+  id: string;
+  name: string | null;
+}
+
+/**
+ * The Bluetooth Heart Rate Profile source (DESIGN §8.1 rows 2–3: chest strap / armband).
+ *
+ * The scan/select half is separate from `start()/stop()` on purpose: **the app may only
+ * ever bond to the device the user tapped** (APP-RUN §0.5 S8), so "what is out there"
+ * (`scan`) and "this one is mine" (`select`) are two different acts, and only the second
+ * one is remembered. `start()` connects to the remembered device and to nothing else.
+ */
+export interface BleSensorSource extends SampleSensorSource {
+  /** The device the user chose, remembered across launches — `null` when none. */
+  selected(): BleBondedDevice | null;
+  availability(): Promise<BleAvailability>;
+  /**
+   * Scan for `0x180D` (heart rate) and `0x180F` (battery) advertisers, reporting the whole
+   * set found so far on every change. Resolves to the stop function; scanning also stops
+   * on `select()` and on `stop()`.
+   */
+  scan(onResults: (results: BleScanResult[]) => void): Promise<Unsubscribe>;
+  /** Remember this device and connect to it. Replaces any previous choice. */
+  select(device: BleBondedDevice): Promise<void>;
+  /** Forget the bonded device and disconnect. */
+  forget(): Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -303,6 +391,10 @@ export interface PlatformBundle {
   /** `true` when real Liquid Glass is available (iOS 26+); UI falls back to blur otherwise. */
   readonly hasLiquidGlass: boolean;
   watchSensorSource: SensorSource;
+  /** Chest strap / armband over the BLE Heart Rate Profile (WO L2.3). */
+  bleHeartRate: BleSensorSource;
+  /** "Phone on the mattress" — the phone's own accelerometer as a motion-only HEART source (WO L2.3). */
+  phoneMotion: SampleSensorSource;
   audioPlayer: AudioPlayer;
   liveStatus: LiveStatus;
   healthImport: HealthImport;
@@ -313,4 +405,4 @@ export interface PlatformBundle {
   display: Display;
 }
 
-export type { AudioEvent, AudioEventKind, BatterySample, SensorEpoch, SensorSourceKind };
+export type { AudioEvent, AudioEventKind, BatterySample, SensorEpoch, SensorSample, SensorSourceKind };
