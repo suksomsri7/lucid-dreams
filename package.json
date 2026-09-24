@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "description": "Lucid Dream — iOS app + Apple Watch + headphones (Phase 1)",
   "packageManager": "pnpm@10.33.0",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "qc": "./scripts/qc-L1.1.sh",
     "fitness": "tsx scripts/fitness.mts",
@@ -15,6 +17,6 @@
   },
   "devDependencies": {
     "tsx": "^4.20.3",
-    "typescript": "~5.9.2"
+    "typescript": "~6.0.3"
   }
 }

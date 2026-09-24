@@ -41,6 +41,8 @@ final class PhoneLink: NSObject, ObservableObject {
     /// Fire-and-forget. Falls back to the queue on any failure, including a phone that
     /// went unreachable between the check and the send.
     func send(_ payload: EpochPayload) {
+        // Called from `WorkoutManager.closeEpoch()` on the main actor, so the direct
+        // mutations in this method body are already on the main thread.
         guard let session, session.activationState == .activated else {
             lastError = "WCSESSION_NOT_ACTIVATED"
             return
@@ -50,10 +52,15 @@ final class PhoneLink: NSObject, ObservableObject {
 
         if session.isReachable {
             session.sendMessage(body, replyHandler: nil) { [weak self] error in
-                // live send failed — queue it so the epoch is not lost
-                self?.lastError = "SEND_FAILED:\(error.localizedDescription)"
-                session.transferUserInfo(body)
-                self?.queuedCount += 1
+                // WatchConnectivity calls this error handler on its own queue, so the
+                // @Published mutations have to hop to main like every other callback here
+                // — mutating them off-main would publish from a background thread and
+                // SwiftUI would either warn or update the view out of order.
+                session.transferUserInfo(body) // live send failed — queue it so the epoch is not lost
+                DispatchQueue.main.async {
+                    self?.lastError = "SEND_FAILED:\(error.localizedDescription)"
+                    self?.queuedCount += 1
+                }
             }
         } else {
             session.transferUserInfo(body)

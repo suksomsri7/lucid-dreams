@@ -23,7 +23,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: 'portrait',
   scheme: 'luciddream',
   userInterfaceStyle: 'automatic',
-  newArchEnabled: true,
+  // `newArchEnabled` หายไปจากสคีมาของ SDK 57 — New Architecture เป็นทางเดียวแล้ว ไม่มีสวิตช์
   // พื้นแอปไล่สีอ่อนมาก (DESIGN §2.8) — ค่าจริงของโทเคนมาที่ L1.2
   backgroundColor: '#F4F1FB',
 
@@ -31,6 +31,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: IOS_BUNDLE_ID,
     buildNumber: '1',
     supportsTablet: false,
+    // ไม่ล็อก deployment target ไว้ที่ iOS 26 โดยเจตนา (มติ Fable 24 ก.ย.):
+    // Liquid Glass ตรวจตอนรันด้วย `isLiquidGlassAvailable()` และ iOS 18 ถอยเป็น blur
+    // ได้เอง (DESIGN §2.8) — ใช้ค่าต่ำสุดตามค่าเริ่มต้นของ Expo ก็พอ
+    // ⛔ อย่าเพิ่ม `deploymentTarget` ที่นี่ (มันไม่ใช่ฟิลด์ของ ExpoConfig ด้วย)
     // เติมตอนมีบัญชี Apple Developer ใหม่ (APP-RUN §0.3 ข้อ 2) — apple-targets ต้องใช้
     appleTeamId: process.env.EXPO_APPLE_TEAM_ID ?? undefined,
     infoPlist: {
@@ -59,8 +63,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
 
   android: {
+    // เฟส 2 เท่านั้น — ไม่มี Android build ใน Phase 1
+    // (`edgeToEdgeEnabled` หายไปจากสคีมาของ SDK 57 แล้ว เพราะ edge-to-edge เปิดตายตัว)
     package: ANDROID_PACKAGE,
-    edgeToEdgeEnabled: true,
   },
 
   web: {
