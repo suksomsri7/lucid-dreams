@@ -31,24 +31,9 @@
 // Device registry
 // ---------------------------------------------------------------------------
 
-export type DeviceCategory = 'HEART' | 'AUDIO' | 'EYE';
-
-/** All categories in screen order (DESIGN §3.2 — pulse, sound, eyes). */
-export const DEVICE_CATEGORIES: readonly DeviceCategory[] = ['HEART', 'AUDIO', 'EYE'];
-
-/** One thing the app found. `battery`/`lastDataAt` are `null` when the device cannot report them. */
-export interface DeviceEntry {
-  id: string;
-  category: DeviceCategory;
-  name: string;
-  connected: boolean;
-  /** 0..1, or `null` when unknown (a wired speaker has no battery). */
-  battery: number | null;
-  /** ISO timestamp of the last sample received, or `null` if it never sent one. */
-  lastDataAt: string | null;
-  /** Set by the UI when the user pinned this device as the one to use. Informational. */
-  required?: boolean;
-}
+import { DEVICE_CATEGORIES, type DeviceCategory, type DeviceEntry } from './devices';
+export { DEVICE_CATEGORIES };
+export type { DeviceCategory, DeviceEntry };
 
 /** Machine-readable blockers. The UI maps these to sentences; never show them raw. */
 export type ReadinessReason =

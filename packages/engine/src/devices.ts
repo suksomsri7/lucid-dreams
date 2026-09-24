@@ -25,7 +25,12 @@ export interface DeviceEntry {
   battery: number | null;
   /** ISO-8601, `null` before any data has arrived from this device. */
   lastDataAt: string | null;
+  /** Set by the UI when the user pinned this device as the one to use. Informational. */
+  required?: boolean;
 }
+
+/** All categories in screen order (DESIGN §3.2 — pulse, sound, eyes). */
+export const DEVICE_CATEGORIES: readonly DeviceCategory[] = ['HEART', 'AUDIO', 'EYE'];
 
 export type DeviceListener = (list: DeviceEntry[]) => void;
 export type Unsubscribe = () => void;
