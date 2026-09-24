@@ -13,6 +13,7 @@ export {
   DEFAULT_RATE_LIMIT_PER_HOUR,
   DEFAULT_DEVICE_LIMIT_PER_HOUR,
   TOKEN_BYTES,
+  WEEKLY_CACHE_MS,
   type StartServerOptions,
   type RunningServer,
 } from './server';
@@ -22,14 +23,51 @@ export { createLogger, silentLogger, type Logger, type LogFields } from './logge
 
 export {
   createOpenRouterProvider,
+  createOpenRouterTransport,
+  openRouterChat,
+  openRouterWithFallback,
   OpenRouterError,
   OPENROUTER_BASE_URL,
   DREAM_PLAN_SYSTEM_PROMPT,
   buildUserEnvelope,
   type OpenRouterOptions,
+  type OpenRouterTransport,
+  type ChatMessage,
 } from './providers/openrouter';
 
 export { createMockPlanProvider, brokenPlanProvider, type MockProviderOptions } from './providers/mock';
+
+export {
+  SCORE_MAX_TRANSCRIPT,
+  WEEKLY_MAX_NIGHTS,
+  WEEKLY_LINES,
+  WEEKLY_LINE_MAX,
+  WeeklySummarySchema,
+  coerceJsonObject,
+  parseWeeklySummary,
+  mockScoreProvider,
+  brokenScoreProvider,
+  type ScoreProvider,
+  type ScoreProviderRequest,
+  type WeeklyProviderRequest,
+  type WeeklyNight,
+  type WeeklySummary,
+  type ProviderAnswer,
+  type ScoreAnswers,
+  type ScoreTheme,
+  type ScoreLang,
+} from './providers/score';
+
+export {
+  createOpenRouterScoreProvider,
+  AI_SCORE_SYSTEM_PROMPT,
+  AI_WEEKLY_SYSTEM_PROMPT,
+  SCORE_STRICT_REMINDER,
+  WEEKLY_STRICT_REMINDER,
+  buildScoreEnvelope,
+  buildWeeklyEnvelope,
+  type OpenRouterScoreOptions,
+} from './providers/openrouter-score';
 
 export {
   mockTtsProvider,
