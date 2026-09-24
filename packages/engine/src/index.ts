@@ -268,6 +268,29 @@ export {
 } from './wakeDetector';
 
 export {
+  REM_LIKELY_EPOCHS,
+  REM_BOUT_END_EPOCHS,
+  AWAKE_QUIET_SEC,
+  AWAKE_REGUARD_SEC,
+  AWAKE_REGUARD_AFTER_WAKES,
+  SLEEP_GUARD_WOKE_LIMIT,
+  VOLUME_STEP_DOWN,
+  VOLUME_STEP_UP,
+  SLEEP_SCORE_NIGHTS,
+  SLEEP_SCORE_POOR,
+  CUE_DELAY_MIN_SEC,
+  CUE_DELAY_MAX_SEC,
+  LIVE_TEXT_KEYS,
+  type NightControllerMode,
+  type StopAudioReason,
+  type NightAction,
+  type NightControllerOptions,
+  type NightController,
+  createNightController,
+  nextNightVolume,
+} from './nightController';
+
+export {
   type RemMetrics,
   remMetrics,
   type StageFractions,
