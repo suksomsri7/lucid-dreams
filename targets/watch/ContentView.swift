@@ -16,10 +16,15 @@ enum WatchBattery {
 /// Three states, exactly as DESIGN §3.2 / §10 describe. The watch is a sensor plus one
 /// button; it shows numbers and never explains anything.
 ///
-/// Strings: the watch target is a separate binary and cannot read the app's TS i18n
-/// catalogue. For L1.1 the labels are English `LocalizedStringKey`s; L2.2 adds
-/// `Localizable.xcstrings` with the Thai column taken from `src/i18n/th.ts`
-/// (see notes: debt H-2).
+/// Strings (WO L2.2, closing L1.1's debt H-2): the watch target is a separate binary and
+/// cannot read the app's TypeScript i18n catalogue, so every visible string goes through
+/// `String(localized:)` against `Localizable.xcstrings` in this folder, which carries the
+/// Thai column next to the English one. Two rules for whoever edits them:
+///   1. the literal passed to `String(localized:)` is the **key**, not the English text —
+///      keys look like `watch.running.hrUnit` so a wording change never orphans a
+///      translation;
+///   2. anything with a number in it is `String(format:)` over the localised value, so the
+///      Thai and English sentences can put the number in different places.
 struct ContentView: View {
     @StateObject private var manager = WorkoutManager()
 
@@ -43,13 +48,13 @@ private struct ReadyView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text("Dreaming")
+            Text(String(localized: "watch.ready.title"))
                 .font(.headline)
-            Text("Start this on your iPhone, or tap below.")
+            Text(String(localized: "watch.ready.hint"))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            Button("Start night") {
+            Button(String(localized: "watch.ready.start")) {
                 Task { await manager.start() }
             }
             .buttonStyle(.borderedProminent)
@@ -67,7 +72,7 @@ private struct RunningView: View {
                 Text(manager.heartRate.map { String(Int($0.rounded())) } ?? "--")
                     .font(.system(size: 44, weight: .semibold, design: .rounded))
                     .monospacedDigit()
-                Text("bpm")
+                Text(String(localized: "watch.running.hrUnit"))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -78,11 +83,11 @@ private struct RunningView: View {
                 .font(.caption)
                 .foregroundStyle(.mint)
 
-            Text("Whispers \(manager.cuesPlayed)/\(manager.cuesPlanned)")
+            Text(String(format: String(localized: "watch.running.whispers"), manager.cuesPlayed, manager.cuesPlanned))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
-            Text("Epochs \(manager.epochCount)")
+            Text(String(format: String(localized: "watch.running.epochs"), manager.epochCount))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
@@ -94,18 +99,33 @@ private struct RunningView: View {
     }
 
     private var remText: String {
-        guard let pRem = manager.pRem else { return "REM --" }
-        return "REM ~\(Int((pRem * 100).rounded()))%"
+        guard let pRem = manager.pRem else { return String(localized: "watch.running.remUnknown") }
+        return String(format: String(localized: "watch.running.rem"), Int((pRem * 100).rounded()))
     }
 }
 
-/// Hold, do not tap (DESIGN §10): a sleepy hand must not end the night by accident.
+/// Hold, do not tap (DESIGN §10 · L2.2 oracle W9 "the stop button must be held for 1 s"):
+/// a sleepy hand must not end the night by accident.
+///
+/// `onLongPressGesture(minimumDuration:)` rather than the hand-rolled `DragGesture` +
+/// `Timer` of L1.1: SwiftUI's own gesture is the thing that defines "held for a second"
+/// on watchOS (it survives small finger movement, it cancels when the view disappears, and
+/// it does not keep a `Timer` alive on the run loop if the wrist drops mid-press — the
+/// L1.1 version leaked one in exactly that case). The filling bar is now pure animation
+/// driven by `onPressingChanged`, so it is decoration: even if it were wrong, the action
+/// still fires only after {@link holdSeconds} of real press.
 private struct HoldToStopButton: View {
-    private static let holdSeconds: Double = 1.5
+    /// One second, the number the L2.2 oracle names.
+    private static let holdSeconds: Double = 1.0
 
     let action: () -> Void
-    @State private var progress: Double = 0
-    @State private var timer: Timer?
+    @State private var pressing = false
+
+    /// Two separate literals rather than a ternary inside `String(localized:)`, so each key
+    /// is a plain string literal the Xcode string-catalogue extractor can see.
+    private var label: String {
+        pressing ? String(localized: "watch.stop.holding") : String(localized: "watch.stop.idle")
+    }
 
     var body: some View {
         ZStack {
@@ -114,48 +134,35 @@ private struct HoldToStopButton: View {
             GeometryReader { geometry in
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(.red.opacity(0.55))
-                    .frame(width: geometry.size.width * progress)
+                    .frame(width: pressing ? geometry.size.width : 0)
+                    .animation(
+                        pressing ? .linear(duration: HoldToStopButton.holdSeconds) : .linear(duration: 0.15),
+                        value: pressing
+                    )
             }
-            Text(progress > 0 ? "Keep holding…" : "Hold to stop")
+            Text(label)
                 .font(.footnote.weight(.semibold))
         }
         .frame(height: 44)
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .gesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in startHold() }
-                .onEnded { _ in cancelHold() }
-        )
-        .accessibilityLabel("Hold to stop the night")
-    }
-
-    private func startHold() {
-        guard timer == nil else { return }
-        let step = 0.05
-        let created = Timer.scheduledTimer(withTimeInterval: step, repeats: true) { _ in
-            progress += step / HoldToStopButton.holdSeconds
-            if progress >= 1 {
-                cancelHold()
-                action()
-            }
+        .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .onLongPressGesture(minimumDuration: HoldToStopButton.holdSeconds) {
+            pressing = false
+            WKInterfaceDevice.current().play(.stop)
+            action()
+        } onPressingChanged: { isPressing in
+            pressing = isPressing
         }
-        RunLoop.main.add(created, forMode: .common)
-        timer = created
-    }
-
-    private func cancelHold() {
-        timer?.invalidate()
-        timer = nil
-        progress = 0
+        .accessibilityLabel(String(localized: "watch.stop.accessibility"))
     }
 }
 
 private struct MorningView: View {
     var body: some View {
         VStack(spacing: 8) {
-            Text("Good morning")
+            Text(String(localized: "watch.morning.title"))
                 .font(.headline)
-            Text("Tell your dream on your iPhone.")
+            Text(String(localized: "watch.morning.hint"))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

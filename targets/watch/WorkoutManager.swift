@@ -56,6 +56,13 @@ final class WorkoutManager: NSObject, ObservableObject {
                 }
             }
         }
+        // The phone owns the REM estimate and the whisper count (DESIGN §8.2); the watch
+        // only mirrors them (WO L2.2 — before this the setter below had no caller).
+        link.onStatus = { [weak self] pRem, cuesPlayed, cuesPlanned in
+            Task { @MainActor in
+                self?.applyPhoneStatus(pRem: pRem, cuesPlayed: cuesPlayed, cuesPlanned: cuesPlanned)
+            }
+        }
     }
 
     // MARK: - Permissions
@@ -117,6 +124,12 @@ final class WorkoutManager: NSObject, ObservableObject {
     /// must not end the night by accident.
     func stop(reason: StopReason) {
         guard let session else { return }
+        // Tell the phone first: it owns the night (`NightController.userStop()`), and the
+        // teardown below can take a moment. A stop that came *from* the phone must not be
+        // echoed back, or the two sides ping-pong.
+        if case .userHold = reason {
+            link.sendStopCommand()
+        }
         epochTimer?.invalidate()
         epochTimer = nil
         motion.stop()
@@ -129,7 +142,6 @@ final class WorkoutManager: NSObject, ObservableObject {
         }
 
         phase = .morning
-        _ = reason
         cleanUp()
     }
 

@@ -1,0 +1,240 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "watch.morning.hint" : {
+      "comment" : "Morning screen, second line. Mirrors DESIGN §10 watch screen B.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell your dream on your iPhone."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เล่าฝันที่ iPhone ได้เลย"
+          }
+        }
+      }
+    },
+    "watch.morning.title" : {
+      "comment" : "Morning screen headline.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Good morning"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "อรุณสวัสดิ์"
+          }
+        }
+      }
+    },
+    "watch.ready.hint" : {
+      "comment" : "Ready screen, second line: the night is normally started on the phone.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start this on your iPhone, or tap below."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เริ่มที่ iPhone หรือแตะปุ่มด้านล่าง"
+          }
+        }
+      }
+    },
+    "watch.ready.start" : {
+      "comment" : "Ready screen button.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start night"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เริ่มคืนนี้"
+          }
+        }
+      }
+    },
+    "watch.ready.title" : {
+      "comment" : "Ready screen headline — the app name, which is not translated.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dreaming"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dreaming"
+          }
+        }
+      }
+    },
+    "watch.running.epochs" : {
+      "comment" : "Diagnostics line: how many 30 s epochs have been sent to the phone. %lld = count.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Epochs %lld"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ส่งข้อมูลแล้ว %lld ช่วง"
+          }
+        }
+      }
+    },
+    "watch.running.hrUnit" : {
+      "comment" : "Unit after the big heart-rate number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bpm"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ครั้ง/นาที"
+          }
+        }
+      }
+    },
+    "watch.running.rem" : {
+      "comment" : "Likelihood the phone's estimator currently gives for REM. %lld = percent. Matches the app's 'night.orb.label'.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Likely dreaming %lld%%"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "น่าจะฝัน %lld%%"
+          }
+        }
+      }
+    },
+    "watch.running.remUnknown" : {
+      "comment" : "Shown until the phone sends its first estimate — never a guessed number (DESIGN §2.2).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Likely dreaming —"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "น่าจะฝัน —"
+          }
+        }
+      }
+    },
+    "watch.running.whispers" : {
+      "comment" : "Whisper counter. First %lld = played, second %lld = planned tonight.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Whispers %lld/%lld"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กระซิบ %lld/%lld"
+          }
+        }
+      }
+    },
+    "watch.stop.accessibility" : {
+      "comment" : "VoiceOver label for the hold-to-stop button.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold to stop the night"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กดค้างเพื่อหยุดคืนนี้"
+          }
+        }
+      }
+    },
+    "watch.stop.holding" : {
+      "comment" : "Shown while the finger is down, before the 1 s hold completes.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep holding…"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กดค้างไว้…"
+          }
+        }
+      }
+    },
+    "watch.stop.idle" : {
+      "comment" : "Stop button label. Same wording as the app's 'night.hold.label'.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold to stop"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กดค้างเพื่อหยุด"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
