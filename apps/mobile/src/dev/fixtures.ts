@@ -128,14 +128,17 @@ export function applyOnboardingBypassForAdvisorFixture(): void {
   const value = readFixtureParam();
   // `night`/`report` (WO L2.8/L2.10) land past onboarding too — `/night?fixture=night`
   // and `/report/demo?fixture=report` must be screenshottable directly by URL, same as
-  // the four fixtures above already are.
+  // the four fixtures above already are. `morning-record`/`morning-result` (WO L3.1) are
+  // the tab-1 shell (`app/(tabs)/index.tsx`), same as `advisor-start`/`advisor-plan`.
   const bypasses =
     value === 'advisor-start' ||
     value === 'advisor-plan' ||
     value === 'plan' ||
     value === 'ear-passed' ||
     value === 'night' ||
-    value === 'report';
+    value === 'report' ||
+    value === 'morning-record' ||
+    value === 'morning-result';
   if (!bypasses) return;
   completeOnboarding();
 }
@@ -163,11 +166,9 @@ export function reportFixtureRequested(): boolean {
  * — WO L1.7ui, so `app/plan/*` can be screenshotted directly by URL. No-ops once a real
  * plan already exists (e.g. the user actually walked the advisor room first).
  */
-export function applyPlanFixture(lang: Locale): void {
-  if (!planFixtureRequested()) return;
-  if (getNightState().plan !== null) return;
-
-  const plan: DreamPlan = {
+/** The one whale-shark plan every fixture in this file that needs a `DreamPlan` builds — factored out once `?fixture=morning-*` (WO L3.1) became the second user of it. */
+function buildFixtureWhalePlan(lang: Locale): DreamPlan {
+  return {
     theme: {
       emoji: '🐋',
       titleTh: translate('th', 'advisor.theme.whale'),
@@ -179,5 +180,35 @@ export function applyPlanFixture(lang: Locale): void {
     ambienceKey: 'underwater',
     clarify: null,
   };
-  saveTonightPlan(plan, lang);
+}
+
+export function applyPlanFixture(lang: Locale): void {
+  if (!planFixtureRequested()) return;
+  if (getNightState().plan !== null) return;
+  saveTonightPlan(buildFixtureWhalePlan(lang), lang);
+}
+
+// ---------------------------------------------------------------------------
+// WO L3.1 — the morning flow's own two QC fixtures (mockup `06-morning.png`)
+// ---------------------------------------------------------------------------
+
+export type MorningFixture = 'morning-record' | 'morning-result';
+
+/**
+ * `?fixture=morning-record` — frame a: greeted, mic listening, a live partial transcript
+ * bubble on screen. `?fixture=morning-result` — frame b: transcript already given, all
+ * questions answered (8/7/ใช่/7 — `dreamed`/`themeMatch`/`lucid`/`sleepQuality`, the exact
+ * numbers mockup 06 frame b shows), result bubble shown. Both drive `useMorning.ts`
+ * straight to the target state instead of walking the mic/composer/chip taps a real
+ * screenshot script would otherwise have to script — same convention as `?fixture=night`
+ * driving `startNightFixture` instead of a real watch.
+ */
+export function morningFixtureRequested(): MorningFixture | null {
+  const value = readFixtureParam();
+  return value === 'morning-record' || value === 'morning-result' ? value : null;
+}
+
+/** `useMorning.ts`'s own fixture plan — same whale-shark theme, so the greet line's "🐋" and the result's theme-match question both read naturally. */
+export function morningFixturePlan(lang: Locale): DreamPlan {
+  return buildFixtureWhalePlan(lang);
 }
