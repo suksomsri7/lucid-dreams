@@ -242,7 +242,7 @@
 | L2.8ui/2.9/2.10 | ✅ DONE 24 ก.ย. (24/24 · parity 05a/07) | main | native ค้าง → L2.2n |
 | L2.2n (L2.2 + L1.7 native) | ▶ building (Opus · wo/L2.2n) | — | LucidWatchLink native module · Live Activity (ActivityKit) · HealthKit bridge · DND · pan · complication · localizable นาฬิกา · oracle qc-L2.2 |
 | L3.1 | ✅ DONE 24 ก.ย. (M1 10/10 · parity 06a/b) | main | route /ai/score → L3.2s |
-| L3.2s | ▶ building (Opus · wo/L3.2s) | — | เซิร์ฟเวอร์ POST /ai/score (OpenRouter · สคีมา AiScore · sanitize · rate limit) + /ai/weekly · ทดสอบจริง |
+| L3.2s | ✅ DONE 24 ก.ย. (api 65/65 · smoke จริง · prod อัปเดต) | main | L3.F: weekly ตัดคืน CONTROL ออกจนครบ 3 คืน |
 | L3.3/3.4app/3.5/3.6 | ▶ building (Sonnet · wo/L3ui) | — | คืนควบคุม 1/4 + reality check + เตือน · เซฟ PersonalModel/bandit · บันทึก (mockup 08) · ตั้งค่า (mockup 09) + Boost night + ลบทั้งหมด + PrivacyInfo · oracle qc-L3ui M3/M5/M6 · parity 08/09 |
 | L1.5 | ✅ DONE 24 ก.ย. (engine 73/73 · api 21/21) | main | ✅ DNS+SSL `dreaming.suksomsri.cloud` · ✅ OpenRouter จริง (haiku-4.5) · **TTS = fal.ai→ElevenLabs v3 [whispers] (มติเจ้าของ · ใช้ FAL key เดิม)** ตัวอย่างส่ง TG แล้ว รอเลือกเสียง |
 | L2.4/2.5 | ✅ DONE 24 ก.ย. (87/87 · onset 99.5% ≤10 นาที บนจำลอง · F1 0.98 จำลอง — คาดจริง 0.5–0.7) | main | ปรับเทียบ R2 |

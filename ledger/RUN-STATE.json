@@ -1,12 +1,12 @@
 {
  "run": "APP-RUN Phase 1",
- "wo": "L2.2n+L3.2s+L3ui",
+ "wo": "L2.2n+L3ui",
  "step": "building (resumed after quota 18:00 UTC)",
- "branch": "wo/L2.2n + wo/L3.2s + wo/L3ui",
- "worktree": "/root/projects/lucid-dreams-L2.2n · -L3.2s · -L3ui",
- "builder": "opus+opus+sonnet",
+ "branch": "wo/L2.2n + wo/L3ui",
+ "worktree": "/root/projects/lucid-dreams-L2.2n · -L3ui",
+ "builder": "opus+sonnet",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T21:25Z",
- "lastCommit": "L3.1 merged",
+ "lastCheckpoint": "2026-09-24T22:00Z",
+ "lastCommit": "L3.2s merged",
  "blockedOn": []
 }
