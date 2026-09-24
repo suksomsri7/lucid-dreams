@@ -180,7 +180,7 @@
 - oracle (บังคับ): **ไม่มี cue ก่อน guard หมด** (fuzz 10,000 คืน) · **ไม่มี cue ภายใน 2 นาทีหลังขยับ** · **ไม่มี cue หลัง AWAKE จนกว่านิ่ง 15 นาที** · ไม่เกิน 8/คืน · volume ไม่ออกนอก 8–35 แม้ตั้งค่าพัง · คืนควบคุม player ถูกเรียก 0 ครั้ง · state ทุกตัวถึงได้และออกได้ (ไม่มี deadlock)
 
 ### L2.7 — ตัวจับตื่น + โหมดตัวจับเวลา (Opus · 18 ข้อ)
-- ตื่น = ขยับสูง ≥ 60 วิ ต่อเนื่อง หรือ HR ↑ ≥ 20%/60 วิ คง 2 นาที หรือผู้ใช้แตะ · พลิกตัว < 20 วิ ไม่นับ · เงียบเฟด 1 วิ · ตื่นใน 3 นาทีหลัง cue = cueWoke=true · โหมดตัวจับเวลา: prior อย่างเดียว เกณฑ์ 0.75 สูงสุด 4
+- ตื่น = ขยับขนาดตื่น (≥ 0.15 g) 2 epoch ติด หรือ HR ↑ ≥ 20% คง 2 นาที หรือผู้ใช้แตะ · พลิกตัว/กระตุก ไม่นับ · เงียบเฟด 1 วิ · ตื่นใน 3 นาทีหลัง cue = cueWoke=true · โหมดตัวจับเวลา (มติ 24 ก.ย.): ไม่ใช้ p-threshold ยิงตาม **หน้าต่างยอด prior** ≤ 4 หน้าต่าง หลัง guard
 - oracle: ตัวจำลองตื่น 3 ครั้ง/คืน → จับได้ ≥ 90% · false alarm จากพลิกตัว ≤ 5% · เซนเซอร์หายกลางคืน → สลับโหมดตัวจับเวลาโดยไม่ยิงซ้ำ
 
 ### L2.8 — จอกลางคืน + Live Activity + คำสั่งนาฬิกา (Sonnet · 14 ข้อ · ภาพ 05)
@@ -235,11 +235,13 @@
 | L1.1 | ✅ DONE 24 ก.ย. (oracle 41/41 · SDK 57 · ภาพ .qc-shots/L1.1) | main |
 | L1.2 | ✅ DONE 24 ก.ย. (oracle 32/32 · parity gallery ✓ · settings Seg แก้แล้ว) | main | จอ 3 แท็บยังเป็น placeholder ตามแผน — parity ของจอจริงตัดสินที่ L1.4/L3.5/L3.6 |
 | L1.3 | ✅ DONE 24 ก.ย. (22/22 · parity ตรง mockup 01 ทั้ง 2 จอ) | main | จุดต่างที่แก้: เอาสวิตช์ AI ออก · ปุ่มตรึงล่าง · เพิ่ม fixture QC |
-| L1.4 | ▶ building (Sonnet · wo/L1.4) | — | ห้องที่ปรึกษา UI ตาม mockup 02/03/06ก · oracle 16 ข้อ · parity บังคับ |
+| L1.4 | ✅ DONE 24 ก.ย. (16/16 · parity 02/03 ตรง หลังแก้ 3 รอบ) | main | mock adapter → สลับ engine advisor ที่ L1.7ui |
+| L2.3e/L3.2e/L3.4 | ▶ building (Opus · wo/L3e) | — | engine: BLE HRM parser + SensorHub · AiScore sanitize + ข้อความผลเช้า · bandit/PersonalModel · oracle 10+5+8 |
+| L1.7ui | ▶ building (Sonnet · wo/L1.7ui) | — | หน้าแผน → ตรวจอุปกรณ์ → หูซ้าย → หูขวา → เริ่ม (mockup 04 4 จอ) + สลับ advisor จริง · oracle qc-L1.7app |
 | L1.5 | ✅ DONE 24 ก.ย. (engine 73/73 · api 21/21) | main | รอ: OpenRouter key (ยิงจริง) · DNS lucid → 72.62.196.201 · **TTS = fal.ai→ElevenLabs v3 [whispers] (มติเจ้าของ · ใช้ FAL key เดิม)** ตัวอย่างส่ง TG แล้ว รอเลือกเสียง |
 | L2.4/2.5 | ✅ DONE 24 ก.ย. (87/87 · onset 99.5% ≤10 นาที บนจำลอง · F1 0.98 จำลอง — คาดจริง 0.5–0.7) | main | ปรับเทียบ R2 |
-| L2.6/2.7 | ▶ building (Opus · wo/L2.6) | — | ตัวควบคุมคืน + Sleep Guard + ramp + คืนควบคุม · ตัวจับตื่น + โหมดจับเวลา · oracle 12+7 (fuzz 500 คืน) |
-| L1.5b | ▶ building (Opus · wo/L1.5b) | — | TTS provider fal (`tts-fal.ts` · TTS_PROVIDER=fal · FAL_KEY) + endpoint `/ai/anchor` คืนลายน้ำเต็ม (signature+กระซิบ mix ฝั่งเซิร์ฟเวอร์ · แคช) |
+| L2.6/2.7 | ✅ DONE 24 ก.ย. (106/106 · fuzz 2,200 คืน 0 ข้อผิด) | main | R2: พิจารณาลด maxCuesPerNight · ปรับเกณฑ์ตื่น 0.15 g จากคืนจริง |
+| L1.5b | ✅ DONE 24 ก.ย. (api 42/42 · smoke fal จริง) | main | prod: TTS_PROVIDER=fal TTS_VOICE=Sarah · **ตามมา L1.6s**: กระซิบ EN ครั้งเดียว "You… are… dreaming…" + atempo 0.85 + **signature v2-C (มติเจ้าของ)** ลง engine (`signature.ts` v2 + แก้ข้อสอบ G3 ความยาว/โน้ต) และ `/ai/anchor` (delay 2600 ms · tone 0.9 · whisper 1.1) · ล้าง tts_cache เมื่อเปลี่ยน |
 | L1.8 | ✅ DONE 24 ก.ย. (vitest 16/16) | main | หนี้ S4: Data Protection ต้องทำเป็น config plugin ก่อน R1 (ใส่ใน L1.7) |
 | L2.1 | ✅ DONE 24 ก.ย. (vitest 23/23 · sim 200 คืน REM 22.6% · latency 81 นาที) | main | หนี้: hrSd จำลองกว้างกว่าจริง · N1 ต่ำ · fitness กฎ node:* นอก cli/ (เพิ่มที่ L2.5) |
 | L1.6e/L1.7e | ✅ DONE 24 ก.ย. (engine 62/62) | main | เหลือส่วนแอปของ L1.6 (ambience/TTS/หน้าทดสอบหู) และ L1.7 (เครื่องเล่นเสียง/Live Activity/หน้าตรวจอุปกรณ์) | บั๊กที่จับได้: ข้อสอบ chk() ต่อค่าหลายตัว (แก้แล้ว) · .gitignore `ios/` กลืน platform/ios (builder จับ) · S9: audit 17 high อยู่ใน devDeps build-time เท่านั้น → ไม่บล็อก (มติ Fable) · S10: permission strings อังกฤษอย่างเดียว + ยังไม่มี PrivacyInfo.xcprivacy → หนี้ L1.3/L3.6 |

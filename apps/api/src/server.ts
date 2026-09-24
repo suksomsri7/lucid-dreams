@@ -6,6 +6,7 @@
  *   `POST   /device`   — hand out a device token at onboarding (§0.5 S2).
  *   `POST   /ai/plan`  — conversation ➜ `DreamPlan`, validated against the engine schema.
  *   `POST   /ai/tts`   — render (and cache) the whispered anchor sentence.
+ *   `POST   /ai/anchor`— the whole personal watermark file: melody + whisper, mixed (§2 ข้อ 3).
  *   `DELETE /device`   — revoke the token; the server side of "ลบทั้งหมด" (§0.5 S4).
  *
  * Guards, in the order they run for `/ai/*` — the order is the design, not an accident:
@@ -34,7 +35,9 @@ import { getConnInfo } from '@hono/node-server/conninfo';
 import {
   DreamPlanSchema,
   anchorPhraseFor,
+  makeSignature,
   parseDreamPlan,
+  renderSignaturePcm,
   systemClock,
   type Clock,
   type DreamPlan,
@@ -45,9 +48,25 @@ import type { Context } from 'hono';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
+import {
+  ANCHOR_SAMPLE_RATE,
+  ANCHOR_SIGNATURE_GAIN,
+  ANCHOR_WHISPER_DELAY_MS,
+  AnchorMixError,
+  mixAnchor,
+  pcmToWav,
+  resolveFfmpegPath,
+} from './anchor';
 import { createLogger, silentLogger, type Logger } from './logger';
-import { createMemoryStore, type DeviceRecord, type Store } from './store';
-import { TTS_MAX_TEXT, sniffAudioContentType, type TtsProvider } from './providers/tts';
+import { createMemoryStore, type CachedAudio, type DeviceRecord, type Store } from './store';
+import {
+  TTS_MAX_TEXT,
+  normalizeTtsAudio,
+  sniffAudioContentType,
+  type TtsAudio,
+  type TtsProvider,
+  type TtsRequest,
+} from './providers/tts';
 
 // ---------------------------------------------------------------------------
 // Constants (all of them rails, none of them tuneables)
@@ -104,6 +123,21 @@ const TtsBodySchema = z.object({
   voice: z.literal('whisper'),
 });
 
+/**
+ * `/ai/anchor`. The seed is whatever the app generated at onboarding (a uuid today) and is
+ * capped at 64 characters: it is hashed into 32 bits by the engine, so a longer string buys
+ * nothing and a 30 KB "seed" would only be a way to make us render 30 KB of melody.
+ *
+ * `voice` is the **vendor** voice name, and it is optional because there is no user-facing
+ * voice picker (§2 principle 3) — it exists so the owner can compare two ElevenLabs voices
+ * before pinning one in `TTS_VOICE`.
+ */
+const AnchorBodySchema = z.object({
+  seed: z.string().min(1).max(64),
+  lang: z.enum(['th', 'en']),
+  voice: z.string().min(1).max(64).optional(),
+});
+
 // ---------------------------------------------------------------------------
 // Options
 // ---------------------------------------------------------------------------
@@ -113,7 +147,7 @@ export interface StartServerOptions {
   port?: number;
   hostname?: string;
   provider: PlanProvider;
-  /** Absent ⇒ `POST /ai/tts` answers `501 NOT_CONFIGURED` (no vendor picked yet). */
+  /** Absent ⇒ `POST /ai/tts` and `POST /ai/anchor` answer `501 NOT_CONFIGURED` (no vendor key). */
   ttsProvider?: TtsProvider | null;
   store?: 'memory' | 'sqlite';
   /** Only for `store: 'sqlite'`; defaults to `API_DB_PATH` or `./data/lucid-api.sqlite`. */
@@ -364,6 +398,67 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
     return c.json(safe, 200);
   });
 
+  /**
+   * Cache key of one whispered clip: `sha256(sentence|language|voice)`.
+   *
+   * The sentence is the same for every user in a language (§2 principle 3), so the cache is
+   * global on purpose and holds no personal data (DESIGN §6). `voice` is `whisper` — the
+   * style — unless the caller named a vendor voice, in which case that voice gets its own
+   * row instead of overwriting everybody's clip.
+   */
+  function whisperKey(text: string, lang: 'th' | 'en', voice: string): string {
+    return sha256(`${text}|${lang}|${voice}`);
+  }
+
+  type WhisperFailure = 'NOT_CONFIGURED' | 'PROVIDER_UNAVAILABLE' | 'PROVIDER_SCHEMA';
+  type WhisperResult = { ok: true; audio: CachedAudio; cached: boolean } | { ok: false; error: WhisperFailure };
+
+  /**
+   * The whisper, from the cache or from the vendor — the one place that spends money.
+   *
+   * The cache is checked **before** the "is a vendor configured" test on purpose: a box
+   * whose key has been removed can still serve the clips it already has.
+   */
+  async function whisper(key: string, request: TtsRequest, deviceId: string): Promise<WhisperResult> {
+    const cached = store.ttsGet(key);
+    if (cached) return { ok: true, audio: cached, cached: true };
+
+    const render = deps.ttsProvider;
+    if (!render) {
+      logger.warn('tts.not_configured', { deviceId });
+      return { ok: false, error: 'NOT_CONFIGURED' };
+    }
+
+    let raw: Buffer | TtsAudio;
+    try {
+      raw = await render(request);
+    } catch (error) {
+      logger.error('tts.provider_failed', {
+        deviceId,
+        // `TtsError.code` when the adapter threw one; the class name otherwise. Never the
+        // message of an unknown error — a vendor can put the sentence in it.
+        reason: (error as { code?: string })?.code ?? (error instanceof Error ? error.name : 'unknown'),
+      });
+      return { ok: false, error: 'PROVIDER_UNAVAILABLE' };
+    }
+
+    const normalized = normalizeTtsAudio(raw);
+    if (!normalized) {
+      logger.error('tts.bad_audio', { deviceId, bytes: Buffer.isBuffer(raw) ? raw.byteLength : -1 });
+      return { ok: false, error: 'PROVIDER_SCHEMA' };
+    }
+
+    const audio: CachedAudio = { audio: normalized.buffer, contentType: normalized.contentType };
+    store.ttsPut(key, audio);
+    return { ok: true, audio, cached: false };
+  }
+
+  const whisperStatus: Record<WhisperFailure, 501 | 502> = {
+    NOT_CONFIGURED: 501,
+    PROVIDER_UNAVAILABLE: 502,
+    PROVIDER_SCHEMA: 502,
+  };
+
   app.post('/ai/tts', requireDevice, async (c) => {
     const device = c.get('device');
     const parsed = await body(c, TtsBodySchema);
@@ -375,48 +470,139 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
     }
 
     const { text, lang, voice } = parsed.data;
-    // One clip per (sentence · language · voice) — the sentence is the same for everyone,
-    // so this cache is global on purpose and holds no personal data (DESIGN §6).
-    const key = sha256(`${text}|${lang}|${voice}`);
+    const result = await whisper(whisperKey(text, lang, voice), { text, lang, voice }, device.deviceId);
+    if (!result.ok) return c.json({ error: result.error }, whisperStatus[result.error]);
+
+    const { audio, contentType } = result.audio;
+    logger.info(result.cached ? 'tts.hit' : 'tts.miss', {
+      deviceId: device.deviceId,
+      lang,
+      bytes: audio.byteLength,
+    });
+    return new Response(new Uint8Array(audio), {
+      status: 200,
+      headers: {
+        'content-type': contentType,
+        'x-cache': result.cached ? 'HIT' : 'MISS',
+        'cache-control': 'private, max-age=86400',
+      },
+    });
+  });
+
+  /**
+   * `POST /ai/anchor` — build the user's watermark file once, then serve it from the cache
+   * forever (DESIGN §2 principle 3 · §6 "สร้างลายน้ำเสียงสมอ").
+   *
+   * Order of work, and every step of it is deliberate:
+   *
+   *   1. **ffmpeg first.** If the mixer is missing, the request cannot succeed — and the
+   *      whisper costs real money. Checking the free thing before the paid thing is the
+   *      difference between a 501 and a 501 with a bill.
+   *   2. **The melody is free and deterministic** (`makeSignature` + `renderSignaturePcm`
+   *      out of `@lucid/engine`), so it is never cached: rebuilding it is cheaper than a
+   *      cache lookup, and it is the same bytes on the phone and here.
+   *   3. **The whisper comes from the shared cache**, which means the second user in a
+   *      language never pays for it and the anchor cache miss path costs nothing but CPU.
+   *   4. **The mix is cached under the hash of everything that went into it** — including
+   *      the hash of the whisper bytes, so re-rendering the sentence with a different voice
+   *      produces a different file instead of quietly serving yesterday's.
+   */
+  app.post('/ai/anchor', requireDevice, async (c) => {
+    const device = c.get('device');
+    const parsed = await body(c, AnchorBodySchema);
+    if (!parsed.ok) return parsed.res;
+
+    if (!allow(`dev:${device.deviceId}:ai`, deps.rateLimitPerHour)) {
+      logger.warn('anchor.rate_limited', { deviceId: device.deviceId });
+      return c.json({ error: 'RATE_LIMIT', limitPerHour: deps.rateLimitPerHour }, 429);
+    }
+
+    const ffmpegPath = resolveFfmpegPath(process.env);
+    if (!ffmpegPath) {
+      logger.error('anchor.no_ffmpeg', { deviceId: device.deviceId });
+      return c.json(
+        { error: 'NOT_CONFIGURED', detail: 'ffmpeg is not installed on this server (set FFMPEG_PATH)' },
+        501,
+      );
+    }
+
+    const started = clock.now();
+    const { seed, lang } = parsed.data;
+    // No vendor voice named ⇒ the key says `whisper`, which is the same key `/ai/tts` uses:
+    // one render serves both endpoints. A named voice gets its own row.
+    const voiceKey = parsed.data.voice?.trim() || 'whisper';
+
+    const signature = makeSignature(seed, lang);
+    const phrase = anchorPhraseFor(lang);
+
+    const spoken = await whisper(
+      whisperKey(phrase, lang, voiceKey),
+      { text: phrase, lang, voice: 'whisper', voiceName: parsed.data.voice },
+      device.deviceId,
+    );
+    if (!spoken.ok) {
+      const detail =
+        spoken.error === 'NOT_CONFIGURED' ? 'no TTS provider configured (set TTS_PROVIDER and FAL_KEY)' : undefined;
+      return c.json({ error: spoken.error, detail }, whisperStatus[spoken.error]);
+    }
+
+    // Everything that can change the bytes is in the key, including the two mix numbers:
+    // the day the owner says "start the whisper a little later", the old files stop being
+    // found instead of being served forever (the melody and the sentence are in there via
+    // `signature.hash` and the hash of the clip). The `anchor|` prefix keeps these rows in
+    // a different namespace from the plain `/ai/tts` ones.
+    const key = sha256(
+      `anchor|${ANCHOR_WHISPER_DELAY_MS}|${ANCHOR_SIGNATURE_GAIN}|${seed}|${lang}|${voiceKey}|${signature.hash}|${sha256(spoken.audio.audio)}`,
+    );
+
+    const headers = (cache: 'HIT' | 'MISS'): Record<string, string> => ({
+      'content-type': 'audio/mpeg',
+      'x-cache': cache,
+      'x-anchor-hash': signature.hash,
+      'x-anchor-notes': signature.notes.join(','),
+      'cache-control': 'private, max-age=86400',
+    });
 
     const cached = store.ttsGet(key);
     if (cached) {
-      logger.info('tts.hit', { deviceId: device.deviceId, lang, bytes: cached.audio.byteLength });
-      return new Response(new Uint8Array(cached.audio), {
-        status: 200,
-        headers: { 'content-type': cached.contentType, 'x-cache': 'HIT', 'cache-control': 'private, max-age=86400' },
-      });
+      logger.info('anchor.hit', { deviceId: device.deviceId, lang, bytes: cached.audio.byteLength });
+      return new Response(new Uint8Array(cached.audio), { status: 200, headers: headers('HIT') });
     }
 
-    const render = deps.ttsProvider;
-    if (!render) {
-      logger.warn('tts.not_configured', { deviceId: device.deviceId });
-      return c.json({ error: 'NOT_CONFIGURED' }, 501);
-    }
-
-    let audio: Buffer;
+    let mp3: Buffer;
     try {
-      audio = await render({ text, lang, voice });
-    } catch (error) {
-      logger.error('tts.provider_failed', {
-        deviceId: device.deviceId,
-        reason: error instanceof Error ? error.name : 'unknown',
+      mp3 = await mixAnchor({
+        signature: pcmToWav(renderSignaturePcm(signature, ANCHOR_SAMPLE_RATE), ANCHOR_SAMPLE_RATE),
+        whisper: spoken.audio.audio,
+        whisperContentType: spoken.audio.contentType === 'audio/wav' ? 'audio/wav' : 'audio/mpeg',
+        ffmpegPath,
       });
-      return c.json({ error: 'PROVIDER_UNAVAILABLE' }, 502);
+    } catch (error) {
+      // Our own tool failed, not the client and not the vendor — so this is a 500, and the
+      // reason is a code (`FFMPEG_FAILED` / `FFMPEG_TIMEOUT`), never ffmpeg's stderr.
+      logger.error('anchor.mix_failed', {
+        deviceId: device.deviceId,
+        reason: error instanceof AnchorMixError ? error.code : error instanceof Error ? error.name : 'unknown',
+      });
+      return c.json({ error: 'MIX_FAILED' }, 500);
     }
 
-    const contentType = sniffAudioContentType(audio);
-    if (!contentType || audio.byteLength === 0) {
-      logger.error('tts.bad_audio', { deviceId: device.deviceId, bytes: audio.byteLength });
-      return c.json({ error: 'PROVIDER_SCHEMA' }, 502);
+    if (sniffAudioContentType(mp3) !== 'audio/mpeg') {
+      logger.error('anchor.bad_output', { deviceId: device.deviceId, bytes: mp3.byteLength });
+      return c.json({ error: 'MIX_FAILED' }, 500);
     }
 
-    store.ttsPut(key, { audio, contentType });
-    logger.info('tts.miss', { deviceId: device.deviceId, lang, bytes: audio.byteLength });
-    return new Response(new Uint8Array(audio), {
-      status: 200,
-      headers: { 'content-type': contentType, 'x-cache': 'MISS', 'cache-control': 'private, max-age=86400' },
+    store.ttsPut(key, { audio: mp3, contentType: 'audio/mpeg' });
+    logger.info('anchor.miss', {
+      deviceId: device.deviceId,
+      lang,
+      hash: signature.hash,
+      notes: signature.notes.length,
+      whisperCached: spoken.cached,
+      bytes: mp3.byteLength,
+      ms: clock.now() - started,
     });
+    return new Response(new Uint8Array(mp3), { status: 200, headers: headers('MISS') });
   });
 
   app.notFound((c) => c.json({ error: 'NOT_FOUND' }, 404));
