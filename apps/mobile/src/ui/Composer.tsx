@@ -1,5 +1,6 @@
 /** `.composer` — the text input capsule shared by the advisor room and the morning room. */
 
+import type { RefObject } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { GlassSurface } from './GlassSurface';
@@ -16,6 +17,8 @@ export interface ComposerProps {
   micActive?: boolean;
   disabled?: boolean;
   night?: boolean;
+  /** WO L1.4: lets a screen `.focus()` the field itself (the "other" theme chip opens the keyboard). */
+  inputRef?: RefObject<TextInput | null>;
   testID?: string;
 }
 
@@ -28,6 +31,7 @@ export function Composer({
   micActive = false,
   disabled = false,
   night: isNight = false,
+  inputRef,
   testID,
 }: ComposerProps) {
   const canSend = value.trim().length > 0;
@@ -44,6 +48,7 @@ export function Composer({
        */}
       <View style={styles.row}>
         <TextInput
+          ref={inputRef}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}

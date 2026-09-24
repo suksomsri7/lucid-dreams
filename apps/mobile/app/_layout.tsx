@@ -2,9 +2,15 @@ import { Redirect, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { applyOnboardingBypassForAdvisorFixture } from '../src/dev/fixtures';
 import { useT } from '../src/i18n';
 import { useOnboardingState } from '../src/store/onboarding';
 import { AppBackground, colors } from '../src/ui';
+
+// Module scope, not inside the component: must win the race against `src/store/onboarding.ts`'s
+// own async AsyncStorage read (harmless either way on a fresh QC session — see the fixture's
+// own doc comment) and must have run before the first render decides whether to redirect.
+applyOnboardingBypassForAdvisorFixture();
 
 /**
  * Every screen paints its own background via `Screen`/`AppBackground` (`src/ui`), so the
@@ -46,6 +52,24 @@ export default function RootLayout() {
       >
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="history"
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTintColor: colors.ink,
+            title: t('history.title'),
+          }}
+        />
+        <Stack.Screen
+          name="plan"
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTintColor: colors.ink,
+            title: t('plan.stub.title'),
+          }}
+        />
         <Stack.Screen
           name="diagnostics"
           options={{
