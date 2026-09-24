@@ -1,12 +1,15 @@
 {
  "run": "APP-RUN Phase 1",
- "wo": "L1.4+L1.5",
+ "wo": "L1.4",
  "step": "building",
- "branch": "wo/L1.4 + wo/L1.5",
- "worktree": "/root/projects/lucid-dreams-L1.4 · /root/projects/lucid-dreams-L1.5",
- "builder": "sonnet+opus",
+ "branch": "wo/L1.4",
+ "worktree": "/root/projects/lucid-dreams-L1.4",
+ "builder": "sonnet",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T12:30Z",
- "lastCommit": "L1.3 merged",
- "blockedOn": []
+ "lastCheckpoint": "2026-09-24T13:00Z",
+ "lastCommit": "L1.5 merged",
+ "blockedOn": [
+  "OpenRouter key (L1.5 ยิงจริง + deploy)",
+  "TTS provider decision"
+ ]
 }
