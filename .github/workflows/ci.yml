@@ -39,6 +39,10 @@ jobs:
       - name: engine tests
         run: pnpm --filter @lucid/engine test
 
+      - name: data tests
+        # L1.8 — the SQLite layer runs against real SQLite (sql.js / wasm), no device needed
+        run: pnpm --filter @lucid/data test
+
       - name: fitness
         run: pnpm fitness
 

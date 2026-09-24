@@ -145,11 +145,12 @@
 ### L1.7 — เครื่องเล่นเสียง + Live Activity + ตรวจอุปกรณ์ (Opus · 24 ข้อ · 🔒 · ภาพ 04ข ล่าง · 05ข)
 - `react-native-track-player` (หรือ AVAudioEngine ผ่าน module) : แทร็ก bed ต่อเนื่อง + แทร็ก cue ซ้อน (เฟดเข้า 3 วิ · ออก 3 วิ) · ตั้ง output volume แบบ absolute จาก engine · Now Playing · interruption → หยุด cue ทันที กลับ bed เมื่อจบ · route change (หูฟังหลุด) → หยุด cue + แจ้ง readiness
 - Live Activity (ActivityKit ผ่าน native module): ธีม · สถานะ · กระซิบ n/8 · ปุ่มหยุด (deep link) · อัปเดตทุกครั้งสถานะเปลี่ยน
+- **Data Protection (หนี้จาก L1.8)**: config plugin ตั้ง `NSFileProtectionCompleteUntilFirstUserAuthentication` ให้ `lucid.db` + `-wal` + `-shm` (หรือ entitlement `com.apple.developer.default-data-protection`) · ตรวจบนเครื่อง R1
 - `readiness.ts` (engine): `DeviceRegistry` 3 หมวด (HEART · AUDIO · EYE) · แต่ละอุปกรณ์ `{category, name, connected, battery?, lastDataAt?}` · กติกา: HEART ≥ 1 ต่อและมีข้อมูลใน 10 วิ · AUDIO ≥ 1 ต่อและแบตพอถึงเวลาปลุก · EYE ไม่บังคับ · + iPhone ชาร์จ/≥50% · ห้ามรบกวนอนุญาตเสียง → `ReadinessReport` · ปุ่ม "ถัดไป · ทดสอบเสียง" enabled เมื่อผ่าน · ข้อความ "ต้องมีอุปกรณ์วัดชีพจร" ฯลฯ · หน้าทดสอบเสียงแยก (L1.6) เป็นด่านสุดท้ายก่อน "เริ่มคืนนี้"
 - oracle: cue เล่นได้เฉพาะเมื่อ engine สั่ง (มี guard ชั้น player อีกชั้น) · หูฟังหลุดกลางคืน → cue ที่ค้างถูกยกเลิก · readiness 5 กรณีไม่ผ่านให้ข้อความถูกข้อ · แบตหูฟัง < ชั่วโมงที่เหลือถึงเวลาปลุก = ไม่ผ่าน · S7 ครบ
 
 ### L1.8 — ชั้นข้อมูล (Opus · 22 ข้อ · 🔒)
-- SQLite (expo-sqlite) สคีมา DESIGN §7 ครบ 11 ตาราง · migration runner · repo API ต่อตาราง · Data Protection class · ส่งออก CSV (ต่อตาราง) / JSON (ทั้งหมด) ผ่าน share sheet · **ลบทั้งหมด** = ลบ DB + ไฟล์เสียง + Keychain token + เรียก `DELETE /device` (เมื่อมีเซิร์ฟเวอร์) · diagnostics export (สวิตช์รวมข้อความ=ปิด)
+- SQLite (expo-sqlite) สคีมา DESIGN §7 ครบ 12 ตาราง (รวม EarTest) · migration runner · repo API ต่อตาราง · Data Protection class · ส่งออก CSV (ต่อตาราง) / JSON (ทั้งหมด) ผ่าน share sheet · **ลบทั้งหมด** = ลบ DB + ไฟล์เสียง + Keychain token + เรียก `DELETE /device` (เมื่อมีเซิร์ฟเวอร์) · diagnostics export (สวิตช์รวมข้อความ=ปิด)
 - oracle: migration ขึ้น/ลง idempotent · ส่งออกแล้วนำเข้ากลับได้เท่าเดิม · ลบทั้งหมดแล้ว query ทุกตารางว่าง + ไฟล์หาย · diagnostics ค่าเริ่มต้นไม่มี transcript · S4/S5
 
 ### L2.1 — engine แกน + ตัวจำลอง (Opus · 20 ข้อ)
@@ -231,7 +232,8 @@
 |---|---|---|---|
 | L1.1 | ✅ DONE 24 ก.ย. (oracle 41/41 · SDK 57 · ภาพ .qc-shots/L1.1) | main |
 | L1.2 | ▶ building (Sonnet · wo/L1.2) | — | ระบบดีไซน์กระจก + โครง 3 แท็บ + i18n |
-| L1.8 | ▶ building (Opus · wo/L1.8) | — | packages/data + sqljs + oracle 16 ข้อ | บั๊กที่จับได้: ข้อสอบ chk() ต่อค่าหลายตัว (แก้แล้ว) · .gitignore `ios/` กลืน platform/ios (builder จับ) · S9: audit 17 high อยู่ใน devDeps build-time เท่านั้น → ไม่บล็อก (มติ Fable) · S10: permission strings อังกฤษอย่างเดียว + ยังไม่มี PrivacyInfo.xcprivacy → หนี้ L1.3/L3.6 |
+| L1.8 | ✅ DONE 24 ก.ย. (vitest 16/16) | main | หนี้ S4: Data Protection ต้องทำเป็น config plugin ก่อน R1 (ใส่ใน L1.7) |
+| L2.1 | ▶ building (Opus · wo/L2.1) | — | ตัวจำลองคืน + replay + metrics · oracle 14 ข้อ | บั๊กที่จับได้: ข้อสอบ chk() ต่อค่าหลายตัว (แก้แล้ว) · .gitignore `ios/` กลืน platform/ios (builder จับ) · S9: audit 17 high อยู่ใน devDeps build-time เท่านั้น → ไม่บล็อก (มติ Fable) · S10: permission strings อังกฤษอย่างเดียว + ยังไม่มี PrivacyInfo.xcprivacy → หนี้ L1.3/L3.6 |
 
 ---
 
