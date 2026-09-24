@@ -1,13 +1,16 @@
 /**
- * `server.ts` — the whole AI server: five routes, four guards, no session state.
+ * `server.ts` — the whole AI server: seven routes, four guards, no session state.
  *
- * Routes (DESIGN §8.2 · APP-RUN §2 L1.5):
+ * Routes (DESIGN §8.2 · APP-RUN §2 L1.5 · L3.2):
  *   `GET    /health`   — liveness for nginx/systemd. No auth, no body, no secrets.
  *   `POST   /device`   — hand out a device token at onboarding (§0.5 S2).
  *   `POST   /ai/plan`  — conversation ➜ `DreamPlan`, validated against the engine schema.
  *   `POST   /ai/tts`   — render (and cache) the whispered anchor sentence.
  *   `POST   /ai/anchor`— the whole personal watermark file: the v2-C bell with the single
  *                        English whisper mixed over it at 2.6 s (§2 ข้อ 3, มติ 24 ก.ย. ค่ำ).
+ *   `POST   /ai/score` — the dream the sleeper told ➜ `AiScore`, every matched word proven
+ *                        against the transcript and no medical claim allowed through.
+ *   `POST   /ai/weekly`— seven nights of numbers ➜ 3 lines + 1 tip (cached 6 h).
  *   `DELETE /device`   — revoke the token; the server side of "ลบทั้งหมด" (§0.5 S4).
  *
  * Guards, in the order they run for `/ai/*` — the order is the design, not an accident:
@@ -37,10 +40,13 @@ import {
   DreamPlanSchema,
   anchorPhraseFor,
   anchorWhisperText,
+  containsForbiddenClaim,
   makeSignature,
   parseDreamPlan,
   renderSignaturePcm,
+  sanitizeAiScore,
   systemClock,
+  type AiScore,
   type Clock,
   type DreamPlan,
   type PlanProvider,
@@ -61,6 +67,16 @@ import {
   resolveFfmpegPath,
 } from './anchor';
 import { createLogger, silentLogger, type Logger } from './logger';
+import {
+  SCORE_MAX_TRANSCRIPT,
+  WEEKLY_MAX_NIGHTS,
+  coerceJsonObject,
+  parseWeeklySummary,
+  type ScoreProvider,
+  type ScoreProviderRequest,
+  type WeeklyNight,
+  type WeeklySummary,
+} from './providers/score';
 import { createMemoryStore, type CachedAudio, type DeviceRecord, type Store } from './store';
 import {
   TTS_MAX_TEXT,
@@ -92,6 +108,16 @@ export const TOKEN_BYTES = 32;
 /** One conversation is short by design (3 steps, ≤ 1 question). 20 turns is generous. */
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_CHARS = 2000;
+
+/**
+ * How long a weekly summary may be served from the cache.
+ *
+ * Six hours, and the key is the whole body: a week that has not changed produces the same
+ * three lines anyway, and the moment a new night is added the key changes and the summary
+ * is rebuilt. The score answer is **never** cached — it is one person's own words
+ * (§0.5 S4), and two people who dreamed the same sentence still deserve their own answer.
+ */
+export const WEEKLY_CACHE_MS = 6 * 60 * 60 * 1000;
 
 // ---------------------------------------------------------------------------
 // Request schemas
@@ -141,6 +167,69 @@ const AnchorBodySchema = z.object({
   voice: z.string().min(1).max(64).optional(),
 });
 
+/** 0–10 on the morning form (DESIGN §7 `MorningReport`). Absent and `null` mean the same. */
+const ScaleAnswer = z.number().int().min(0).max(10).nullish();
+const LucidAnswer = z.enum(['YES', 'NO', 'UNSURE']).nullish();
+
+/**
+ * `POST /ai/score` — exactly the body the phone already sends (`ScoreRequest` in
+ * `apps/mobile/src/api/client.ts`, contract recorded in `ledger/wo-notes/L3.1.md §2`).
+ *
+ * Every field has a length, and the transcript has {@link SCORE_MAX_TRANSCRIPT}: a dictated
+ * dream is a paragraph, and the 32 KB body cap is the *outer* wall, not the intended one
+ * (§0.5 S2). `answers` uses `nullish` because the client sends `null` for a question the
+ * sleeper skipped, and a missing key must mean the same thing as a null one.
+ *
+ * `cues` is optional: L3.1's client does not send it yet, L3.4's will.
+ */
+const ScoreBodySchema = z.object({
+  transcript: z.string().min(1).max(SCORE_MAX_TRANSCRIPT),
+  theme: z.object({
+    emoji: z.string().min(1).max(16),
+    titleTh: z.string().min(1).max(120),
+    titleEn: z.string().min(1).max(120),
+    place: z.string().max(120).nullish(),
+  }),
+  seedLines: z.tuple([z.string().max(400), z.string().max(400)]),
+  answers: z.object({
+    dreamed: ScaleAnswer,
+    themeMatchUser: ScaleAnswer,
+    lucid: LucidAnswer,
+    sleepQuality: ScaleAnswer,
+    cueWoke: z.boolean().nullish(),
+  }),
+  cues: z.number().int().min(0).max(1000).nullish(),
+  lang: z.enum(['th', 'en']),
+});
+
+/**
+ * `POST /ai/weekly` — numbers only, never a transcript (§0.5 S4: the sensitive text has no
+ * business in a summary of seven nights, and this is why this answer may be cached).
+ */
+const WeeklyBodySchema = z.object({
+  nights: z
+    .array(
+      z.object({
+        // The night's own date, not a timestamp: `YYYY-MM-DD` as the app stores it
+        // (DESIGN §7 `NightSession.date`), with room for a full ISO string.
+        dateIso: z
+          .string()
+          .min(8)
+          .max(32)
+          .regex(/^\d{4}-\d{2}-\d{2}/, 'dateIso must start with YYYY-MM-DD'),
+        mode: z.enum(['CUE', 'CONTROL']),
+        themeMatch: ScaleAnswer,
+        lucid: LucidAnswer,
+        sleepQuality: ScaleAnswer,
+        cues: z.number().int().min(0).max(1000),
+        cueWoke: z.boolean(),
+      }),
+    )
+    .min(1)
+    .max(WEEKLY_MAX_NIGHTS),
+  lang: z.enum(['th', 'en']),
+});
+
 // ---------------------------------------------------------------------------
 // Options
 // ---------------------------------------------------------------------------
@@ -152,6 +241,8 @@ export interface StartServerOptions {
   provider: PlanProvider;
   /** Absent ⇒ `POST /ai/tts` and `POST /ai/anchor` answer `501 NOT_CONFIGURED` (no vendor key). */
   ttsProvider?: TtsProvider | null;
+  /** Absent ⇒ `POST /ai/score` and `POST /ai/weekly` answer `501 NOT_CONFIGURED`. */
+  scoreProvider?: ScoreProvider | null;
   store?: 'memory' | 'sqlite';
   /** Only for `store: 'sqlite'`; defaults to `API_DB_PATH` or `./data/lucid-api.sqlite`. */
   dbPath?: string;
@@ -172,6 +263,7 @@ export interface RunningServer {
 interface AppDeps {
   provider: PlanProvider;
   ttsProvider: TtsProvider | null;
+  scoreProvider: ScoreProvider | null;
   store: Store;
   clock: Clock;
   rateLimitPerHour: number;
@@ -634,6 +726,237 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
     return new Response(new Uint8Array(mp3), { status: 200, headers: headers('MISS') });
   });
 
+  // -------------------------------------------------------------------------
+  // The morning (L3.2): `/ai/score` and `/ai/weekly`
+  // -------------------------------------------------------------------------
+
+  /**
+   * Why an answer was thrown away — a *reason*, never the text that caused it.
+   *
+   * `schema` covers everything `sanitizeAiScore` refuses (wrong shape, a number out of
+   * range, an unparseable string); `claim` is our own rule, applied to the words **we**
+   * would put on the sleeper's screen. `matchedTerms` and the quote are exempt on purpose:
+   * they are the user's own sentences, already proven to come from the transcript, and a
+   * dream diary that censors the dreamer is not a dream diary (DESIGN §6).
+   */
+  function scoreRejection(score: AiScore | null): 'schema' | 'claim' | null {
+    if (score === null) return 'schema';
+    if (containsForbiddenClaim(score.summary)) return 'claim';
+    if (score.tags.some((tag) => containsForbiddenClaim(tag))) return 'claim';
+    return null;
+  }
+
+  function weeklyRejection(summary: WeeklySummary | null): 'schema' | 'claim' | null {
+    if (summary === null) return 'schema';
+    if (summary.lines.some((line) => containsForbiddenClaim(line))) return 'claim';
+    if (containsForbiddenClaim(summary.tip)) return 'claim';
+    return null;
+  }
+
+  /**
+   * `POST /ai/score` — the sleeper's own words in, numbers and *their* words out.
+   *
+   * The order is the design (APP-RUN §2 L3.2 · §0.5 S2/S3/S4):
+   *
+   *   1. token, zod, rate limit — the same three doors as every other `/ai/*` route, and
+   *      the same shared per-device hourly counter: the morning call and the evening call
+   *      come out of one budget, because they cost the same kind of money.
+   *   2. the provider answers, and the answer is treated as hostile: it is coerced to JSON,
+   *      then `sanitizeAiScore` **against this transcript** deletes every term the sleeper
+   *      did not say and nulls a quote they did not say. This is the same function the
+   *      phone runs on the response, so the two sides cannot drift.
+   *   3. our own words are checked against `FORBIDDEN_CLAIMS` — the app never diagnoses.
+   *   4. one retry, with a stricter reminder, then `502 PROVIDER_SCHEMA`. The client
+   *      (`postScore`) turns any non-200 into "no AI score" and the morning screen shows
+   *      the user's own number alone, which is the designed fallback, not an error state.
+   *
+   * Nothing about the transcript is logged but its length, and it is never cached.
+   */
+  app.post('/ai/score', requireDevice, async (c) => {
+    const device = c.get('device');
+    const parsed = await body(c, ScoreBodySchema);
+    if (!parsed.ok) return parsed.res;
+
+    if (!allow(`dev:${device.deviceId}:ai`, deps.rateLimitPerHour)) {
+      logger.warn('score.rate_limited', { deviceId: device.deviceId });
+      return c.json({ error: 'RATE_LIMIT', limitPerHour: deps.rateLimitPerHour }, 429);
+    }
+
+    const scorer = deps.scoreProvider;
+    if (!scorer) {
+      logger.warn('score.not_configured', { deviceId: device.deviceId });
+      return c.json({ error: 'NOT_CONFIGURED', detail: 'no scoring provider configured' }, 501);
+    }
+
+    const { transcript, lang } = parsed.data;
+    const request: Omit<ScoreProviderRequest, 'strict'> = {
+      transcript,
+      theme: {
+        emoji: parsed.data.theme.emoji,
+        titleTh: parsed.data.theme.titleTh,
+        titleEn: parsed.data.theme.titleEn,
+        place: parsed.data.theme.place ?? null,
+      },
+      seedLines: parsed.data.seedLines,
+      answers: {
+        dreamed: parsed.data.answers.dreamed ?? null,
+        themeMatchUser: parsed.data.answers.themeMatchUser ?? null,
+        lucid: parsed.data.answers.lucid ?? null,
+        sleepQuality: parsed.data.answers.sleepQuality ?? null,
+        cueWoke: parsed.data.answers.cueWoke ?? null,
+      },
+      cues: parsed.data.cues ?? null,
+      lang,
+    };
+
+    const started = clock.now();
+    // Two attempts, never three: the second one already said "you broke this rule".
+    for (const strict of [false, true]) {
+      let answer;
+      try {
+        answer = await scorer.score({ ...request, strict });
+      } catch (error) {
+        logger.error('score.provider_failed', {
+          deviceId: device.deviceId,
+          strict,
+          reason: error instanceof Error ? error.name : 'unknown',
+        });
+        return c.json({ error: 'PROVIDER_UNAVAILABLE' }, 502);
+      }
+
+      const score = sanitizeAiScore(coerceJsonObject(answer.raw), transcript);
+      const rejection = scoreRejection(score);
+      if (score && rejection === null) {
+        logger.info('score.ok', {
+          deviceId: device.deviceId,
+          lang,
+          // Lengths and counts only — never a word of the dream (§0.5 S5).
+          chars: transcript.length,
+          themeMatch: score.themeMatch,
+          terms: score.matchedTerms.length,
+          tags: score.tags.length,
+          lucid: score.lucidSignals.present,
+          quoted: score.lucidSignals.quote !== null,
+          retried: strict,
+          model: answer.model,
+          ms: clock.now() - started,
+        });
+        // `model` is the slug we actually called, not the one the model claims to be —
+        // the same pinning `/ai/plan` does to `anchorPhrase` (§0.5 S3).
+        return c.json({ ...score, model: answer.model }, 200);
+      }
+
+      logger.warn('score.rejected', {
+        deviceId: device.deviceId,
+        reason: rejection,
+        strict,
+        model: answer.model,
+        chars: transcript.length,
+      });
+    }
+
+    logger.error('score.provider_schema', { deviceId: device.deviceId, lang, ms: clock.now() - started });
+    return c.json({ error: 'PROVIDER_SCHEMA' }, 502);
+  });
+
+  /**
+   * `POST /ai/weekly` — seven nights of numbers ⇒ 3 lines + 1 tip (DESIGN §6).
+   *
+   * Same doors and the same two-attempt rule as `/ai/score`, plus a cache: this request
+   * carries **no dream text at all**, so the answer is not personal in the way a score is,
+   * and a week that has not changed hashes to the same key. Six hours (
+   * {@link WEEKLY_CACHE_MS}) is long enough for a person who opens the tab five times in a
+   * morning and short enough that "same nights, slightly different wording tomorrow" is
+   * still true.
+   *
+   * The cache lives in the `tts_cache` table (see the debt note in the ledger): one blob
+   * store, two kinds of blob, distinguished by the `weekly|v1` prefix in the key.
+   */
+  app.post('/ai/weekly', requireDevice, async (c) => {
+    const device = c.get('device');
+    const parsed = await body(c, WeeklyBodySchema);
+    if (!parsed.ok) return parsed.res;
+
+    if (!allow(`dev:${device.deviceId}:ai`, deps.rateLimitPerHour)) {
+      logger.warn('weekly.rate_limited', { deviceId: device.deviceId });
+      return c.json({ error: 'RATE_LIMIT', limitPerHour: deps.rateLimitPerHour }, 429);
+    }
+
+    const scorer = deps.scoreProvider;
+    if (!scorer) {
+      logger.warn('weekly.not_configured', { deviceId: device.deviceId });
+      return c.json({ error: 'NOT_CONFIGURED', detail: 'no scoring provider configured' }, 501);
+    }
+
+    const { lang } = parsed.data;
+    const nights: WeeklyNight[] = parsed.data.nights.map((night) => ({
+      dateIso: night.dateIso,
+      mode: night.mode,
+      themeMatch: night.themeMatch ?? null,
+      lucid: night.lucid ?? null,
+      sleepQuality: night.sleepQuality ?? null,
+      cues: night.cues,
+      cueWoke: night.cueWoke,
+    }));
+
+    // The key is the normalised body, so two devices with the same week share one answer
+    // and one payment. Normalised (not the raw bytes) because `{"lang":"th",…}` and
+    // `{…,"lang":"th"}` are the same question.
+    const cacheKey = sha256(`weekly|v1|${JSON.stringify({ lang, nights })}`);
+    const started = clock.now();
+
+    const cached = store.ttsGet(cacheKey);
+    if (cached && cached.contentType === 'application/json') {
+      try {
+        const envelope = JSON.parse(cached.audio.toString('utf8')) as { at?: number; body?: unknown };
+        if (typeof envelope.at === 'number' && clock.now() - envelope.at <= WEEKLY_CACHE_MS && envelope.body) {
+          logger.info('weekly.hit', { deviceId: device.deviceId, lang, nights: nights.length });
+          return c.json(envelope.body as Record<string, unknown>, 200, { 'x-cache': 'HIT' });
+        }
+      } catch {
+        // A corrupt row is a miss, never a 500.
+      }
+    }
+
+    for (const strict of [false, true]) {
+      let answer;
+      try {
+        answer = await scorer.weekly({ nights, lang, strict });
+      } catch (error) {
+        logger.error('weekly.provider_failed', {
+          deviceId: device.deviceId,
+          strict,
+          reason: error instanceof Error ? error.name : 'unknown',
+        });
+        return c.json({ error: 'PROVIDER_UNAVAILABLE' }, 502);
+      }
+
+      const summary = parseWeeklySummary(answer.raw);
+      const rejection = weeklyRejection(summary);
+      if (summary && rejection === null) {
+        const payload = { lines: summary.lines, tip: summary.tip, model: answer.model };
+        store.ttsPut(cacheKey, {
+          audio: Buffer.from(JSON.stringify({ at: clock.now(), body: payload }), 'utf8'),
+          contentType: 'application/json',
+        });
+        logger.info('weekly.miss', {
+          deviceId: device.deviceId,
+          lang,
+          nights: nights.length,
+          retried: strict,
+          model: answer.model,
+          ms: clock.now() - started,
+        });
+        return c.json(payload, 200, { 'x-cache': 'MISS' });
+      }
+
+      logger.warn('weekly.rejected', { deviceId: device.deviceId, reason: rejection, strict, model: answer.model });
+    }
+
+    logger.error('weekly.provider_schema', { deviceId: device.deviceId, lang, ms: clock.now() - started });
+    return c.json({ error: 'PROVIDER_SCHEMA' }, 502);
+  });
+
   app.notFound((c) => c.json({ error: 'NOT_FOUND' }, 404));
 
   app.onError((error, c) => {
@@ -663,6 +986,7 @@ export async function startServer(options: StartServerOptions): Promise<RunningS
   const app = createApp({
     provider: options.provider,
     ttsProvider: options.ttsProvider ?? null,
+    scoreProvider: options.scoreProvider ?? null,
     store,
     clock: options.clock ?? systemClock,
     rateLimitPerHour: options.rateLimitPerHour ?? DEFAULT_RATE_LIMIT_PER_HOUR,

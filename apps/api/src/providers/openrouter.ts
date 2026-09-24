@@ -180,58 +180,121 @@ function contentOf(payload: unknown): unknown {
   return content;
 }
 
-export function createOpenRouterProvider(options: OpenRouterOptions): PlanProvider {
-  const baseUrl = (options.baseUrl ?? OPENROUTER_BASE_URL).replace(/\/+$/, '');
-  const timeoutMs = options.timeoutMs ?? 20_000;
-  const maxTokens = options.maxTokens ?? 800;
-  const doFetch = options.fetchImpl ?? fetch;
+// ---------------------------------------------------------------------------
+// The wire (shared by `/ai/plan` and `/ai/score` · `/ai/weekly`)
+// ---------------------------------------------------------------------------
 
-  async function attempt(model: string, request: PlanRequest, anchorPhrase: string): Promise<unknown> {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
+/** One message on the wire. Only ever `system` (our rules) and `user` (a JSON envelope). */
+export interface ChatMessage {
+  role: 'system' | 'user';
+  content: string;
+}
 
-    try {
-      const response = await doFetch(`${baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          authorization: `Bearer ${options.apiKey}`,
-          'content-type': 'application/json',
-          // Attribution headers OpenRouter documents for apps using the API.
-          'HTTP-Referer': options.referer ?? 'https://lucid.suksomsri.cloud',
-          'X-Title': options.title ?? 'Lucid Dreams',
-        },
-        body: JSON.stringify({
-          model,
-          // No `temperature` / `top_p`: several current models reject sampling parameters
-          // outright, and a JSON-schema answer does not want randomness anyway.
-          max_tokens: maxTokens,
-          response_format: { type: 'json_object' },
-          messages: [
-            { role: 'system', content: DREAM_PLAN_SYSTEM_PROMPT },
-            { role: 'user', content: buildUserEnvelope(request, anchorPhrase) },
-          ],
-        }),
-        signal: controller.signal,
-      });
+/** Everything about *how* to reach OpenRouter, with none of *what* to ask it. */
+export interface OpenRouterTransport {
+  apiKey: string;
+  baseUrl: string;
+  timeoutMs: number;
+  referer: string;
+  title: string;
+  doFetch: typeof fetch;
+}
 
-      if (!response.ok) {
-        // 408/409/429 and every 5xx are worth one more try on the other model;
-        // 400/401/403/404 mean the request or the key is wrong and will stay wrong.
-        const retryable = response.status >= 500 || response.status === 429 || response.status === 408;
-        throw new OpenRouterError(`openrouter: HTTP ${response.status}`, response.status, retryable);
-      }
+export function createOpenRouterTransport(options: {
+  apiKey: string;
+  baseUrl?: string;
+  timeoutMs?: number;
+  referer?: string;
+  title?: string;
+  fetchImpl?: typeof fetch;
+}): OpenRouterTransport {
+  return {
+    apiKey: options.apiKey,
+    baseUrl: (options.baseUrl ?? OPENROUTER_BASE_URL).replace(/\/+$/, ''),
+    timeoutMs: options.timeoutMs ?? 20_000,
+    referer: options.referer ?? 'https://lucid.suksomsri.cloud',
+    title: options.title ?? 'Lucid Dreams',
+    doFetch: options.fetchImpl ?? fetch,
+  };
+}
 
-      return contentOf(await response.json());
-    } catch (error) {
-      if (error instanceof OpenRouterError) throw error;
-      // AbortError (our timeout) and any TypeError from fetch are transport failures.
-      const name = error instanceof Error ? error.name : 'Error';
-      const message = error instanceof Error ? error.message : String(error);
-      throw new OpenRouterError(`openrouter: ${name} ${message}`, 0, true);
-    } finally {
-      clearTimeout(timer);
+/**
+ * One `POST /chat/completions`, JSON mode, no sampling parameters, hard timeout.
+ *
+ * Returns the raw content (usually a JSON **string** in `json_object` mode) — validation
+ * belongs to the schema of whoever asked, never to the adapter.
+ */
+export async function openRouterChat(
+  transport: OpenRouterTransport,
+  request: { model: string; maxTokens: number; messages: ChatMessage[] },
+): Promise<unknown> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), transport.timeoutMs);
+
+  try {
+    const response = await transport.doFetch(`${transport.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${transport.apiKey}`,
+        'content-type': 'application/json',
+        // Attribution headers OpenRouter documents for apps using the API.
+        'HTTP-Referer': transport.referer,
+        'X-Title': transport.title,
+      },
+      body: JSON.stringify({
+        model: request.model,
+        // No `temperature` / `top_p`: several current models reject sampling parameters
+        // outright, and a JSON-schema answer does not want randomness anyway.
+        max_tokens: request.maxTokens,
+        response_format: { type: 'json_object' },
+        messages: request.messages,
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      // 408/409/429 and every 5xx are worth one more try on the other model;
+      // 400/401/403/404 mean the request or the key is wrong and will stay wrong.
+      const retryable = response.status >= 500 || response.status === 429 || response.status === 408;
+      throw new OpenRouterError(`openrouter: HTTP ${response.status}`, response.status, retryable);
     }
+
+    return contentOf(await response.json());
+  } catch (error) {
+    if (error instanceof OpenRouterError) throw error;
+    // AbortError (our timeout) and any TypeError from fetch are transport failures.
+    const name = error instanceof Error ? error.name : 'Error';
+    const message = error instanceof Error ? error.message : String(error);
+    throw new OpenRouterError(`openrouter: ${name} ${message}`, 0, true);
+  } finally {
+    clearTimeout(timer);
   }
+}
+
+/**
+ * Run `attempt` on the primary model and, if the failure was a transport failure, once
+ * more on the fallback. Reports **which** model answered, because that string ends up in
+ * the report footer and in the log line.
+ */
+export async function openRouterWithFallback<T>(
+  model: string,
+  fallbackModel: string | null | undefined,
+  attempt: (model: string) => Promise<T>,
+): Promise<{ value: T; model: string }> {
+  try {
+    return { value: await attempt(model), model };
+  } catch (error) {
+    const retryable = error instanceof OpenRouterError ? error.retryable : false;
+    if (!retryable || !fallbackModel || fallbackModel === model) throw error;
+    return { value: await attempt(fallbackModel), model: fallbackModel };
+  }
+}
+
+// ---------------------------------------------------------------------------
+
+export function createOpenRouterProvider(options: OpenRouterOptions): PlanProvider {
+  const transport = createOpenRouterTransport(options);
+  const maxTokens = options.maxTokens ?? 800;
 
   return {
     async plan(request: PlanRequest): Promise<unknown> {
@@ -240,14 +303,17 @@ export function createOpenRouterProvider(options: OpenRouterOptions): PlanProvid
       // afterwards anyway — this only stops the model from inventing a different sentence.
       const anchorPhrase = anchorPhraseFor(request.lang);
 
-      try {
-        return await attempt(options.model, request, anchorPhrase);
-      } catch (error) {
-        const fallback = options.fallbackModel;
-        const retryable = error instanceof OpenRouterError ? error.retryable : false;
-        if (!retryable || !fallback || fallback === options.model) throw error;
-        return await attempt(fallback, request, anchorPhrase);
-      }
+      const answered = await openRouterWithFallback(options.model, options.fallbackModel, (model) =>
+        openRouterChat(transport, {
+          model,
+          maxTokens,
+          messages: [
+            { role: 'system', content: DREAM_PLAN_SYSTEM_PROMPT },
+            { role: 'user', content: buildUserEnvelope(request, anchorPhrase) },
+          ],
+        }),
+      );
+      return answered.value;
     },
   };
 }
