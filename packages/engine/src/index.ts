@@ -48,6 +48,8 @@ export {
 } from './diagnostics';
 
 export {
+  type NightState,
+  NIGHT_STATES,
   type SleepStage,
   SLEEP_STAGES,
   type StageSample,
@@ -67,6 +69,69 @@ export {
 } from './types';
 
 export { type Rng, mulberry32, clamp, round } from './rng';
+
+export {
+  ANCHOR_VOLUME_MIN,
+  ANCHOR_VOLUME_MAX,
+  clampAnchorVolume,
+  type AnchorLang,
+  ANCHOR_PHRASE_TH,
+  ANCHOR_PHRASE_EN,
+  anchorPhraseFor,
+  anchorPhraseKey,
+  type SignatureEnvelope,
+  type SignatureTimbre,
+  type AnchorSignature,
+  makeSignature,
+  midiToHz,
+  renderSignaturePcm,
+} from './signature';
+
+export {
+  type EarSide,
+  type MemorizationState,
+  type EarTest,
+  type MemorizationPlan,
+  type MemorizationAnswer,
+  type MemorizationTest,
+  type MemorizationOptions,
+  MEMORIZATION_ROUNDS_MIN,
+  MEMORIZATION_ROUNDS_MAX,
+  MEMORIZATION_GAP_MIN_MS,
+  MEMORIZATION_GAP_MAX_MS,
+  MEMORIZATION_ANSWER_MIN,
+  MEMORIZATION_ANSWER_MAX,
+  createMemorizationTest,
+  earTestsComplete,
+} from './memorization';
+
+export {
+  type DeviceCategory,
+  DEVICE_CATEGORIES,
+  type DeviceEntry,
+  type ReadinessReason,
+  type ReadinessCategoryReport,
+  type ReadinessCheck,
+  type ReadinessNextStep,
+  type ReadinessReport,
+  type ReadinessEarTests,
+  type ReadinessInput,
+  HEART_DATA_MAX_AGE_SEC,
+  AUDIO_HOURS_PER_FULL_CHARGE,
+  PHONE_MIN_BATTERY,
+  evaluateReadiness,
+} from './readiness';
+
+export {
+  type CueGateReason,
+  type CueGateContext,
+  type CueGateVerdict,
+  CUE_MOTION_QUIET_SEC,
+  CUE_SPACING_SEC,
+  MAX_CUES_PER_NIGHT,
+  MAX_CUES_PER_REM,
+  cueGate,
+} from './cueGate';
 
 export {
   type SimulateNightOptions,
