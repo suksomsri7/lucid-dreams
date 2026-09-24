@@ -13,6 +13,7 @@
     "typecheck": "tsc -b",
     "tsc": "tsc",
     "test": "pnpm --filter @lucid/engine test",
+    "test:data": "pnpm --filter @lucid/data test",
     "web:export": "./scripts/heavy.sh export \"cd apps/mobile && NODE_OPTIONS=--max-old-space-size=3584 npx expo export --platform web\""
   },
   "devDependencies": {

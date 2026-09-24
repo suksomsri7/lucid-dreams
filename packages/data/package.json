@@ -18,7 +18,6 @@
     "@lucid/engine": "workspace:*"
   },
   "devDependencies": {
-    "@types/sql.js": "^1.4.9",
     "sql.js": "^1.14.0",
     "typescript": "~6.0.3",
     "vitest": "^3.2.7"
