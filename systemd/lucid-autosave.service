@@ -1,0 +1,5 @@
+[Unit]
+Description=Lucid Dreams RUN autosave (commit WIP in wo/* worktrees)
+[Service]
+Type=oneshot
+ExecStart=/root/projects/lucid-dreams/scripts/autosave.sh
