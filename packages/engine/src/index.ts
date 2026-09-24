@@ -114,6 +114,7 @@ export {
   ANCHOR_PHRASE_TH,
   ANCHOR_PHRASE_EN,
   anchorPhraseFor,
+  anchorWhisperText,
   anchorPhraseKey,
   type SignatureEnvelope,
   type SignatureTimbre,
