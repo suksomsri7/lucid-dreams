@@ -34,25 +34,33 @@ export function FloatingTabBar({ items, activeKey, onPress, night: isNight = fal
   return (
     <View style={[styles.wrap, { bottom: Math.max(insets.bottom, 12) + 14 }]} pointerEvents="box-none" testID={testID}>
       <GlassSurface tint="regular" night={isNight} radius={radius.tab} style={styles.surface}>
-        {items.map((item) => {
-          const active = item.key === activeKey;
-          const color = active ? colors.acc : isNight ? night.sub : colors.ink2;
-          return (
-            <Pressable
-              key={item.key}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: active }}
-              onPress={() => onPress(item.key)}
-              testID={testID ? `${testID}-${item.key}` : undefined}
-              style={styles.tab}
-            >
-              <Icon name={item.icon} size={23} color={color} strokeWidth={1.7} />
-              <Text style={[typeScale.label, styles.label, { color, fontWeight: active ? '600' : '400' }]} numberOfLines={1}>
-                {item.label}
-              </Text>
-            </Pressable>
-          );
-        })}
+        {/*
+         * The platform glass/blur wrapper interposes one more `View` between `style`
+         * above and these children, so a `flexDirection: 'row'` on `style` never reaches
+         * a container the tabs are direct children of (see the same note in `Composer`).
+         * `row` below is the real flex container for the three tabs.
+         */}
+        <View style={styles.row}>
+          {items.map((item) => {
+            const active = item.key === activeKey;
+            const color = active ? colors.acc : isNight ? night.sub : colors.ink2;
+            return (
+              <Pressable
+                key={item.key}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: active }}
+                onPress={() => onPress(item.key)}
+                testID={testID ? `${testID}-${item.key}` : undefined}
+                style={styles.tab}
+              >
+                <Icon name={item.icon} size={23} color={color} strokeWidth={1.7} />
+                <Text style={[typeScale.label, styles.label, { color, fontWeight: active ? '600' : '400' }]} numberOfLines={1}>
+                  {item.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </GlassSurface>
     </View>
   );
@@ -60,7 +68,8 @@ export function FloatingTabBar({ items, activeKey, onPress, night: isNight = fal
 
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 24, right: 24, alignItems: 'center' },
-  surface: {
+  surface: { height: 64, width: '100%' },
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',

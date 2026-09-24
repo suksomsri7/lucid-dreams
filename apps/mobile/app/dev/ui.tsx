@@ -76,7 +76,7 @@ function LightGallery() {
       </GlassCard>
 
       <SectionLabel>{t('dev.section.buttons')}</SectionLabel>
-      <GlassCard variant="soft" style={{ gap: spacing.md }}>
+      <GlassCard variant="soft">
         <Button label={t('dev.button.pri')} tone="pri" block testID="gallery-btn-pri" />
         <Button label={t('dev.button.acc')} tone="acc" block testID="gallery-btn-acc" />
         <Button label={t('dev.button.gh')} tone="gh" block testID="gallery-btn-gh" />
@@ -88,7 +88,7 @@ function LightGallery() {
       </GlassCard>
 
       <SectionLabel>{t('dev.section.composer')}</SectionLabel>
-      <GlassCard variant="soft" style={{ gap: spacing.md }}>
+      <GlassCard variant="soft">
         <Bubble role="ai" text={t('dev.bubble.ai')} testID="gallery-bubble-ai" />
         <Bubble role="me" text={t('dev.bubble.me')} voice testID="gallery-bubble-me-voice" />
         <Composer
@@ -103,7 +103,7 @@ function LightGallery() {
       </GlassCard>
 
       <SectionLabel>{t('dev.section.inputs')}</SectionLabel>
-      <GlassCard variant="soft" style={{ gap: spacing.lg }}>
+      <GlassCard variant="soft" contentStyle={{ gap: spacing.lg }}>
         <View>
           <Sub>{t('dev.scale.label')}</Sub>
           <Scale value={scaleValue} onChange={setScaleValue} testID="gallery-scale" />
@@ -125,7 +125,7 @@ function LightGallery() {
       </GlassCard>
 
       <SectionLabel>{t('dev.band.label')}</SectionLabel>
-      <GlassCard variant="soft" style={{ gap: spacing.md }}>
+      <GlassCard variant="soft">
         <Band
           testID="gallery-band"
           segments={[

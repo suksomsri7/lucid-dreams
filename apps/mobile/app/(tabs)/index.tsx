@@ -22,7 +22,7 @@ export default function TonightScreen() {
 
       <Bubble role="ai" text={t('dev.bubble.ai')} />
 
-      <GlassCard variant="soft" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+      <GlassCard variant="soft" contentStyle={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
         {themeChips.map((label) => (
           <Chip key={label} label={label} />
         ))}

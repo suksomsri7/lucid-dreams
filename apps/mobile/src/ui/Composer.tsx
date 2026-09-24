@@ -33,44 +33,54 @@ export function Composer({
   const canSend = value.trim().length > 0;
 
   return (
-    <GlassSurface tint="regular" night={isNight} radius={radius.composer} style={styles.surface} testID={testID}>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={isNight ? night.mut : colors.mut}
-        editable={!disabled}
-        style={[typeScale.body, styles.input, { color: isNight ? night.text : colors.ink }]}
-        testID={testID ? `${testID}-input` : undefined}
-      />
-      {onMicPress ? (
-        <Pressable
-          accessibilityRole="button"
-          onPress={onMicPress}
-          disabled={disabled}
-          testID={testID ? `${testID}-mic` : undefined}
-          style={[styles.iconButton, micActive ? styles.iconButtonAcc : styles.iconButtonNeutral]}
-        >
-          <Icon name="mic" size={18} color={micActive ? colors.white : isNight ? night.text : colors.ink} />
-        </Pressable>
-      ) : null}
-      {onSend ? (
-        <Pressable
-          accessibilityRole="button"
-          onPress={onSend}
-          disabled={disabled || !canSend}
-          testID={testID ? `${testID}-send` : undefined}
-          style={[styles.iconButton, canSend ? styles.iconButtonAcc : styles.iconButtonNeutral, !canSend && styles.iconButtonDisabled]}
-        >
-          <Icon name="send" size={18} color={canSend ? colors.white : isNight ? night.text : colors.ink} />
-        </Pressable>
-      ) : null}
+    <GlassSurface tint="regular" night={isNight} radius={radius.composer} testID={testID}>
+      {/*
+       * The platform glass/blur wrapper always interposes one more `View` between this
+       * `style` and these children (so `BlurView`/`GlassView` sizes correctly around
+       * flexible content) — a `flexDirection: 'row'` set on `GlassSurface`'s own `style`
+       * would land on that wrapper's *parent*, not on a container these children are
+       * direct children of, so it would never actually arrange them. The fix is the same
+       * one `GlassCard` uses: an inner `View` this component owns carries the row layout.
+       */}
+      <View style={styles.row}>
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={isNight ? night.mut : colors.mut}
+          editable={!disabled}
+          style={[typeScale.body, styles.input, { color: isNight ? night.text : colors.ink }]}
+          testID={testID ? `${testID}-input` : undefined}
+        />
+        {onMicPress ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={onMicPress}
+            disabled={disabled}
+            testID={testID ? `${testID}-mic` : undefined}
+            style={[styles.iconButton, micActive ? styles.iconButtonAcc : styles.iconButtonNeutral]}
+          >
+            <Icon name="mic" size={18} color={micActive ? colors.white : isNight ? night.text : colors.ink} />
+          </Pressable>
+        ) : null}
+        {onSend ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={onSend}
+            disabled={disabled || !canSend}
+            testID={testID ? `${testID}-send` : undefined}
+            style={[styles.iconButton, canSend ? styles.iconButtonAcc : styles.iconButtonNeutral, !canSend && styles.iconButtonDisabled]}
+          >
+            <Icon name="send" size={18} color={canSend ? colors.white : isNight ? night.text : colors.ink} />
+          </Pressable>
+        ) : null}
+      </View>
     </GlassSurface>
   );
 }
 
 const styles = StyleSheet.create({
-  surface: {
+  row: {
     height: 56,
     flexDirection: 'row',
     alignItems: 'center',
