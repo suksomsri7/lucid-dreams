@@ -9,6 +9,8 @@
 
 import { useSyncExternalStore } from 'react';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { en } from './en';
 import { th, type Translations, type TranslationKey } from './th';
 
@@ -18,11 +20,26 @@ export const LOCALES: readonly Locale[] = ['th', 'en'];
 
 const CATALOGUES: Record<Locale, Translations> = { th, en };
 
+const STORAGE_KEY = 'lucid.locale';
+
 /**
- * Default locale. The owner is Thai, so Thai is the default until L1.2 wires
- * `expo-localization` + the stored preference (see notes: debt H-1).
+ * L1.2 pays down L1.1 debt H-1: the default used to be hardcoded `'th'`. Now it reads
+ * the device locale (via `Intl`, already bundled with Hermes — no `expo-localization`
+ * dependency needed) and, once storage has loaded, the user's own last choice wins.
+ *
+ * `Intl.DateTimeFormat().resolvedOptions().locale` works the same on iOS Hermes and on
+ * the web QC build, which is exactly the two places this needs to work in Phase 1.
  */
-let currentLocale: Locale = 'th';
+function detectDeviceLocale(): Locale {
+  try {
+    const tag = new Intl.DateTimeFormat().resolvedOptions().locale;
+    return tag.toLowerCase().startsWith('th') ? 'th' : 'en';
+  } catch {
+    return 'en';
+  }
+}
+
+let currentLocale: Locale = detectDeviceLocale();
 
 const listeners = new Set<() => void>();
 
@@ -42,10 +59,35 @@ export function getLocale(): Locale {
 }
 
 export function setLocale(next: Locale): void {
-  if (next === currentLocale) return;
-  currentLocale = next;
-  emit();
+  if (next !== currentLocale) {
+    currentLocale = next;
+    emit();
+  }
+  // Always persist, even if unchanged — a user tapping the language they are already
+  // on should still "stick" past the AsyncStorage hydration race below.
+  AsyncStorage.setItem(STORAGE_KEY, next).catch(() => undefined);
 }
+
+/**
+ * Runs once at module load: if the user picked a language before, it wins over the
+ * device-locale guess above. `setLocale` (not a direct assignment) so any screen
+ * already mounted re-renders when the stored value turns out to differ.
+ */
+async function hydrateStoredLocale(): Promise<void> {
+  try {
+    const stored = await AsyncStorage.getItem(STORAGE_KEY);
+    if (stored === 'th' || stored === 'en') {
+      if (stored !== currentLocale) {
+        currentLocale = stored;
+        emit();
+      }
+    }
+  } catch {
+    // No storage (or it failed) — keep the device-locale guess.
+  }
+}
+
+void hydrateStoredLocale();
 
 export type TranslateParams = Readonly<Record<string, string | number>>;
 
@@ -86,6 +128,20 @@ export function useT(): UseTranslation {
     t: (key, params) => translate(locale, key, params),
     setLocale,
   };
+}
+
+export interface UseLocale {
+  locale: Locale;
+  setLocale: (next: Locale) => void;
+}
+
+/**
+ * Lighter than `useT()` for screens that only need the current locale + a setter (the
+ * language switch in Settings) and do not translate anything themselves.
+ */
+export function useLocale(): UseLocale {
+  const locale = useSyncExternalStore(subscribe, getLocale, getLocale);
+  return { locale, setLocale };
 }
 
 export type { TranslationKey, Translations };

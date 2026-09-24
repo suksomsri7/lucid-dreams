@@ -178,18 +178,28 @@ class AndroidBatteryReader implements BatteryReader {
 }
 
 class AndroidDeviceInfoReader implements DeviceInfoReader {
+  /**
+   * L1.2 fix: this stub used to hardcode `platform: 'android'` even when
+   * `createStubPlatform('unsupported')` built it for the **web** QC bundle — so
+   * `diagnostics.export.device.platform` (and anything else reading `deviceInfo.read()`)
+   * reported "android" while running in a browser. Take the real platform name so it
+   * reports 'web' there instead.
+   */
+  constructor(private readonly platformName: 'android' | 'web') {}
+
   async read(): Promise<{
     platform: 'ios' | 'android' | 'web';
     osVersion: string;
     model: string;
     modelName: string | null;
   }> {
-    return { platform: 'android', osVersion: 'unknown', model: 'unknown', modelName: null };
+    return { platform: this.platformName, osVersion: 'unknown', model: 'unknown', modelName: null };
   }
 }
 
 /** Used for `Platform.OS === 'android'` and for the web QC build. */
 export function createStubPlatform(name: 'android' | 'unsupported'): PlatformBundle {
+  const deviceInfoPlatform = name === 'android' ? 'android' : 'web';
   return {
     name,
     hasLiquidGlass: false,
@@ -199,6 +209,6 @@ export function createStubPlatform(name: 'android' | 'unsupported'): PlatformBun
     healthImport: new AndroidHealthImport(),
     speechToText: new AndroidSpeechToText(),
     battery: new AndroidBatteryReader(),
-    deviceInfo: new AndroidDeviceInfoReader(),
+    deviceInfo: new AndroidDeviceInfoReader(deviceInfoPlatform),
   };
 }
