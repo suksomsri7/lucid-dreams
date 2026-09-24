@@ -239,7 +239,9 @@
 | L1.6s | ✅ DONE 24 ก.ย. (engine 107/107 · api 47/47 · prod restart) | main | หน้าทดสอบหูต้องสลับมาใช้ renderSignatureShortPcm + เล่นฉบับเต็มท้ายหูขวา (ใบ UI ถัดไป) |
 | L2.3e/L3.2e/L3.4 | ✅ DONE 24 ก.ย. (engine 129/129) | main | เหลือฝั่งแอป: BLE scan/connect (L2.3) · /ai/score route + UI เช้า (L3.1/3.2) · เซฟ PersonalModel + ใช้ suggestedVolume (L3.4 app) |
 | L1.7ui | ✅ DONE 24 ก.ย. (21/21 · parity 04 a–d) | main | เหลือส่วน native ของ L1.7: Live Activity · DND จริง · pan native · ต่อ /ai/anchor ในแอป |
-| L2.8ui/2.9/2.10 | ▶ building (Sonnet · wo/L2.8ui) | — | จอกลางคืน (controller จริง) · นำเข้าสเตจ Apple (JS) · หน้ารายงานเมื่อคืน · oracle qc-L2.8-10 · parity 05/07 |
+| L2.8ui/2.9/2.10 | ✅ DONE 24 ก.ย. (24/24 · parity 05a/07) | main | native ค้าง → L2.2n |
+| L2.2n (L2.2 + L1.7 native) | ▶ building (Opus · wo/L2.2n) | — | LucidWatchLink native module · Live Activity (ActivityKit) · HealthKit bridge · DND · pan · complication · localizable นาฬิกา · oracle qc-L2.2 |
+| L3.1 | ▶ building (Sonnet · wo/L3.1) | — | เช้าในห้องที่ปรึกษา (mockup 06) · /ai/score client + sanitize · morningResultMessage · oracle qc-L3ui (ส่วน M1) |
 | L1.5 | ✅ DONE 24 ก.ย. (engine 73/73 · api 21/21) | main | ✅ DNS+SSL `dreaming.suksomsri.cloud` · ✅ OpenRouter จริง (haiku-4.5) · **TTS = fal.ai→ElevenLabs v3 [whispers] (มติเจ้าของ · ใช้ FAL key เดิม)** ตัวอย่างส่ง TG แล้ว รอเลือกเสียง |
 | L2.4/2.5 | ✅ DONE 24 ก.ย. (87/87 · onset 99.5% ≤10 นาที บนจำลอง · F1 0.98 จำลอง — คาดจริง 0.5–0.7) | main | ปรับเทียบ R2 |
 | L2.6/2.7 | ✅ DONE 24 ก.ย. (106/106 · fuzz 2,200 คืน 0 ข้อผิด) | main | R2: พิจารณาลด maxCuesPerNight · ปรับเกณฑ์ตื่น 0.15 g จากคืนจริง |
