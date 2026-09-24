@@ -19,6 +19,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { summarizeDevices, type AnchorSignature } from '@lucid/engine';
 
 import { deviceRegistry } from '../../src/devices/registry';
+import { applyPlanFixture } from '../../src/dev/fixtures';
 import { useT, type TranslationKey } from '../../src/i18n';
 import { buildAnchorSignature, getAnchorSeed, playAnchorOnce } from '../../src/audio/player';
 import { useNightState } from '../../src/store/night';
@@ -51,6 +52,11 @@ export default function PlanScreen() {
   const [signature, setSignature] = useState<AnchorSignature | null>(null);
 
   const effectiveLang = lang ?? locale;
+
+  // `?fixture=plan` (WO L1.7ui QC parity) — no-op once a real plan exists.
+  useEffect(() => {
+    applyPlanFixture(locale);
+  }, [locale]);
 
   useEffect(() => {
     let cancelled = false;

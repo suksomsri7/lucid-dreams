@@ -11,7 +11,7 @@
  *   - `underwater` — low-passed brown noise with a slow amplitude LFO (a "breathing" hum).
  *   - `wind`       — band-passed pink noise, slower LFO — an open, airy hiss.
  *   - `rain`       — high-passed white noise with a faster LFO — reads as patter, not hiss.
- *   - `silence`    — 1 s of true digital silence (the "อวกาศ"/space theme's bed).
+ *   - `silence`    — 1 s of true digital silence (the space theme's bed).
  */
 
 import type { AmbienceKey } from '@lucid/engine';

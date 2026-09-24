@@ -393,8 +393,8 @@ export interface CreateEngineAdvisorAdapterOptions {
 }
 
 /**
- * The real dream advisor: `packages/engine`'s `createAdvisor()` (the actual **บอก →
- * สรุป → เริ่ม** state machine, DESIGN §3.3) talking to `apps/api` over HTTP, wrapped in
+ * The real dream advisor: `packages/engine`'s `createAdvisor()` (the actual "tell →
+ * summarise → start" state machine, DESIGN §3.3) talking to `apps/api` over HTTP, wrapped in
  * the same `AdvisorAdapter` shape `createMockAdvisorAdapter` implements so
  * `AdvisorRoom.tsx`/`PlanCardCompact.tsx`/`useAdvisor.ts` need not know which one they
  * are driving (the swap-out plan `createMockAdvisorAdapter`'s header comment promised
@@ -402,7 +402,8 @@ export interface CreateEngineAdvisorAdapterOptions {
  *
  * The engine's own `Advisor.messages` is the transcript this adapter renders from —
  * **not** a re-implementation of the copy (that would drift from `advisor.ts`'s actual
- * wording the moment either file changed). The opening "คืนนี้อยากฝันถึงอะไร" bubble is
+ * wording the moment either file changed). The opening "what do you want to dream about
+ * tonight" bubble is
  * the one exception: the engine never pushes it (by design — DESIGN §3.3 says the room
  * always opens with that question, but nothing about *who* has answered it yet, so the
  * engine's own transcript starts empty), so this adapter seeds the same `introMessage`

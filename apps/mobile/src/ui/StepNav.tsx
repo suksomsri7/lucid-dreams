@@ -1,6 +1,6 @@
 /**
- * `.nav` — back chevron + screen title + an optional trailing label (a "แก้" link) or
- * step badge ("ขั้น 1/3") on the right. Shared by the four pre-start screens (WO
+ * `.nav` — back chevron + screen title + an optional trailing label (an "edit" link) or
+ * step badge ("step 1/3") on the right. Shared by the four pre-start screens (WO
  * L1.7ui, mockup `04-dream-plan.png`) — every one of them opens with exactly this row.
  */
 
@@ -12,9 +12,9 @@ import { colors, night, spacing, typeScale } from './tokens';
 
 export interface StepNavProps {
   title: string;
-  /** e.g. "ขั้น 1/3" — mutually fine to combine with `right` (mockup 04(b) has both). */
+  /** e.g. "step 1/3" — mutually fine to combine with `right` (mockup 04(b) has both). */
   step?: string;
-  /** e.g. the plan screen's "แก้" link. Rendered instead of `step` when both are given room. */
+  /** e.g. the plan screen's "edit" link. Rendered instead of `step` when both are given room. */
   right?: ReactNode;
   onBack: () => void;
   night?: boolean;

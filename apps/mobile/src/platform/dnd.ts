@@ -1,6 +1,7 @@
 /**
  * Do-Not-Disturb / Focus check for the device-readiness gate (`readiness.ts`'s
- * `dndAllowsAppAudio` input, DESIGN §3.2 step 3 "ห้ามรบกวน อนุญาตเสียงของแอปแล้ว").
+ * `dndAllowsAppAudio` input, DESIGN §3.2 step 3 "Do Not Disturb — this app's sound is
+ * already allowed").
  *
  * A plain app (no Focus Filter entitlement, which requires a separate Apple review and
  * an App Group) has no public API to read whether Focus/Do-Not-Disturb is currently

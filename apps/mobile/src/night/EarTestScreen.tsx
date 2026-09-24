@@ -1,6 +1,6 @@
 /**
  * Shared body of the two ear-test screens (WO L1.7ui, mockup `04-dream-plan.png` c/d ·
- * DESIGN §3.2 step 3, decision 24 ก.ย. round 13: "หน้าละข้าง"). `app/plan/ear-left.tsx`
+ * DESIGN §3.2 step 3, decision round 13 (24 Sep): one screen per ear). `app/plan/ear-left.tsx`
  * and `ear-right.tsx` are thin wrappers around this with `side` fixed — everything about
  * the round-trip (play → ask → answer → replay-on-wrong → passed) is identical between
  * the two sides; only the copy, the volume control and the footer differ, and those are
@@ -28,7 +28,7 @@ import {
 } from '@lucid/engine';
 
 import { buildAnchorSignature, getAnchorSeed, playMemorizationPlan } from '../audio/player';
-import { earPassedFixtureRequested } from '../dev/fixtures';
+import { applyPlanFixture, earPassedFixtureRequested } from '../dev/fixtures';
 import { useT } from '../i18n';
 import { recordEarTest, useNightState } from '../store/night';
 import { Button, Chip, GlassSurface, Icon, Screen, Scale, StepNav, Sub, colors, radius, spacing, typeScale } from '../ui';
@@ -62,6 +62,12 @@ export function EarTestScreen({ side }: EarTestScreenProps) {
   const [status, setStatus] = useState<'idle' | 'playing' | 'asking' | 'correct'>('idle');
   const [selected, setSelected] = useState<number | null>(null);
   const [wrongOnce, setWrongOnce] = useState(false);
+
+  // `?fixture=ear-passed` (WO L1.7ui QC parity) — lets this screen be screenshotted
+  // directly by URL without visiting `/plan` first. No-op once a real plan exists.
+  useEffect(() => {
+    applyPlanFixture(locale);
+  }, [locale]);
 
   // A `MemorizationTest`'s `volume` is fixed at creation (`memorization.ts`: `const
   // volume = clampAnchorVolume(options.volume)`, never updated by `start()`/`answer()`)
@@ -238,7 +244,7 @@ interface VolumeSliderProps {
 }
 
 /**
- * "เบาไป / ดังไป" slider (mockup 04(c)). No `@react-native-community/slider` dependency
+ * The "too quiet / too loud" slider (mockup 04(c)). No `@react-native-community/slider` dependency
  * added for one tap-to-set control (APP-RUN §0.5 S9: every new dependency justified) —
  * a `Pressable` that reads `locationX` against the track's measured width covers "tap
  * anywhere on the track to set the level", which is the only interaction the mockup

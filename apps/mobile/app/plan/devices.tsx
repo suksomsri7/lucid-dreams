@@ -2,8 +2,8 @@
  * Check devices — step 1/3 of the pre-start flow (WO L1.7ui, mockup `04-dream-plan.png`
  * frame b · DESIGN §3.2 step 3). Same 3-category layout as `onboarding/devices.tsx`
  * (WO L1.3) — that screen never blocks (pairing does not exist yet in Phase 1); **this**
- * screen is the real per-night gate `readiness.ts` was written for: the "ถัดไป · ทดสอบ
- * หูซ้าย" button is enabled only when `evaluateReadiness` says the device half of
+ * screen is the real per-night gate `readiness.ts` was written for: the "next · test
+ * left ear" button is enabled only when `evaluateReadiness` says the device half of
  * tonight is actually ready (heart + audio + phone battery + Do Not Disturb).
  */
 
@@ -21,7 +21,7 @@ import {
   type ReadinessReason,
 } from '@lucid/engine';
 
-import { applyDeviceFoundFixture, devicesFixtureRequested, fixturePhoneStatus } from '../../src/dev/fixtures';
+import { applyDeviceFoundFixture, applyPlanFixture, fixturePhoneStatus } from '../../src/dev/fixtures';
 import {
   HEADPHONES_DEVICE_ID,
   WATCH_DEVICE_ID,
@@ -73,7 +73,7 @@ const BLOCKER_KEY: Partial<Record<ReadinessReason, TranslationKey>> = {
 const REFRESH_MS = 3000;
 
 export default function PlanDevicesScreen() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const router = useRouter();
   const { plan, earTests, hydrated } = useNightState();
 
@@ -81,6 +81,13 @@ export default function PlanDevicesScreen() {
   const [searchCategory, setSearchCategory] = useState<SearchableCategory | null>(null);
   const [phone, setPhone] = useState<{ charging: boolean; battery: number } | null>(null);
   const [dndOk, setDndOk] = useState<boolean>(true);
+
+  // `?fixture=devices`/`?fixture=ear-passed` (WO L1.7ui QC parity) — lets this screen be
+  // screenshotted directly by URL without visiting `/plan` first. No-op once a real plan
+  // exists.
+  useEffect(() => {
+    applyPlanFixture(locale);
+  }, [locale]);
 
   useEffect(() => {
     function tick(): void {
