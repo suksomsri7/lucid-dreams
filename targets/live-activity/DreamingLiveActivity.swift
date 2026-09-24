@@ -144,6 +144,6 @@ private struct LockScreenView: View {
     /// "กระซิบ 2/8 · เงียบทันทีถ้าคุณตื่น" — the promise the plan card already made
     /// (`plan.tonight.full` in the app's i18n) repeated where the user can see it at 03:00.
     private var whisperLine: String {
-        String(format: String(localized: "live.whispers"), state.cuesPlayed, state.cuesPlanned)
+        String(format: String(localized: "live.whispers"), Int64(state.cuesPlayed), Int64(state.cuesPlanned))
     }
 }

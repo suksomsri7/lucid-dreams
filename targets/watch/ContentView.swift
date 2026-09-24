@@ -24,7 +24,15 @@ enum WatchBattery {
 ///      keys look like `watch.running.hrUnit` so a wording change never orphans a
 ///      translation;
 ///   2. anything with a number in it is `String(format:)` over the localised value, so the
-///      Thai and English sentences can put the number in different places.
+///      Thai and English sentences can put the number in different places;
+///   3. 🔴 every number handed to `String(format:)` is cast to `Int64` because the catalogue
+///      spells those placeholders `%lld` (what Xcode's String Catalog editor writes for an
+///      integer). `%lld` is always 64 bits, but watchOS builds **arm64_32**, where Swift's
+///      `Int` is only 32 — so passing a bare `Int` makes `%lld` read 8 bytes out of a 4-byte
+///      slot: `"กระซิบ %lld/%lld"` would swallow both arguments into the first number and
+///      print rubbish for the second. This is a watch-only trap; the same code in
+///      `targets/live-activity` happens to be safe on arm64, and is cast anyway so the two
+///      files cannot teach different habits.
 struct ContentView: View {
     @StateObject private var manager = WorkoutManager()
 
@@ -83,11 +91,11 @@ private struct RunningView: View {
                 .font(.caption)
                 .foregroundStyle(.mint)
 
-            Text(String(format: String(localized: "watch.running.whispers"), manager.cuesPlayed, manager.cuesPlanned))
+            Text(String(format: String(localized: "watch.running.whispers"), Int64(manager.cuesPlayed), Int64(manager.cuesPlanned)))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
-            Text(String(format: String(localized: "watch.running.epochs"), manager.epochCount))
+            Text(String(format: String(localized: "watch.running.epochs"), Int64(manager.epochCount)))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
@@ -100,7 +108,7 @@ private struct RunningView: View {
 
     private var remText: String {
         guard let pRem = manager.pRem else { return String(localized: "watch.running.remUnknown") }
-        return String(format: String(localized: "watch.running.rem"), Int((pRem * 100).rounded()))
+        return String(format: String(localized: "watch.running.rem"), Int64((pRem * 100).rounded()))
     }
 }
 

@@ -98,7 +98,7 @@ struct StreakComplicationView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 if let nights = entry.nights {
-                    Text(String(format: String(localized: "complication.nights"), nights))
+                    Text(String(format: String(localized: "complication.nights"), Int64(nights)))
                         .font(.system(.body, design: .rounded).weight(.semibold))
                 } else {
                     Text(String(localized: "complication.nights.unknown"))
