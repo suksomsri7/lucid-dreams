@@ -1,5 +1,5 @@
 /**
- * Lucid Dream design tokens — the only file allowed to contain a hex color
+ * Dreaming design tokens — the only file allowed to contain a hex color
  * (APP-RUN §0.2 rule 7 needs its Thai twin in i18n; oracle U3 needs this one:
  * `scripts/qc-L1.2.sh` greps every `#rrggbb` in `src/ui` + `app` and fails if any
  * value is not listed here).

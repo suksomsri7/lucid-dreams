@@ -6,7 +6,7 @@
 import type { Translations } from './th';
 
 export const en: Translations = {
-  'app.name': 'Lucid Dream',
+  'app.name': 'Dreaming',
 
   'tabs.tonight': 'Tonight',
   'tabs.journal': 'Journal',

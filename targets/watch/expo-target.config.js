@@ -1,5 +1,5 @@
 /**
- * watchOS target for Lucid Dream, embedded through `@bacons/apple-targets`.
+ * watchOS target for Dreaming, embedded through `@bacons/apple-targets`.
  *
  * `apps/mobile/app.config.ts` points the plugin at this folder with
  * `{ root: '../../targets' }`, so the Swift sources stay outside the generated
@@ -13,7 +13,7 @@
 module.exports = {
   type: 'watch',
   name: 'LucidWatch',
-  displayName: 'Lucid Dream',
+  displayName: 'Dreaming',
 
   // watchOS 11 covers Series 6 and later, which is everything that can run a long
   // mindAndBody workout session overnight without dying (DESIGN §8.1).

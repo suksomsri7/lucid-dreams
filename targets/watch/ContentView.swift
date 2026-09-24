@@ -43,7 +43,7 @@ private struct ReadyView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text("Lucid Dream")
+            Text("Dreaming")
                 .font(.headline)
             Text("Start this on your iPhone, or tap below.")
                 .font(.footnote)

@@ -89,19 +89,19 @@ const withDataProtection: ConfigPlugin = (config) =>
  * generated project by `withInfoPlistLocales` below (WO L1.3).
  */
 
-const IOS_BUNDLE_ID = 'app.luciddream.ios'; // placeholder until the new Apple account exists (APP-RUN §0.3)
-const ANDROID_PACKAGE = 'app.luciddream.android'; // Phase 2 — no Android build in Phase 1
+const IOS_BUNDLE_ID = 'app.dreaming.ios'; // placeholder until the new Apple account exists (APP-RUN §0.3)
+const ANDROID_PACKAGE = 'app.dreaming.android'; // Phase 2 — no Android build in Phase 1
 
 const MICROPHONE_PERMISSION =
   'Lucid Dream records your dream in the morning so it can be written down. The recording stays on this iPhone.';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Lucid Dream',
-  slug: 'lucid-dream',
+  name: 'Dreaming',
+  slug: 'dreaming',
   version: '0.1.0',
   orientation: 'portrait',
-  scheme: 'luciddream',
+  scheme: 'dreaming',
   userInterfaceStyle: 'automatic',
   // `newArchEnabled` หายไปจากสคีมาของ SDK 57 — New Architecture เป็นทางเดียวแล้ว ไม่มีสวิตช์
   // พื้นแอปไล่สีอ่อนมาก (DESIGN §2.8) — ค่าตรงกับ `appBackground.linearFrom` ใน

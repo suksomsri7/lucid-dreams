@@ -6,7 +6,7 @@
  */
 
 export const th = {
-  'app.name': 'Lucid Dream',
+  'app.name': 'Dreaming',
 
   'tabs.tonight': 'คืนนี้',
   'tabs.journal': 'บันทึก',
