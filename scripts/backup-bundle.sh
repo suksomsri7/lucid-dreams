@@ -3,7 +3,7 @@
 set -e
 cd /root/projects/lucid-dreams
 f="/tmp/lucid-dreams-$(date +%F_%H%M).bundle"
-git bundle create "$f" --all -q
+git bundle create "$f" --all 2>/dev/null
 rclone copy "$f" gdrive-own:VPS-Archive/lucid-dreams/ --quiet && echo "backup → gdrive-own:VPS-Archive/lucid-dreams/$(basename $f)"
 rm -f "$f"
 # เก็บแค่ 10 ไฟล์ล่าสุดบน Drive
