@@ -17,8 +17,9 @@
  * the night engine work (L2.x) and `app/night.tsx`'s real screen, not this WO.
  */
 
-import type { DreamPlan, EarSide } from '@lucid/engine';
+import type { EarSide } from '@lucid/engine';
 
+import type { DreamPlan } from '../advisor/types';
 import { getRepo } from './index';
 
 export interface EarTestResultInput {

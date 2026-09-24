@@ -22,6 +22,7 @@
  * flagged in `ledger/wo-notes/L1.7ui.md`.
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Directory, File, Paths } from 'expo-file-system';
 
 import {
@@ -101,6 +102,38 @@ function anchorDirectory(): Directory {
 /** The user's watermark for tonight's language — pure, deterministic, no I/O. */
 export function buildAnchorSignature(seed: string, lang: AnchorLang): AnchorSignature {
   return makeSignature(seed, lang);
+}
+
+const ANCHOR_SEED_STORAGE_KEY = 'lucid.anchor.seed';
+let cachedAnchorSeed: string | null = null;
+
+function randomSeed(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+}
+
+/**
+ * The per-install seed `makeSignature()` folds into the watermark. `signature.ts`'s own
+ * header says this is meant to be generated once, at onboarding — no earlier WO actually
+ * did that (checked `src/store/onboarding.ts`: no seed field), so this closes that gap
+ * the pragmatic way instead of adding it retroactively to a store another WO already
+ * shipped: first call generates and persists a stable random string, every call after
+ * (same install) returns the same one — the actual requirement (DESIGN §2 principle 3:
+ * "deterministic … a user who reinstalls must not lose the cue they trained on" refers
+ * to *this* seed surviving app restarts, which `AsyncStorage` does; surviving a real
+ * reinstall would need a server-side identity, which does not exist yet either — see
+ * `ledger/wo-notes/L1.7ui.md`).
+ */
+export async function getAnchorSeed(): Promise<string> {
+  if (cachedAnchorSeed !== null) return cachedAnchorSeed;
+  const stored = await AsyncStorage.getItem(ANCHOR_SEED_STORAGE_KEY);
+  if (stored !== null) {
+    cachedAnchorSeed = stored;
+    return stored;
+  }
+  const fresh = randomSeed();
+  cachedAnchorSeed = fresh;
+  await AsyncStorage.setItem(ANCHOR_SEED_STORAGE_KEY, fresh).catch(() => undefined);
+  return fresh;
 }
 
 /**

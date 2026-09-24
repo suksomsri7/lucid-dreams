@@ -15,6 +15,9 @@
  * - `?fixture=devices` — populate `DeviceRegistry` with a connected Apple Watch Series 9
  *   (84% battery) and Sleep A20 (92% battery), matching mockup 01(b) exactly.
  * - `?fixture=accepted` — pre-tick the welcome screen's consent checkbox (mockup 01(a)).
+ * - `?fixture=ear-passed` — WO L1.7ui: same device set as `devices`, plus both ear
+ *   tests already recorded as passed, for the `earTest.correct` / "✓ หูฟังทั้งสองข้างพร้อม"
+ *   states on `app/plan/ear-left.tsx` / `ear-right.tsx` (mockup `04-dream-plan.png` c/d).
  */
 
 import { Platform } from 'react-native';
@@ -39,8 +42,29 @@ function readFixtureParam(): string | null {
  * the real (empty, on web) platform read reported, rather than adding a second, hidden
  * entry alongside it.
  */
+/** `?fixture=devices` or `?fixture=ear-passed` (which builds on top of the same device set). */
+export function devicesFixtureRequested(): boolean {
+  const value = readFixtureParam();
+  return value === 'devices' || value === 'ear-passed';
+}
+
+export function earPassedFixtureRequested(): boolean {
+  return readFixtureParam() === 'ear-passed';
+}
+
+/**
+ * `platform.battery`/`platform/dnd.ts` have no real reading on web (the QC bundle gets
+ * the same stub `AndroidBatteryReader` Android does — always `null`, see
+ * `platform/android/index.ts`), so `app/plan/devices.tsx` cannot show "iPhone ชาร์จอยู่
+ * 78%" or pass the phone/DND half of `evaluateReadiness` there without this — matches
+ * mockup 04(b)'s phone card exactly (78%, charging, DND already allowing the app).
+ */
+export function fixturePhoneStatus(): { charging: boolean; battery: number } | null {
+  return devicesFixtureRequested() ? { charging: true, battery: 0.78 } : null;
+}
+
 export function applyDeviceFoundFixture(): void {
-  if (readFixtureParam() !== 'devices') return;
+  if (!devicesFixtureRequested()) return;
   const now = new Date().toISOString();
   deviceRegistry.add({
     id: WATCH_DEVICE_ID,

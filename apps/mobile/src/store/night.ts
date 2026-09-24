@@ -21,15 +21,17 @@ import { useSyncExternalStore } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import type { AnchorLang, DreamPlan, EarSide, EarTest } from '@lucid/engine';
+import type { EarSide, EarTest } from '@lucid/engine';
 
+import type { DreamPlan } from '../advisor/types';
 import { ensureNightSession, saveEarTestToRepo } from '../data/night';
+import type { Locale } from '../i18n';
 
 const STORAGE_KEY = 'lucid.night.v1';
 
 export interface NightState {
   plan: DreamPlan | null;
-  lang: AnchorLang | null;
+  lang: Locale | null;
   sessionId: string | null;
   earTests: { L: EarTest | null; R: EarTest | null };
 }
@@ -94,7 +96,7 @@ export function isNightStateHydrated(): boolean {
  * (edited theme, "same dream as last night" pick, etc.) must not leak forward and make
  * `evaluateReadiness` think tonight's headphones were already proven.
  */
-export function saveTonightPlan(plan: DreamPlan, lang: AnchorLang): void {
+export function saveTonightPlan(plan: DreamPlan, lang: Locale): void {
   state = { plan, lang, sessionId: null, earTests: { L: null, R: null } };
   emit();
   persist();

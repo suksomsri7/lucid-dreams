@@ -6,7 +6,9 @@
  * broken `.wasm` asset in the first place.
  */
 
-import type { DreamPlan, EarSide } from '@lucid/engine';
+import type { EarSide } from '@lucid/engine';
+
+import type { DreamPlan } from '../advisor/types';
 
 export interface EarTestResultInput {
   side: EarSide;
