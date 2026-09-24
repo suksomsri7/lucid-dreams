@@ -1,0 +1,164 @@
+<style>
+/* ── แถบไทม์ไลน์ทั้งคืน ─────────────────────────────── */
+.tlw{position:relative;height:84px;margin-top:2px}
+.tlw .band{position:absolute;left:0;right:0;top:22px;height:26px;border-radius:7px;background:var(--sf3);overflow:hidden}
+.tlw .band s{position:absolute;top:0;bottom:0;text-decoration:none}
+.tlw .band s.guard{background:var(--sf2)}
+.tlw .band s.watch{background:rgba(157,140,255,.22)}
+.tlw .band s.rem{background:var(--rem);top:5px;bottom:5px;border-radius:3px}
+.tlw .apple{position:absolute;left:0;right:0;top:53px;height:4px}
+.tlw .apple s{position:absolute;top:0;height:4px;border-radius:2px;background:var(--rem);opacity:.75;text-decoration:none}
+.tlw .tk{position:absolute;top:6px;width:2px;height:14px;border-radius:1px;background:var(--acc)}
+.tlw .tk.w{background:var(--dg)}
+.tlw .tk em{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-size:9.5px;font-style:normal;
+  color:var(--acc);white-space:nowrap}
+.tlw .tk.w em{color:var(--dg)}
+.tlw .ax{position:absolute;left:0;right:0;top:63px;height:14px}
+.tlw .ax i{position:absolute;font-size:10px;color:var(--mut);font-style:normal;transform:translateX(-50%);white-space:nowrap}
+.tlw .ax i.f{transform:none;left:0}
+.tlw .ax i.l{transform:none;right:0;left:auto}
+.lg2{display:flex;flex-wrap:wrap;gap:10px 14px;font-size:10px;color:var(--mut);margin-top:6px}
+.lg2 span{display:inline-flex;align-items:center;gap:5px}
+.lg2 u{width:10px;height:9px;border-radius:2px;display:block;text-decoration:none;border:1px solid var(--line2)}
+
+/* ── รายการเหตุการณ์ ─────────────────────────────────── */
+.ev2{display:flex;flex-direction:column}
+.ev2 .r{display:flex;gap:9px;align-items:stretch;min-height:31px}
+.ev2 .r .tm{width:42px;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;padding-top:4px;flex:none}
+.ev2 .r .rail{width:9px;display:flex;flex-direction:column;align-items:center;flex:none}
+.ev2 .r .rail b{width:7px;height:7px;border-radius:4px;background:var(--sf3);margin-top:7px;flex:none}
+.ev2 .r .rail i{width:1px;flex:1;background:var(--line);display:block;min-height:6px}
+.ev2 .r:last-child .rail i{background:transparent}
+.ev2 .r .tx{flex:1;font-size:12px;color:var(--ink2);line-height:1.4;padding:3px 0 5px}
+.ev2 .r.cue .rail b{background:var(--rem)}
+.ev2 .r.cue .tx{color:var(--ink)}
+.ev2 .r.cue .tx b{color:var(--rem);font-weight:600}
+.ev2 .r.wk .rail b{background:var(--dg)}
+.ev2 .r.wk .tx b{color:var(--dg);font-weight:600}
+.ev2 .r.ac .rail b{background:var(--acc)}
+.hdchip{display:flex;flex-wrap:wrap;gap:6px}
+</style>
+
+<div class="wrap">
+<div>
+<p class="cap">13 · รายงานเมื่อคืน (Night Report) <span>— ร่องรอยทั้งคืนแบบตรวจสอบได้: เสียงทุกครั้ง เวลาไหน ดังเท่าไร แล้วเกิดอะไรขึ้น</span></p>
+<div class="rowf">
+
+  <div class="frame m" style="height:1150px">
+    <div class="sbar"><div class="isl"></div><span>08:05</span><span class="r">🔋 72%</span></div>
+    <div class="nav">
+      <svg class="i lg" style="color:var(--acc)"><use href="#i-back"/></svg>
+      <span class="t">รายงานเมื่อคืน</span><span class="sp"></span>
+      <svg class="i lg" style="color:var(--acc)"><use href="#i-dots"/></svg>
+    </div>
+    <div class="mpg" style="gap:11px">
+
+      <div>
+        <h1 class="big" style="font-size:22px">คืนวันพุธ 24 ก.ย.</h1>
+        <div class="hdchip" style="margin-top:8px">
+          <span class="chip on">🐋 ฉลามวาฬ</span>
+          <span class="chip"><svg class="i xs"><use href="#i-vol"/></svg> คืนเสียง</span>
+        </div>
+        <div class="hdchip" style="margin-top:6px">
+          <span class="chip mu"><svg class="i xs" style="color:var(--rem)"><use href="#i-watch"/></svg> นาฬิกา ✓</span>
+          <span class="chip mu"><svg class="i xs" style="color:var(--rem)"><use href="#i-phones"/></svg> หูฟัง ✓</span>
+          <span class="chip mu"><svg class="i xs"><use href="#i-clock"/></svg> 7 ชม. 41 นาที</span>
+        </div>
+      </div>
+
+      <div class="card" style="padding:13px 14px">
+        <div class="ch" style="margin-bottom:4px">
+          <span class="h2">ทั้งคืน 23:10 → 06:51</span>
+          <span class="chip rem" style="height:22px;font-size:10.5px">ทายตรง 1/3</span>
+        </div>
+        <div class="tlw">
+          <div class="band">
+            <s class="guard" style="left:4.6%;width:39.0%"></s>
+            <s class="watch" style="left:43.6%;width:56.4%"></s>
+            <s class="rem" style="left:51.0%;width:4.3%"></s>
+            <s class="rem" style="left:67.2%;width:4.4%"></s>
+            <s class="rem" style="left:82.4%;width:5.5%"></s>
+          </div>
+          <div class="apple">
+            <s style="left:50.3%;width:6.1%"></s>
+            <s style="left:73.8%;width:9.7%"></s>
+          </div>
+          <div class="tk" style="left:52.5%"><em>🔊 ×2</em></div>
+          <div class="tk" style="left:54.0%"></div>
+          <div class="tk w" style="left:64.0%"><em>ตื่น</em></div>
+          <div class="tk" style="left:84.6%"><em>🔊</em></div>
+          <div class="ax">
+            <i class="f">23:10</i><i style="left:23.9%">01:00</i><i style="left:47.7%">03:00</i>
+            <i style="left:71.6%">05:00</i><i class="l">06:51</i>
+          </div>
+        </div>
+        <div class="lg2">
+          <span><u style="background:var(--sf2)"></u>Sleep Guard ถึง 02:31</span>
+          <span><u style="background:rgba(157,140,255,.35)"></u>เฝ้า REM</span>
+          <span><u style="background:var(--rem)"></u>REM ที่เราทาย</span>
+          <span><u style="background:var(--rem);height:4px;opacity:.75"></u>REM ตาม Apple (เส้นล่าง)</span>
+        </div>
+      </div>
+
+      <div class="card" style="padding:13px 14px">
+        <div class="ch" style="margin-bottom:7px">
+          <svg class="i sm" style="color:var(--acc)"><use href="#i-clock"/></svg>
+          <span class="h2">สิ่งที่แอปทำเมื่อคืน</span>
+          <span class="sub mu" style="font-size:10.5px">11 เหตุการณ์</span>
+        </div>
+        <div class="ev2">
+          <div class="r ac"><span class="tm">23:10</span><span class="rail"><b></b><i></i></span><span class="tx">เริ่มคืนนี้ · เปิด ambience คลื่นใต้น้ำ 20%</span></div>
+          <div class="r ac"><span class="tm">23:14</span><span class="rail"><b></b><i></i></span><span class="tx">กระซิบประโยคเมล็ด “คุณกำลังดำน้ำกับฉลามวาฬ”</span></div>
+          <div class="r"><span class="tm">23:31</span><span class="rail"><b></b><i></i></span><span class="tx">จับได้ว่าหลับ (HR ลด 9% · นิ่ง 10 นาที) · เฟด ambience → เสียงพื้น 8%</span></div>
+          <div class="r ac"><span class="tm">02:31</span><span class="rail"><b></b><i></i></span><span class="tx">หมด Sleep Guard 3 ชม. · เริ่มเฝ้า REM ทุก 30 วินาที</span></div>
+          <div class="r"><span class="tm">03:11</span><span class="rail"><b></b><i></i></span><span class="tx">REM น่าจะ 74% · ผ่านด่าน (นิ่ง 4 นาที · HR ไม่พุ่ง) · รอ 60 วินาที</span></div>
+          <div class="r cue"><span class="tm">03:12</span><span class="rail"><b></b><i></i></span><span class="tx">🔊 เสียงสมอ <b>ครั้งที่ 1</b> · 15% · กระซิบ · <b>ไม่ตื่น</b></span></div>
+          <div class="r cue"><span class="tm">03:19</span><span class="rail"><b></b><i></i></span><span class="tx">🔊 <b>ครั้งที่ 2</b> · 18% · กระซิบ · <b>ไม่ตื่น</b></span></div>
+          <div class="r wk"><span class="tm">04:05</span><span class="rail"><b></b><i></i></span><span class="tx"><b>ตื่น 3 นาที</b> (ขยับต่อเนื่อง) · เงียบทันที · พักอย่างน้อย 15 นาที</span></div>
+          <div class="r"><span class="tm">05:39</span><span class="rail"><b></b><i></i></span><span class="tx">REM น่าจะ 81% · ผ่านด่าน · รอ 60 วินาที</span></div>
+          <div class="r cue"><span class="tm">05:40</span><span class="rail"><b></b><i></i></span><span class="tx">🔊 <b>ครั้งที่ 3</b> · 18% · ไม่ตื่น · <b>ตรงช่วง REM ของ Apple ✓</b></span></div>
+          <div class="r ac"><span class="tm">06:51</span><span class="rail"><b></b><i></i></span><span class="tx">ตื่นเช้า · เล่าฝัน 0:42 · ตอบครบ 4 ข้อ</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:13px 14px">
+        <div class="ch" style="margin-bottom:6px">
+          <svg class="i sm" style="color:var(--acc)"><use href="#i-spark"/></svg>
+          <span class="h2">สรุป AI</span>
+        </div>
+        <p class="sub" style="line-height:1.6">คืนนี้ยิง 3 ครั้งโดยไม่ปลุกคุณเลย และครั้งที่ 3 ตกอยู่ในช่วง REM จริงพอดี · รายงานเช้ามีประโยครู้ตัวโดยตรง ถือเป็นคืนที่ได้ผลที่สุดใน 12 คืนหลัง</p>
+        <div class="li" style="border:0;padding:9px 0 0;min-height:0">
+          <span class="chip rem">คืนถัดไป</span>
+          <span class="sub" style="flex:1">คงระดับ 18% · รอ 60 วินาที ดีอยู่แล้ว</span>
+        </div>
+      </div>
+
+      <div class="sp"></div>
+      <div style="display:flex;gap:8px">
+        <div class="btn gh sm" style="flex:1">ดูรายละเอียดฝัน</div>
+        <div class="btn gh sm" style="flex:1">ส่งออกคืนนี้ (CSV)</div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tb"><svg class="i"><use href="#i-moon"/></svg>คืนนี้</div>
+      <div class="tb on"><svg class="i"><use href="#i-book"/></svg>บันทึกฝัน</div>
+      <div class="tb"><svg class="i"><use href="#i-chart"/></svg>สถิติ</div>
+      <div class="tb"><svg class="i"><use href="#i-gear"/></svg>ตั้งค่า</div>
+    </div>
+    <div class="home"></div>
+  </div>
+
+  <div class="note">
+    <b>นี่คือ “ร่องรอย” ที่เจ้าของขอ</b>
+    <ul>
+      <li><b>ทุกเสียงมีบรรทัดของมัน</b> — ยิงกี่โมง ดังกี่เปอร์เซ็นต์ ชนิดไหน (กระซิบ/พูด/ดนตรี) ตอนนั้น p_REM เท่าไร และหลังจากนั้นตื่นหรือไม่ · มาจากตาราง <b>CueEvent</b> ตรง ๆ ไม่ใช่ข้อความสรุป</li>
+      <li><b>ตรวจสอบย้อนหลังได้</b> — แถบบนคือสิ่งที่แอป “คิด” ตอนกลางคืน (REM ที่เราทาย) เส้นมินต์ล่างคือ “เฉลย” ที่ Apple Watch ให้ตอนเช้า วางซ้อนกันให้เห็นว่าทายพลาดตรงไหน</li>
+      <li><b>ตื่นก็ต้องอยู่ในรายงาน</b> — 04:05 ขยับต่อเนื่องจนนับว่าตื่น แอปเงียบทันทีและพัก 15 นาที · ถ้าตื่นภายใน 3 นาทีหลังยิง จะถูกนับเป็น “เสียงปลุก” และลดระดับคืนถัดไปอัตโนมัติ</li>
+      <li><b>สรุป AI ปิดท้ายด้วยสิ่งที่จะเปลี่ยน</b> — “คืนถัดไป: คงระดับ 18%” คือผลของ learning loop (§5.5) ไม่ใช่คำให้กำลังใจลอย ๆ</li>
+      <li>เข้าถึงได้จากรายการคืนในแท็บ <b>บันทึกฝัน</b> · คืนควบคุมก็มีรายงานนี้ แต่บรรทัดเสียงจะเขียนว่า “บันทึกอย่างเดียว ไม่เล่นเสียง”</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+</div>

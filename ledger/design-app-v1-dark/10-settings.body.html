@@ -1,0 +1,126 @@
+<style>
+.st .lbl{margin:0 0 3px 4px;display:block;font-size:11px}
+.st .li{min-height:35px;padding:0 14px}
+.st .li .ti b{font-size:13.5px}
+.st .li .ti .sub{font-size:11px;line-height:1.35;color:var(--mut)}
+.st .li.s2{min-height:44px;padding-top:5px;padding-bottom:5px}
+.st .li .val{font-size:13px;white-space:nowrap}
+.st .sw{width:44px;height:26px;border-radius:13px}
+.st .sw::after{width:20px;height:20px;top:3px;left:3px}
+.st .sw.on::after{left:21px}
+.st .seg{padding:2px}
+.st .seg div{height:26px;line-height:26px;font-size:12px}
+.grp{display:flex;flex-direction:column}
+.sld{display:flex;align-items:center;gap:10px;padding:0 14px 7px}
+.sld .s{flex:1;height:4px;border-radius:2px;background:var(--sf3);position:relative}
+.sld .s i{position:absolute;left:0;top:0;height:100%;background:var(--acc);border-radius:2px;width:50%}
+.sld .s b{position:absolute;top:-8px;left:50%;width:20px;height:20px;border-radius:10px;background:#fff;margin-left:-10px}
+.sld .e{font-size:10.5px;color:var(--mut);width:34px}
+.sld .e.r{text-align:right}
+</style>
+
+<div class="wrap">
+<div>
+<p class="cap">10 · ตั้งค่า <span>— 6 กลุ่มตาม §4 · ค่าเริ่มต้นเอียงไปทาง “เบา/ช้า/น้อย” ทุกตัว · ของอันตรายอยู่ล่างสุด</span></p>
+<div class="rowf">
+
+  <div class="frame m st" style="height:1200px">
+    <div class="sbar"><div class="isl"></div><span>21:06</span><span class="r">🔋 82%</span></div>
+    <div class="nav"><span class="t">ตั้งค่า</span></div>
+    <div class="mpg" style="gap:7px;padding:4px 17px 8px">
+
+      <!-- การนอน -->
+      <div class="grp">
+        <span class="lbl">การนอน</span>
+        <div class="card p0">
+          <div class="li" style="border-bottom:0">
+            <svg class="i sm" style="color:var(--acc)"><use href="#i-shield"/></svg>
+            <div class="ti"><b>Sleep Guard</b></div>
+            <span class="val">3 ชม. แรก</span>
+          </div>
+          <div class="sld" style="border-bottom:1px solid var(--line)">
+            <span class="e">2 ชม.</span>
+            <span class="s"><i></i><b></b></span>
+            <span class="e r">4 ชม.</span>
+          </div>
+          <div class="li"><svg class="i sm mu"><use href="#i-vol"/></svg><div class="ti"><b>เสียงสูงสุดต่อคืน</b></div><span class="val">8 ครั้ง</span><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><svg class="i sm mu"><use href="#i-clock"/></svg><div class="ti"><b>เว้นระหว่างเสียง</b></div><span class="val">5 นาที</span><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><svg class="i sm mu"><use href="#i-x"/></svg><div class="ti"><b>หยุดทั้งคืนถ้าเสียงปลุก 2 ครั้ง</b></div><span class="sw on"></span></div>
+          <div class="li s2"><svg class="i sm mu"><use href="#i-spark"/></svg><div class="ti"><b>Boost night (WBTB)</b><span class="sub">ตื่นตี 4 แล้วนอนต่อ — แรงแต่รบกวนการนอน</span></div><span class="sw"></span></div>
+        </div>
+      </div>
+
+      <!-- เสียง -->
+      <div class="grp">
+        <span class="lbl">เสียง</span>
+        <div class="card p0">
+          <div class="li s2"><svg class="i sm" style="color:var(--acc)"><use href="#i-wave"/></svg><div class="ti"><b>เสียงสมอ</b><span class="sub">แก้แล้วต้องเริ่มนับการฝึกใหม่</span></div><span class="val">หญิง · ไทย</span><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><svg class="i sm mu"><use href="#i-fish"/></svg><div class="ti"><b>เสียงพื้น (ambience)</b></div><span class="val">คลื่นใต้น้ำ</span><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><svg class="i sm mu"><use href="#i-vol"/></svg><div class="ti"><b>ระดับเริ่มต้น</b></div><span class="val">15%</span><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><svg class="i sm mu"><use href="#i-chart"/></svg><div class="ti"><b>ปรับระดับอัตโนมัติ</b></div><span class="sw on"></span></div>
+        </div>
+      </div>
+
+      <!-- การเรียนรู้ -->
+      <div class="grp">
+        <span class="lbl">การเรียนรู้</span>
+        <div class="card p0">
+          <div class="li s2"><svg class="i sm mu"><use href="#i-shield"/></svg><div class="ti"><b>คืนควบคุม 1 ใน 4</b><span class="sub">สุ่มคืนไม่ยิงเสียง เพื่อพิสูจน์ว่าได้ผลจริง</span></div><span class="sw on"></span></div>
+          <div class="li s2"><svg class="i sm mu"><use href="#i-bell"/></svg><div class="ti"><b>Reality check กลางวัน</b><span class="sub">สุ่ม 09:00–21:00</span></div><span class="val">3 ครั้ง/วัน</span><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+        </div>
+      </div>
+
+      <!-- อุปกรณ์ -->
+      <div class="grp">
+        <span class="lbl">อุปกรณ์</span>
+        <div class="card p0">
+          <div class="li"><svg class="i sm mu"><use href="#i-watch"/></svg><div class="ti"><b>Apple Watch</b></div><span class="val" style="color:var(--rem)">เชื่อมแล้ว · 84%</span></div>
+          <div class="li"><svg class="i sm mu"><use href="#i-phones"/></svg><div class="ti"><b>หูฟังบลูทูธ</b></div><span class="val">Sleep A20 · 92%</span></div>
+          <div class="li s2"><svg class="i sm mu"><use href="#i-clock"/></svg><div class="ti"><b>โหมดไม่มีนาฬิกา</b><span class="sub">ใช้ตัวจับเวลาอย่างเดียว · สูงสุด 4 ครั้ง/คืน</span></div><span class="sw"></span></div>
+        </div>
+      </div>
+
+      <!-- ข้อมูล -->
+      <div class="grp">
+        <span class="lbl">ข้อมูล</span>
+        <div class="card p0">
+          <div class="li s2"><svg class="i sm mu"><use href="#i-spark"/></svg><div class="ti"><b>ส่งข้อความฝันให้ AI ให้คะแนน</b><span class="sub">ส่งเฉพาะข้อความ ไม่ส่งไฟล์เสียง · ปิดได้ทุกเมื่อ</span></div><span class="sw on"></span></div>
+          <div class="li"><svg class="i sm mu"><use href="#i-chart"/></svg><div class="ti"><b>ส่งออกข้อมูล (CSV)</b></div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><svg class="i sm" style="color:var(--dg)"><use href="#i-x"/></svg><div class="ti"><b style="color:var(--dg)">ลบข้อมูลทั้งหมด</b></div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><svg class="i sm mu"><use href="#i-info"/></svg><div class="ti"><b>ภาษา</b></div><span class="seg" style="width:118px"><div class="on">ไทย</div><div>EN</div></span></div>
+        </div>
+      </div>
+
+      <!-- เกี่ยวกับ -->
+      <div class="grp">
+        <span class="lbl">เกี่ยวกับ</span>
+        <div class="card p0">
+          <div class="li s2"><svg class="i sm mu"><use href="#i-shield"/></svg><div class="ti"><b>ไม่ใช่เครื่องมือแพทย์</b><span class="sub">ไม่ใช้วินิจฉัยหรือรักษา · หยุดใช้ถ้านอนแย่ลง</span></div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><svg class="i sm mu"><use href="#i-book"/></svg><div class="ti"><b>แหล่งวิจัยที่อ้างอิง</b></div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="tabbar">
+      <div class="tb"><svg class="i"><use href="#i-moon"/></svg>คืนนี้</div>
+      <div class="tb"><svg class="i"><use href="#i-book"/></svg>บันทึกฝัน</div>
+      <div class="tb"><svg class="i"><use href="#i-chart"/></svg>สถิติ</div>
+      <div class="tb on"><svg class="i"><use href="#i-gear"/></svg>ตั้งค่า</div>
+    </div>
+    <div class="home"></div>
+  </div>
+
+  <div class="note">
+    <b>กติกาของหน้านี้</b>
+    <ul>
+      <li><b>ตั้งครั้งเดียวแล้วลืมได้</b> — ค่าเริ่มต้นทุกตัวเอียงไปทาง “เบา/ช้า/น้อย” (Sleep Guard 3 ชม. · 8 ครั้ง/คืน · 15%) ผู้ใช้ไม่ต้องแตะอะไรก็ปลอดภัย (§2 ข้อ 1)</li>
+      <li><b>เสียงสมอแก้ได้ แต่มีราคา</b> — เปลี่ยนเสียง/ประโยค = สมองต้องเรียนรู้ใหม่ แอปจึงเตือนว่าการฝึกเริ่มนับใหม่ (§2 ข้อ 3)</li>
+      <li><b>Boost night ปิดไว้</b> — ได้ผลแรงที่สุดในงานวิจัย แต่ขัดหลัก “การนอนมาก่อน” จึงเป็นตัวเลือกที่ผู้ใช้ต้องเปิดเอง</li>
+      <li><b>ส่งข้อความฝันให้ AI ปิดได้</b> — ปิดแล้วแอปยังใช้งานได้ครบ เพียงใช้คะแนนจากคำตอบ 4 ข้อของผู้ใช้อย่างเดียว (§2 ข้อ 6)</li>
+      <li><b>ลบทั้งหมด</b> อยู่ล่างสุดและเป็นสีแดง · เสียงและ transcript เข้ารหัสอยู่ในเครื่องตั้งแต่แรก</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+</div>

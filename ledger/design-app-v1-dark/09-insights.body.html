@@ -1,0 +1,179 @@
+<style>
+.kpi{display:flex;align-items:flex-end;gap:14px}
+.kpi .k{flex:1}
+.kpi .k .t{font-size:11.5px;color:var(--mut)}
+.kpi .k .n{font-size:34px;font-weight:700;letter-spacing:-.035em;font-variant-numeric:tabular-nums;line-height:1.05}
+.kpi .k.a .n{color:var(--rem)}
+.kpi .k.b .n{color:var(--mut)}
+.kpi .k .s{font-size:11px;color:var(--mut);margin-top:1px}
+.kpi .vs{font-size:12px;color:var(--mut);padding-bottom:18px}
+.k2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.k2 .b{background:var(--sf);border:1px solid var(--line);border-radius:16px;padding:10px 13px}
+.k2 .b .t{font-size:11px;color:var(--mut)}
+.k2 .b .n{font-size:24px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:1px}
+.k2 .b .n s{font-size:11.5px;font-weight:500;color:var(--mut);text-decoration:none}
+
+.n30{display:flex;align-items:flex-end;gap:3px;height:70px}
+.n30 .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px}
+.n30 .c i{width:100%;border-radius:2px;background:var(--acc);opacity:.8;display:block}
+.n30 .c.ctl i{background:var(--sf3);opacity:1}
+.n30 .c b{width:6px;height:6px;border-radius:3px;background:var(--rem);flex:none}
+.n30 .c b.no{background:transparent}
+.lg{display:flex;flex-wrap:wrap;gap:12px;font-size:10.5px;color:var(--mut);margin-top:6px}
+.lg span{display:inline-flex;align-items:center;gap:5px}
+.lg u{width:9px;height:9px;border-radius:2px;display:block;text-decoration:none}
+.lg u.a{background:var(--acc);opacity:.8}
+.lg u.c{background:var(--sf3)}
+.lg u.d{background:var(--rem);border-radius:5px;width:7px;height:7px}
+
+.hg{display:flex;align-items:flex-end;gap:4px;height:56px}
+.hg .c{flex:1;display:flex;align-items:flex-end}
+.hg .c i{width:100%;border-radius:3px 3px 0 0;background:var(--sf3);display:block}
+.hg .c.pk i{background:var(--rem)}
+.hgx{display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-top:5px}
+
+.vol{position:relative;height:40px;margin-top:8px}
+.vol .base{position:absolute;left:0;right:0;top:26px;height:6px;border-radius:3px;background:var(--sf3)}
+.vol .ok{position:absolute;left:0;top:26px;height:6px;border-radius:3px;background:var(--rem);width:44%}
+.vol .m{position:absolute;top:0;text-align:center;width:60px;margin-left:-30px;font-size:10.5px;color:var(--ink2)}
+.vol .m u{display:block;width:2px;height:16px;background:var(--ink2);margin:2px auto 0;text-decoration:none}
+.vol .m.g{color:var(--rem)} .vol .m.g u{background:var(--rem)}
+.vol .m.d{color:var(--dg)} .vol .m.d u{background:var(--dg)}
+.lr{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.lr .nm{width:82px;color:var(--ink2)}
+.lr .bar{flex:1}
+.lr .pc{width:38px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+</style>
+
+<div class="wrap">
+<div>
+<p class="cap">09 · สถิติ (Insights) <span>— หลักฐานว่าได้ผลจริง: คืนเสียง vs คืนควบคุม · 30 คืนล่าสุด · เวลา REM ของฉัน · เพดานเสียง · สิ่งที่แอปเรียนรู้</span></p>
+<div class="rowf">
+
+  <div class="frame m" style="height:1100px">
+    <div class="sbar"><div class="isl"></div><span>21:04</span><span class="r">🔋 82%</span></div>
+    <div class="nav"><span class="t">สถิติ</span><span class="sp"></span><span class="lk">30 คืนล่าสุด</span></div>
+    <div class="mpg" style="gap:10px">
+
+      <div class="card acc" style="padding:14px">
+        <div class="ch"><span class="h2">อัตรารู้ตัวว่าฝัน</span><span class="chip mu" style="height:22px;font-size:11px">16 คืน</span></div>
+        <div class="kpi">
+          <div class="k a"><div class="t">คืนที่มีเสียง</div><div class="n">27<s style="font-size:17px;text-decoration:none">%</s></div><div class="s">12 คืน · รู้ตัว 3 คืน</div></div>
+          <div class="vs">เทียบกับ</div>
+          <div class="k b"><div class="t">คืนควบคุม</div><div class="n">8<s style="font-size:17px;text-decoration:none">%</s></div><div class="s">4 คืน · รู้ตัว 0.3 คืน</div></div>
+        </div>
+      </div>
+
+      <div class="k2">
+        <div class="b"><div class="t">REM ที่เราทาย ตรง Apple</div><div class="n">71<s>%</s></div></div>
+        <div class="b"><div class="t">ตรงธีมเฉลี่ย</div><div class="n">6.4<s>/10</s></div></div>
+      </div>
+
+      <div class="card" style="padding:13px 14px">
+        <div class="ch" style="margin-bottom:8px"><span class="h2">30 คืนล่าสุด</span><span class="sub mu" style="font-size:11px">สูง = ตรงธีม</span></div>
+        <div class="n30">
+          <div class="c"><b class="no"></b><i style="height:43px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:50px"></i></div>
+          <div class="c ctl"><b class="no"></b><i style="height:29px"></i></div>
+          <div class="c"><b></b><i style="height:57px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:36px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:50px"></i></div>
+          <div class="c"><b></b><i style="height:64px"></i></div>
+          <div class="c ctl"><b class="no"></b><i style="height:22px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:43px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:57px"></i></div>
+          <div class="c"><b></b><i style="height:50px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:36px"></i></div>
+          <div class="c ctl"><b class="no"></b><i style="height:29px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:57px"></i></div>
+          <div class="c"><b></b><i style="height:64px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:43px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:50px"></i></div>
+          <div class="c"><b></b><i style="height:71px"></i></div>
+          <div class="c ctl"><b class="no"></b><i style="height:36px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:50px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:57px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:43px"></i></div>
+          <div class="c"><b></b><i style="height:64px"></i></div>
+          <div class="c ctl"><b class="no"></b><i style="height:29px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:50px"></i></div>
+          <div class="c"><b></b><i style="height:57px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:43px"></i></div>
+          <div class="c"><b class="no"></b><i style="height:50px"></i></div>
+          <div class="c ctl"><b class="no"></b><i style="height:36px"></i></div>
+          <div class="c"><b></b><i style="height:64px"></i></div>
+        </div>
+        <div class="tl"><span>26 ส.ค.</span><span>10 ก.ย.</span><span>24 ก.ย.</span></div>
+        <div class="lg">
+          <span><u class="a"></u>คืนเสียง</span>
+          <span><u class="c"></u>คืนควบคุม</span>
+          <span><u class="d"></u>คืนที่รู้ตัว</span>
+        </div>
+      </div>
+
+      <div class="card" style="padding:13px 14px">
+        <div class="ch" style="margin-bottom:8px"><span class="h2">เวลา REM ของฉัน</span><span class="chip rem" style="height:22px;font-size:11px">04:30–05:30</span></div>
+        <div class="hg">
+          <div class="c"><i style="height:10px"></i></div>
+          <div class="c"><i style="height:12px"></i></div>
+          <div class="c"><i style="height:15px"></i></div>
+          <div class="c"><i style="height:19px"></i></div>
+          <div class="c"><i style="height:23px"></i></div>
+          <div class="c"><i style="height:28px"></i></div>
+          <div class="c"><i style="height:34px"></i></div>
+          <div class="c pk"><i style="height:40px"></i></div>
+          <div class="c pk"><i style="height:52px"></i></div>
+          <div class="c"><i style="height:64px"></i></div>
+          <div class="c"><i style="height:47px"></i></div>
+          <div class="c"><i style="height:33px"></i></div>
+        </div>
+        <div class="hgx"><span>01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span></div>
+        <p class="sub mu" style="font-size:11px;margin-top:6px">จากสเตจ Apple 18 คืน — แอปเฝ้าเข้มช่วงนี้</p>
+      </div>
+
+      <div class="card" style="padding:13px 14px">
+        <div class="ch" style="margin-bottom:8px"><span class="h2">เพดานเสียงของคุณ</span><span class="chip rem" style="height:22px;font-size:11px">ใช้ 18–20%</span></div>
+        <div class="vol">
+          <div class="base"></div><div class="ok"></div>
+          <div class="m g" style="left:44%">18% โอเค<u></u></div>
+          <div class="m d" style="left:74%">25% ปลุก ×2<u></u></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-top:2px"><span>8%</span><span>20%</span><span>35%</span></div>
+      </div>
+
+      <div class="card" style="padding:13px 14px">
+        <div class="ch" style="margin-bottom:8px"><svg class="i sm" style="color:var(--acc)"><use href="#i-spark"/></svg><span class="h2">สิ่งที่แอปเรียนรู้</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="lr"><span class="nm">กระซิบ</span><span class="bar rem" style="height:6px;border-radius:3px;background:var(--sf3);overflow:hidden"><i style="display:block;height:100%;background:var(--rem);width:72%"></i></span><span class="pc">72%</span></div>
+          <div class="lr"><span class="nm">พูดปกติ</span><span class="bar" style="height:6px;border-radius:3px;background:var(--sf3);overflow:hidden"><i style="display:block;height:100%;background:var(--acc);width:68%"></i></span><span class="pc">68%</span></div>
+          <div class="lr"><span class="nm">ดนตรีล้วน</span><span class="bar" style="height:6px;border-radius:3px;background:var(--sf3);overflow:hidden"><i style="display:block;height:100%;background:var(--acc);width:31%"></i></span><span class="pc">31%</span></div>
+        </div>
+        <p class="sub mu" style="font-size:11px;margin-top:8px">รอ 60 วิหลังเข้า REM ดีกว่ารอ 2 นาที · เรียนรู้จาก 16 คืน</p>
+      </div>
+
+      <div class="sp"></div>
+      <div class="btn gh blk" style="height:42px;margin-bottom:2px"><svg class="i sm"><use href="#i-chart"/></svg> ส่งออก CSV ทั้งหมด</div>
+    </div>
+    <div class="tabbar">
+      <div class="tb"><svg class="i"><use href="#i-moon"/></svg>คืนนี้</div>
+      <div class="tb"><svg class="i"><use href="#i-book"/></svg>บันทึกฝัน</div>
+      <div class="tb on"><svg class="i"><use href="#i-chart"/></svg>สถิติ</div>
+      <div class="tb"><svg class="i"><use href="#i-gear"/></svg>ตั้งค่า</div>
+    </div>
+    <div class="home"></div>
+  </div>
+
+  <div class="note">
+    <b>หน้านี้คือหลักฐาน ไม่ใช่กำลังใจ</b>
+    <ul>
+      <li><b>คืนเสียง vs คืนควบคุม</b> — แอปสุ่ม 1 ใน 4 คืนเป็นคืนควบคุม (ไม่ยิงเสียงแต่บันทึกว่า “ถ้ายิงจะยิงตอนไหน”) ตัวเลขสองตัวนี้จึงเทียบกันได้ตรง ๆ · ถ้าเท่ากัน แปลว่าเสียงยังไม่ทำงาน</li>
+      <li><b>ทาย REM ตรง Apple 71%</b> มาจากเทียบ p_REM รายอีพอค 30 วินาที กับสเตจ asleepREM ที่ Apple Watch สรุปให้ตอนเช้า (§5.2)</li>
+      <li><b>เวลา REM ของฉัน</b> เป็นฮิสโตแกรมส่วนตัว ป้อนกลับเข้าเป็นหลักฐานตัวที่ 4 ของตัวประเมิน REM</li>
+      <li><b>เพดานเสียง</b> จำระดับที่เคยปลุก เพื่อไม่ดันเกินอีก — กติกา “การนอนมาก่อน” (§2)</li>
+      <li>ทุกตัวเลขบอกที่มาและจำนวนคืน ไม่โชว์เปอร์เซ็นต์ลอย ๆ · “รู้ตัว 0.3 คืน” = นับถ่วงน้ำหนัก (ไม่แน่ใจ = 0.3)</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+</div>

@@ -1,0 +1,101 @@
+<div class="wrap">
+<style>
+.w6 .frame.w{gap:0}
+.w6 .wcol{display:flex;flex-direction:column;height:100%}
+.w6 .wrow{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink2)}
+.w6 .wrow .k{flex:1;color:var(--mut)}
+.w6 .wrow .v{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.w6 .em{font-size:26px;line-height:1.1}
+.w6 .nm{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.w6 .hint{font-size:9.5px;color:var(--mut);text-align:center;margin-top:5px}
+.w6 .rembox{background:var(--rem-bg);border-radius:12px;padding:7px 9px;display:flex;align-items:center;gap:6px}
+.w6 .rembox b{color:var(--rem);font-size:14px;font-variant-numeric:tabular-nums}
+.w6 .rembox span{font-size:10.5px;color:var(--ink2);flex:1}
+.w6 .sp{flex:1}
+.n6{max-width:282px;font-size:11.5px;line-height:1.5;padding:11px 13px}
+.n6 ol{padding-left:16px}
+.n6 li{margin-bottom:3px}
+.wcap{font-size:10.5px;color:var(--mut);text-align:center;margin-top:7px}
+</style>
+
+<p class="cap">06 · แอป Apple Watch <span>— พร้อม · กำลังทำงาน · เช้า (นาฬิกา = เซนเซอร์ + ปุ่มหยุด)</span></p>
+
+<div class="rowf w6">
+
+  <!-- ═══ พร้อม ═══ -->
+  <div>
+  <div class="frame w">
+    <div class="wcol">
+      <div class="wt"><span>22:58</span><b>🐋</b></div>
+      <div style="height:10px"></div>
+      <div class="nm">ฉลามวาฬ</div>
+      <div class="wsub">คืนที่ 12 · เสียงสมอพร้อม</div>
+      <div style="height:11px"></div>
+      <div class="wrow"><svg class="i sm" style="color:var(--acc)"><use href="#i-phones"/></svg>
+        <span class="k">หูฟัง</span><span class="v">92%</span></div>
+      <div style="height:6px"></div>
+      <div class="wrow"><svg class="i sm" style="color:var(--acc)"><use href="#i-watch"/></svg>
+        <span class="k">นาฬิกา</span><span class="v">84%</span></div>
+      <div class="sp"></div>
+      <div class="wbtn acc">เริ่มคืนนี้</div>
+    </div>
+  </div>
+  <div class="wcap">เริ่มจาก iPhone ก็ได้</div>
+  </div>
+
+  <!-- ═══ กำลังทำงาน ═══ -->
+  <div>
+  <div class="frame w">
+    <div class="wcol">
+      <div class="wt"><span>03:19</span><b>เฝ้า REM</b></div>
+      <div style="height:6px"></div>
+      <div style="display:flex;align-items:flex-end;gap:6px">
+        <div class="wbig">58</div>
+        <div class="wsub" style="padding-bottom:6px">bpm</div>
+      </div>
+      <div class="wsub" style="margin-top:-2px">ชีพจร · นิ่ง 4 นาที</div>
+      <div style="height:9px"></div>
+      <div class="rembox">
+        <b>REM 72%</b><span></span>
+        <span style="text-align:right;flex:none">เสียง 2/8</span>
+      </div>
+      <div class="sp"></div>
+      <div class="wbtn dg">หยุด</div>
+    </div>
+  </div>
+  <div class="wcap">กดค้าง 1 วิ กันกดพลาด</div>
+  </div>
+
+  <!-- ═══ เช้า ═══ -->
+  <div>
+  <div class="frame w">
+    <div class="wcol">
+      <div class="wt"><span>06:52</span><b>🐋</b></div>
+      <div style="height:12px"></div>
+      <div class="nm">ตื่นแล้ว?</div>
+      <div class="wsub" style="margin-top:3px">เล่าฝันที่ iPhone<br>ก่อนลืม 🎙</div>
+      <div style="height:10px"></div>
+      <div class="wrow"><svg class="i sm" style="color:var(--acc)"><use href="#i-moon"/></svg>
+        <span class="k">streak</span><span class="v">คืนที่ 12</span></div>
+      <div class="sp"></div>
+      <div class="wbtn">เปิดบนมือถือ</div>
+    </div>
+  </div>
+  <div class="wcap">complication แสดง streak</div>
+  </div>
+
+  <div class="note n6">
+    <b>นาฬิกาทำอะไรตลอดคืน</b>
+    <ol>
+      <li>เปิด <b>workout session</b> ชนิด <b>mindAndBody</b> (เงียบ ไม่นับเป็นออกกำลังกาย) เพื่อให้เซนเซอร์ทำงานทั้งคืน</li>
+      <li>อ่าน <b>ชีพจรทุก 1 วินาที</b> ผ่าน live workout builder</li>
+      <li>อ่าน <b>accelerometer 20 Hz</b> รวมเป็นค่าเคลื่อนไหว 1 ค่า ต่อ <b>epoch 30 วินาที</b></li>
+      <li>ส่ง epoch ให้ iPhone ผ่าน <b>WCSession</b> ทุก 30 วินาที</li>
+      <li>iPhone หลุด → คิวไว้บนนาฬิกา แล้วส่งย้อนหลังเมื่อกลับมา</li>
+    </ol>
+    <div style="height:5px"></div>
+    <span class="mu">การตัดสินใจ “ยิงเสียงไหม” อยู่ที่ iPhone · นาฬิกาเป็นเซนเซอร์ + ปุ่มหยุดเท่านั้น</span>
+  </div>
+
+</div>
+</div>
