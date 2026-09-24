@@ -13,17 +13,17 @@
     "เจ้าของ: Team ID + ASC API key (.p8 · Key ID · Issuer ID)",
     "เจ้าของ: รุ่น iPhone/Watch/หูฟัง",
     "เจ้าของ: สั่ง build",
-    "owner: pick app icon A/B/C",
-    "owner: confirm anchor sound v2-C (TG 3478)"
+    "owner: confirm anchor sound v2-C (TG 3478)",
+    "owner: pick sleep-mask icon D/E/F"
   ],
   "icons": {
-    "status": "delivered-3-options",
+    "status": "round-2 sleep-mask minimal delivered (D/E/F)",
     "files": [
-      "ledger/design-icon/icon-A-crescent.png",
-      "ledger/design-icon/icon-B-closed-eye.png",
-      "ledger/design-icon/icon-C-whisper-orb.png"
+      "ledger/design-icon/icon-D-mask-flat.png",
+      "ledger/design-icon/icon-E-mask-night.png",
+      "ledger/design-icon/icon-F-mask-outline.png"
     ],
-    "waitingOwner": "pick A/B/C -> build full iOS icon set (1024 + watch + adaptive) + app.config icon",
-    "tg": "3499-3503"
+    "waitingOwner": "pick D/E/F (A/B/C round 1 rejected: owner wants minimal sleep mask) -> full iOS icon set",
+    "tg": "3506-3509"
   }
 }
