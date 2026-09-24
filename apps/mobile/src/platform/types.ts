@@ -74,6 +74,13 @@ export interface SensorSource {
   onEpoch(listener: (epoch: SensorEpoch) => void): Unsubscribe;
   /** Fires whenever `getStatus()` would return something different. */
   onStatus(listener: (status: SensorStatus) => void): Unsubscribe;
+  /**
+   * Fires when the paired device sends an explicit command — today just the watch's own
+   * "หยุด" button (WO L2.8, mockup `05-night.png` frame b). Separate from `onStatus`
+   * because a command is an instant, one-shot event (→ `NightController.userStop()`),
+   * not a level that `getStatus()` could ever describe.
+   */
+  onCommand(listener: (command: 'stop') => void): Unsubscribe;
 }
 
 // ---------------------------------------------------------------------------
@@ -103,7 +110,13 @@ export interface AudioPlayerStatus {
 export interface AudioPlayer {
   /** Configure the OS audio session for all-night background playback. */
   configureSession(): Promise<void>;
-  startBed(volume: number): Promise<void>;
+  /**
+   * `source` picks which loop plays (WO L2.8: the plan's `ambienceKey`, via
+   * `src/audio/ambience.ts#ambienceSource`); omitted defaults to the fixed
+   * diagnostics-screen loop `IosAudioPlayer` has always used, so that existing call
+   * site needs no change.
+   */
+  startBed(volume: number, source?: number): Promise<void>;
   stopBed(): Promise<void>;
   setVolume(volume: number): Promise<void>;
   /** From L1.7: the anchor whisper, mixed over the bed. */
@@ -228,6 +241,26 @@ export interface NotificationsPermission {
 }
 
 // ---------------------------------------------------------------------------
+// 7. Display — screen brightness during the night (DESIGN §4-05 · APP-RUN §2 L2.8)
+// ---------------------------------------------------------------------------
+
+/**
+ * Just enough to dim the screen for the night (mockup `05-night.png` frame a — the
+ * whole screen is already dark; this additionally turns the *hardware* backlight down
+ * so a phone face-up on the nightstand does not light the room). No brightness-restore
+ * method: iOS itself resets an app's brightness override the moment the screen locks
+ * (`expo-brightness`'s own doc comment on `setBrightnessAsync`), which is the same
+ * moment the night session stops mattering, so there is nothing this layer needs to put
+ * back — `night/session.ts` still asks for a moderate level on `userStop()`/`morning()`
+ * for the (rare) case the phone stays unlocked into the report screen.
+ */
+export interface Display {
+  isAvailable(): Promise<boolean>;
+  /** `value` is `0..1`; implementations must clamp. */
+  setBrightness(value: number): Promise<void>;
+}
+
+// ---------------------------------------------------------------------------
 // Battery + the bundle the app consumes
 // ---------------------------------------------------------------------------
 
@@ -257,6 +290,7 @@ export interface PlatformBundle {
   notifications: NotificationsPermission;
   battery: BatteryReader;
   deviceInfo: DeviceInfoReader;
+  display: Display;
 }
 
 export type { AudioEvent, AudioEventKind, BatterySample, SensorEpoch, SensorSourceKind };

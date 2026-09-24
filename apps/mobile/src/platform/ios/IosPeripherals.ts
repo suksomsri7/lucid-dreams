@@ -19,6 +19,7 @@
  */
 
 import * as Battery from 'expo-battery';
+import * as Brightness from 'expo-brightness';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
@@ -27,6 +28,7 @@ import { systemClock, type BatterySample, type Clock, type DeviceKind } from '@l
 import type {
   BatteryReader,
   DeviceInfoReader,
+  Display,
   HealthImport,
   LiveStatus,
   NotificationsPermission,
@@ -170,6 +172,32 @@ export class IosBatteryReader implements BatteryReader {
       };
     } catch {
       return null;
+    }
+  }
+}
+
+/**
+ * Real, no permission needed on iOS (`Brightness.setBrightnessAsync` is unrestricted
+ * there — the `SYSTEM_BRIGHTNESS` permission `expo-brightness`'s own types call out is
+ * an Android-only concept; see `plugin/build/withBrightness.js`, which only ever adds
+ * `android.permission.WRITE_SETTINGS`). WO L2.8's night screen dims the hardware
+ * backlight on top of the already-dark UI (mockup `05-night.png` frame a).
+ */
+export class IosDisplay implements Display {
+  async isAvailable(): Promise<boolean> {
+    try {
+      return await Brightness.isAvailableAsync();
+    } catch {
+      return false;
+    }
+  }
+
+  async setBrightness(value: number): Promise<void> {
+    const clamped = Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
+    try {
+      await Brightness.setBrightnessAsync(clamped);
+    } catch {
+      // Simulator / restricted context — the night must go on without a dimmed screen.
     }
   }
 }

@@ -52,6 +52,14 @@ interface NativeWatchLink {
   sendCommand(command: 'start' | 'stop'): Promise<void>;
   addListener(event: 'onEpoch', listener: (payload: WatchEpochPayload) => void): { remove(): void };
   addListener(event: 'onStatus', listener: (status: WatchLinkStatus) => void): { remove(): void };
+  /**
+   * The other direction: the watch face/complication has its own "หยุด" button
+   * (mockup `05-night.png` frame b) — pressing it sends this event to the phone
+   * instead of (or in addition to) `sendCommand`, which only goes phone → watch.
+   * WO L2.8's JS-side contract; the native `LucidWatchLinkModule.swift` emitting it is
+   * the same "needs a Mac" gap `sendCommand`/`onEpoch` above already document.
+   */
+  addListener(event: 'onCommand', listener: (command: { type: 'stop' }) => void): { remove(): void };
 }
 
 const native = requireOptionalNativeModule<NativeWatchLink>('LucidWatchLink');
@@ -95,6 +103,13 @@ export const watchBridge = {
   onStatus(listener: (status: WatchLinkStatus) => void): () => void {
     if (!native) return () => undefined;
     const subscription = native.addListener('onStatus', listener);
+    return () => subscription.remove();
+  },
+
+  /** WO L2.8: the watch's own "stop" button, see `NativeWatchLink.addListener('onCommand', …)` above. */
+  onCommand(listener: (command: 'stop') => void): () => void {
+    if (!native) return () => undefined;
+    const subscription = native.addListener('onCommand', (command) => listener(command.type));
     return () => subscription.remove();
   },
 };
