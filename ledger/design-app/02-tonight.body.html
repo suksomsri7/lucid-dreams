@@ -1,0 +1,110 @@
+<div class="wrap">
+<style>
+.t2 .orb{width:178px;height:178px}
+.t2 .orb::before{inset:27px}
+.t2 .orb::after{inset:50px;box-shadow:0 0 46px 16px rgba(157,140,255,.25)}
+.t2 .orb .em{font-size:44px;line-height:1.1}
+.t2 .orb .nm{font-size:15px;font-weight:700;margin-top:18px}
+.t2 .pill{height:30px;font-size:11.5px;padding:0 10px;gap:5px}
+.t2 .rw{display:flex;align-items:center;height:26px;font-size:13px}
+.t2 .rw .k{color:var(--mut);flex:1}
+.t2 .rw .v{font-weight:600}
+.t2 .seg2{display:flex;height:7px;border-radius:4px;overflow:hidden;gap:2px}
+.t2 .seg2 i{display:block;border-radius:2px}
+.pb{width:36px;height:36px;border-radius:18px;background:var(--acc-bg);color:var(--acc);flex:none;
+  display:flex;align-items:center;justify-content:center}
+.pb svg.i{width:15px;height:15px;fill:currentColor;stroke:none;margin-left:2px}
+</style>
+
+<p class="cap">02 · คืนนี้ (Tonight) <span>— หน้าแรก · ธีมคืนนี้ · เสียงสมอ · ตารางคืนนี้ · ปุ่มเริ่ม</span></p>
+
+<div class="rowf t2">
+
+  <div class="frame m">
+    <div class="sbar">22:41<div class="isl"></div><div class="r">86%</div></div>
+    <div class="nav">
+      <div class="t">คืนนี้</div>
+      <div class="sp"></div>
+      <svg class="i" style="color:var(--acc)"><use href="#i-dots"/></svg>
+    </div>
+    <div class="mpg" style="gap:11px">
+
+      <div style="display:flex;gap:7px">
+        <div class="pill"><svg class="i sm"><use href="#i-watch"/></svg>นาฬิกา 84%</div>
+        <div class="pill"><svg class="i sm"><use href="#i-phones"/></svg>Sleep A20 92%</div>
+        <div class="pill"><svg class="i sm" style="color:var(--acc)"><use href="#i-moon"/></svg>คืนที่ 12</div>
+      </div>
+
+      <div style="margin-top:2px">
+        <div class="orb"><div class="c">
+          <span class="em">🐋</span>
+          <span class="nm">ฉลามวาฬ</span>
+          <span style="font-size:11px;color:var(--mut)">ธีมคืนนี้</span>
+        </div></div>
+      </div>
+
+      <div class="card p0">
+        <div class="li" style="min-height:62px">
+          <div class="pb"><svg class="i"><use href="#i-play"/></svg></div>
+          <div class="ti">
+            <b>เสียงสมอ</b>
+            <div class="sub">เสียงผู้หญิง · ไทย · กระซิบ “คุณกำลังฝันอยู่”</div>
+          </div>
+          <svg class="i cv"><use href="#i-cv"/></svg>
+        </div>
+      </div>
+
+      <div class="card" style="padding:14px">
+        <div class="ch" style="margin-bottom:9px">
+          <svg class="i sm" style="color:var(--acc)"><use href="#i-clock"/></svg>
+          <div class="h2">ตารางคืนนี้</div>
+          <div class="chip on">คืนควบคุม</div>
+        </div>
+
+        <div class="seg2">
+          <i style="width:34%;background:var(--sf3)"></i>
+          <i style="flex:1;background:var(--acc-bg)"></i>
+        </div>
+        <div class="tl" style="margin-top:5px"><span>23:30</span><span>01:30</span><span>07:00</span></div>
+
+        <div style="margin-top:9px">
+          <div class="rw"><span class="k">Sleep Guard (ไม่ยิงเสียง)</span><span class="v num">ถึง 01:30</span></div>
+          <div class="rw"><span class="k">เฝ้า REM</span><span class="v num">01:30 – 07:00</span></div>
+          <div class="rw"><span class="k">เสียงสูงสุด</span><span class="v num">8 ครั้ง</span></div>
+          <div class="rw"><span class="k">ระดับเสียง</span><span class="v num">18%</span></div>
+        </div>
+      </div>
+
+      <div class="sp"></div>
+      <a class="btn pri big blk">ฝึก 5 นาที แล้วเริ่ม</a>
+      <a class="btn gh blk" style="height:46px;font-size:14.5px">เริ่มเลย (ข้ามฝึก)</a>
+    </div>
+
+    <div class="tabbar">
+      <div class="tb on"><svg class="i"><use href="#i-moon"/></svg>คืนนี้</div>
+      <div class="tb"><svg class="i"><use href="#i-book"/></svg>บันทึกฝัน</div>
+      <div class="tb"><svg class="i"><use href="#i-chart"/></svg>สถิติ</div>
+      <div class="tb"><svg class="i"><use href="#i-gear"/></svg>ตั้งค่า</div>
+    </div>
+    <div class="home"></div>
+  </div>
+
+  <div class="note">
+    <b>การ์ด “ตารางคืนนี้”</b><br>
+    บอกล่วงหน้าว่าคืนนี้แอปจะทำอะไร ไม่ต้องเดา
+    <ol>
+      <li><b>Sleep Guard ถึง 01:30</b> — 3 ชม.แรกหลังหลับ ห้ามยิงเสียงเด็ดขาด เก็บชีพจร/การขยับอย่างเดียว</li>
+      <li><b>เฝ้า REM 01:30–07:00</b> — คำนวณ “น่าจะ REM กี่ %” ทุก 30 วินาที</li>
+      <li><b>เสียงสูงสุด 8 ครั้ง</b> — เพดานทั้งคืน (≤ 3 ครั้งต่อช่วง REM · เว้น 5 นาที)</li>
+      <li><b>ระดับ 18%</b> — ระดับที่แอปเรียนรู้จากคืนก่อน ๆ ว่าคุณได้ยินแต่ไม่ตื่น</li>
+    </ol>
+    <div style="height:9px"></div>
+    <b>ป้าย “คืนควบคุม”</b><br>
+    1 ใน 4 คืนถูกสุ่มให้ <b>ไม่เล่นเสียงจริง</b> แต่ยังบันทึกว่า “ถ้ายิง จะยิงตอนไหน” เพื่อเทียบว่าเสียงได้ผลจริงไหม
+    <div style="height:6px"></div>
+    <span class="mu">ค่าเริ่มต้นตามข้อเสนอ §10 ข้อ 3 = ไม่บอกล่วงหน้า บอกตอนเช้า —
+    ภาพนี้แสดงแบบ “บอกล่วงหน้า” ไว้ให้เจ้าของเลือก</span>
+  </div>
+
+</div>
+</div>

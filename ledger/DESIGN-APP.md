@@ -3,7 +3,7 @@
 > เอกสารออกแบบ · 24 กันยายน 2569 · ผู้เขียน: Fable
 > โจทย์: เจ้าของสั่ง "ออกแบบ app บน iOS เพื่อทำหน้าที่นี้" หลังบทวิเคราะห์ `CONCEPT-ANALYSIS-2026-09-24.md` (+ ภาคผนวก A–F)
 > ขอบเขต Phase 1 = **Apple Watch + หูฟังบลูทูธ** เท่านั้น (EOG เลื่อนไปอนาคต) · UI ไทย+อังกฤษ · เสียงสมอ 1 ภาษาต่อคน
-> ภาพประกอบ: `design-app/` (12 ภาพ · ดู `README.md` ในโฟลเดอร์นั้น) · ⚠️ เป็น **แบบ** ยังไม่มีโค้ด
+> ภาพประกอบ: `design-app/` (13 ภาพ · ดู `README.md` ในโฟลเดอร์นั้น) · ⚠️ เป็น **แบบ** ยังไม่มีโค้ด
 
 ---
 
@@ -21,6 +21,10 @@
 | กลางวัน | reality check 3–5 ครั้ง | แจ้งเตือนสุ่มพร้อมเสียงสมอสั้น ๆ "มองมือ · นี่ฝันไหม" |
 | ทุกคืน | — | **Learning loop**: ปรับ volume/เวลารอ/ความถี่ต่อคน · สุ่ม 1 ใน 4 คืนเป็น **คืนควบคุม** (ไม่ยิง) เพื่อพิสูจน์ว่าเสียงทำงานจริง |
 
+### หลักที่เจ้าของย้ำ (24 ก.ย. รอบ 4)
+ผู้ใช้มีแค่ **แอป + หูฟัง + อุปกรณ์วัดหัวใจ/การเคลื่อนไหวที่ต่อกับแอป** ก็ทดสอบได้เลย · ตอนเช้าตอบ 4 ข้อ · มี **รายงานเมื่อคืน** ย้อนดูได้ว่าแอปทำอะไร ส่งเสียงอะไร ช่วงไหน · AI ประมวลผลแล้วเอาไปปรับคืนถัดไป
+⇒ ในแบบนี้: (ก) ชั้นเซนเซอร์เป็น **แบบกลาง** รับได้ทั้ง Apple Watch และ **เซนเซอร์หัวใจบลูทูธมาตรฐาน** (เช่น สายคาดอก Polar H10 · ปลอกแขน Polar Verity Sense) — ดู §8.1 · (ข) มีหน้า **รายงานเมื่อคืน** (ภาพ 13) เป็นบันทึกเหตุการณ์ทั้งคืนแบบตรวจย้อนหลังได้ทุกเสียง
+
 ### ทำแล้วได้อะไร
 - ผู้ใช้ได้ระบบฝึก lucid dream ที่ **ปรับตัวเข้ากับตัวเอง** (ไม่ใช่เสียงตั้งเวลาโง่ ๆ) และเห็นหลักฐานตัวเลขว่าคืนที่มีเสียงต่างจากคืนควบคุมจริงไหม
 - เราได้ **dataset** ทั้งคืน (HR/ขยับ 30 วิ + สเตจ Apple ตอนเช้า + เสียงที่ยิง + รายงานฝัน) = ฐานสำหรับโมเดล REM ของเราเองและตัว mask ในอนาคต
@@ -30,9 +34,9 @@
 | ระยะ | ได้อะไร | WO | ขนาด |
 |---|---|---|---|
 | **L1 โครง + เสียง** | โปรเจกต์ Expo + watchOS target บน EAS · onboarding/ยินยอม · ธีม/เสียงสมอ (TTS + ambience) · training 5 นาที · เล่นเสียงพื้นหลังทั้งคืน · Morning Recall (อัด→ถอด) · journal ท้องถิ่น | 8 | ~2 สัปดาห์ |
-| **L2 เครื่องยนต์กลางคืน** | แอปนาฬิกา: workout session + สตรีม HR/accel → epoch 30 วิ → ส่งมือถือ · ตัวประเมิน REM (prior เวลา × HR × ขยับ) · ตัวควบคุม cue (ramp/spacing/guard) · ตัวจับตื่น · fallback ตัวจับเวลาเมื่อนาฬิกาหลุด · วัดแบต | 8 | ~2 สัปดาห์ |
+| **L2 เครื่องยนต์กลางคืน** | แอปนาฬิกา: workout session + สตรีม HR/accel → epoch 30 วิ → ส่งมือถือ · **เซนเซอร์ BLE HR มาตรฐาน (Polar ฯลฯ) + มือถือบนที่นอน** · ตัวประเมิน REM (prior เวลา × HR/HRV × ขยับ) · ตัวควบคุม cue (ramp/spacing/guard) · ตัวจับตื่น · fallback ตัวจับเวลา · **รายงานเมื่อคืน** · วัดแบต | 10 | ~2.5 สัปดาห์ |
 | **L3 AI + เรียนรู้ + สถิติ** | AI ให้คะแนนรายงานฝัน · reality check กลางวัน · คืนควบคุม · learning loop (bandit) · หน้าสถิติ · เทียบสเตจ Apple · ส่งออกข้อมูล · Boost night (WBTB เลือกเปิด) | 6 | ~1.5 สัปดาห์ |
-| รวม | | **22** | ~5–6 สัปดาห์ · ทดสอบกับตัวเจ้าของทุกคืนตั้งแต่ L1 จบ |
+| รวม | | **24** | ~6 สัปดาห์ · ทดสอบกับตัวเจ้าของทุกคืนตั้งแต่ L1 จบ |
 
 ---
 
@@ -55,7 +59,7 @@
 | แท็บ | หน้า | หน้าที่ |
 |---|---|---|
 | 🌙 **คืนนี้** | Tonight · เลือกธีม · เสียงสมอ · Training · Night Live · Lock screen | ทุกอย่างก่อนนอนและระหว่างคืน |
-| 📖 **บันทึกฝัน** | รายการคืน · Morning Recall · รายละเอียดฝัน + คะแนน AI | ตอนเช้าและย้อนดู |
+| 📖 **บันทึกฝัน** | รายการคืน · Morning Recall · รายละเอียดฝัน + คะแนน AI · **รายงานเมื่อคืน** (ไทม์ไลน์ทุกเหตุการณ์/ทุกเสียง) | ตอนเช้าและย้อนดู |
 | 📈 **สถิติ** | ภาพรวม 30 คืน · คืนเสียง vs คืนควบคุม · เวลา REM ของฉัน · เพดานเสียง · เทียบ Apple | หลักฐานว่าได้ผล |
 | ⚙️ **ตั้งค่า** | Sleep Guard · ตารางยิง · เสียง/ภาษา · อุปกรณ์ · Boost night · reality check · ข้อมูล/ความเป็นส่วนตัว | ตั้งครั้งเดียว |
 
@@ -136,6 +140,13 @@
 ### 12 แผนผังระบบ + สถานะกลางคืน (diagram)
 - ซ้าย: กล่อง Watch (HR/accel → epoch 30 วิ → REM estimator) ⇄ iPhone (cue controller · audio · journal · SQLite) ⇄ Server (AI scoring · sync · dataset) · หูฟัง BT · HealthKit (สเตจตอนเช้า)
 - ขวา: state machine ตาม §5.1 เป็นกล่องลูกศร
+
+### 13 รายงานเมื่อคืน (Night Report — บันทึกเหตุการณ์ทั้งคืน)
+- หัว: คืนวันพุธ 24 ก.ย. · 🐋 · "คืนเสียง"/"คืนควบคุม" · อุปกรณ์ที่ใช้ (นาฬิกา/สายคาดอก ✓ · หูฟัง ✓) · เวลานอนรวม
+- **แถบไทม์ไลน์ทั้งคืน** 23:10→06:51: หลับ (onset) · Sleep Guard · เฝ้า · REM ที่เราทาย (มินต์) · REM ตาม Apple (เส้นบางใต้แถบ ถ้ามี) · ขีดเสียงที่ยิง (ม่วง) · ขีดตื่น (แดง)
+- **รายการเหตุการณ์** เรียงเวลา: เริ่ม/ambience · กระซิบเมล็ด (ประโยคจริงที่พูด) · หลับ · หมด guard · REM น่าจะ x% · 🔊 เสียงสมอครั้งที่ n (ระดับ · ชนิด · ผล: ไม่ตื่น/ตื่น) · ตื่น (สาเหตุ · นาน · พักกี่นาที) · ตื่นเช้า · เล่าฝัน · ตอบ 4 ข้อ
+- **สรุป AI** 2 บรรทัด + "คืนถัดไปจะปรับอะไร" (เช่น คงระดับ 18% · รอ 60 วิ) — นี่คือรอยต่อระหว่างรายงานกับ learning loop ให้ผู้ใช้เห็นว่า AI เอาข้อมูลไปทำอะไร
+- ทุกแถวแตะได้ → ค่า p_REM/HR/ขยับ ณ เวลานั้น (สำหรับผู้ใช้ที่อยากรู้) · ปุ่มส่งออกคืนนี้เป็น CSV/JSON
 
 ---
 
@@ -221,18 +232,32 @@ MORNING ─▶ Recall ─▶ ENDED (ดึงสเตจ Apple เมื่อ�
 ---
 
 ## 8. สถาปัตยกรรม
-- **มือถือ**: Expo (React Native) · expo-router · SQLite (expo-sqlite) · เสียง: `react-native-track-player` (background audio · Now Playing · ล็อกสกรีน) เล่น ambience bed ต่อเนื่อง + ซ้อนเสียงสมอด้วยแทร็กที่ 2 · Live Activity ผ่าน native module เล็ก · Apple Speech ผ่าน `expo-speech-recognition`
+
+### 8.1 ชั้นเซนเซอร์แบบกลาง (Sensor Sources) — หัวใจ + การเคลื่อนไหว จากอุปกรณ์ใดก็ได้
+ตัวประเมิน REM รับ "หลักฐาน" ผ่านสัญญา `SensorSource` เดียว: `hr(bpm, t)` · `rr(ms[], t)` (ถ้ามี) · `motion(level, t)` · `battery` · `connected`
+| แหล่ง | หัวใจ | HRV (RR) | การเคลื่อนไหว | ต่อกับแอปอย่างไร | หมายเหตุ |
+|---|---|---|---|---|---|
+| **Apple Watch** (แอปนาฬิกา Swift) | ✅ ต่อวินาที | ❌ (ไม่ให้ RR สด) | ✅ accel ข้อมือ | WCSession | ต้องมี watch target · แบตคืนละ 20–40% · ผู้ใช้ Apple ส่วนใหญ่มีอยู่แล้ว |
+| **สายคาดอก BLE** เช่น Polar H10 (~฿3,000) | ✅ | ✅ RR แม่นระดับ ECG | ✅ accel ในตัว (ผ่าน Polar SDK) หรือใช้มือถือบนที่นอน | Bluetooth Heart Rate Profile (มาตรฐาน GATT 0x180D) ตรงเข้ามือถือ **ไม่ต้องมีแอปนาฬิกา** | แบต ~400 ชม. · HRV จริง ⇒ แยก REM/deep ได้ดีกว่า HR อย่างเดียว · ใส่นอนอาจไม่สบายบางคน |
+| **ปลอกแขน/optical BLE** เช่น Polar Verity Sense, Garmin HRM | ✅ | บางรุ่น | ✅ บางรุ่น | BLE HR Profile เดียวกัน | สบายกว่าสายคาดอก · แบต ~20 ชม. |
+| **มือถือบนที่นอน** (fallback) | ❌ | ❌ | ✅ accel มือถือ (แบบ Sleep Cycle) | ในเครื่อง | ใช้เป็นแหล่งขยับสำรองเมื่ออุปกรณ์ไม่มี accel |
+| *(อนาคต)* Dream Mask / EOG | – | – | ตากลอก | BLE | เสียบเป็นหลักฐานตัวที่ 5 ในสมการ §5.2 |
+- ผู้ใช้เลือกแหล่งในตั้งค่า › อุปกรณ์ · ต่อได้พร้อมกันหลายแหล่ง (เช่น สายคาดอก + มือถือบนที่นอน) ตัวประเมินรวมให้เอง · ถ้าทุกแหล่งหลุด → โหมดตัวจับเวลา (§5.1)
+- **ข้อเสนอ**: เปิด BLE HR Profile ตั้งแต่ L1 (มาตรฐานเดียว รองรับหลายยี่ห้อ ~1 WO) และใช้ **Polar H10 เป็นอุปกรณ์ทดสอบคู่กับ Apple Watch** เพราะได้ RR จริง ทำให้เรามีเฉลย HRV ไว้เทรนตัวประเมินฝั่งนาฬิกาด้วย
+
+### 8.2 ส่วนประกอบ
+- **มือถือ**: Expo (React Native) · BLE: `react-native-ble-plx` (Heart Rate Service 0x180D · Heart Rate Measurement 0x2A37 อ่าน bpm + RR intervals · background mode `bluetooth-central`) · expo-router · SQLite (expo-sqlite) · เสียง: `react-native-track-player` (background audio · Now Playing · ล็อกสกรีน) เล่น ambience bed ต่อเนื่อง + ซ้อนเสียงสมอด้วยแทร็กที่ 2 · Live Activity ผ่าน native module เล็ก · Apple Speech ผ่าน `expo-speech-recognition`
 - **นาฬิกา**: watchOS target Swift ฝังผ่าน `@bacons/apple-targets` (build บน EAS) · `HKWorkoutSession(.mindAndBody)` + `HKLiveWorkoutBuilder` (HR ต่อวินาที) · `CMMotionManager` accel 20 Hz → รวมเป็น epoch 30 วิ บนนาฬิกา · ส่ง `WCSession.sendMessage` ทุก epoch · ถ้าไม่ reachable → `transferUserInfo` คิวไว้ · ปุ่มหยุด → ส่งคำสั่งกลับ · **การประเมิน REM อยู่มือถือ** (แก้โมเดลง่าย) แต่นาฬิกามี fallback: ถ้ามือถือหายเกิน 10 นาที นาฬิกาสั่นเตือนเบา ๆ ตอนเช้าว่าข้อมูลบางส่วนอยู่บนนาฬิกา
 - **เซิร์ฟเวอร์** (เล็ก): Node/Next + Postgres · endpoint: `/ai/seed` `/ai/tts` `/ai/score` `/ai/weekly` · sync (ตัวเลือก) · ไม่มีบัญชีใน Phase 1 (device id + Sign in with Apple เมื่อเปิด sync)
 - **ความเสี่ยงต้องพิสูจน์สัปดาห์แรก (L1.1 spike)**: EAS build watch target ผ่าน · workout session ทั้งคืนแบตเหลือ ≥ 30% · audio session ไม่ถูก iOS ฆ่า 8 ชม. · หูฟังไม่ดับเมื่อเล่น bed ต่อเนื่อง
 
 ---
 
-## 9. แผนงาน 22 WO
+## 9. แผนงาน 24 WO
 **L1 โครง + เสียง (8)**
 L1.1 spike: Expo + watch target บน EAS · workout session 1 คืน วัดแบต · audio 8 ชม. — ต้องผ่านก่อนทำต่อ · L1.2 onboarding/ยินยอม/ภาษา · L1.3 ธีม + seed AI + เสียงสมอ TTS/อัดเอง · L1.4 training 5 นาที · L1.5 เครื่องเล่นเสียง (bed + cue overlay + Now Playing + Live Activity) · L1.6 Morning Recall (อัด/ถอด/4 ข้อ) · L1.7 journal + รายละเอียดฝัน (ยังไม่มี AI) · L1.8 SQLite + ส่งออก CSV
-**L2 เครื่องยนต์กลางคืน (8)**
-L2.1 watch app UI 3 หน้า · L2.2 สตรีม HR/accel → epoch → WCSession · L2.3 onset detector + ambience fade · L2.4 REM estimator (prior+HR+ขยับ) · L2.5 cue controller + Sleep Guard · L2.6 wake detector · L2.7 fallback timer mode · L2.8 อ่านสเตจ Apple ตอนเช้า + เทียบ precision/recall
+**L2 เครื่องยนต์กลางคืน (10)**
+L2.1 watch app UI 3 หน้า · L2.2 สตรีม HR/accel → epoch → WCSession · L2.3 onset detector + ambience fade · L2.4 REM estimator (prior+HR+ขยับ) · L2.5 cue controller + Sleep Guard · L2.6 wake detector · L2.7 fallback timer mode · L2.8 อ่านสเตจ Apple ตอนเช้า + เทียบ precision/recall · **L2.9 แหล่งเซนเซอร์ BLE HR Profile (Polar H10/Verity/Garmin) + มือถือบนที่นอน** · **L2.10 หน้ารายงานเมื่อคืน (ไทม์ไลน์ + รายการเหตุการณ์ + สรุป AI)**
 **L3 AI + เรียนรู้ + สถิติ (6)**
 L3.1 AI score + tags · L3.2 reality check notifications · L3.3 คืนควบคุม + ป้าย · L3.4 learning loop (bandit) + PersonalModel · L3.5 หน้าสถิติ · L3.6 Boost night (WBTB) + สรุปรายสัปดาห์
 
@@ -247,6 +272,7 @@ L3.1 AI score + tags · L3.2 reality check notifications · L3.3 คืนคว
 6. Bundle id / ทีม Apple Developer: ใช้บัญชีเดิมของ SiamDive หรือเปิดใหม่สำหรับ Lucid Dreams
 7. Boost night (WBTB) เอาไว้ในตั้งค่าเป็นตัวเลือกปิดไว้ ตามที่คุยไหม หรือตัดออกจาก Phase 1 เลย
 8. Android/Wear OS — เลื่อนไป Phase 2 ใช่ไหม
+9. เซนเซอร์ทดสอบ: ซื้อ **Polar H10** (~฿3,000 · ต่อบลูทูธเข้าแอปตรง ไม่ต้องรอแอปนาฬิกา · ได้ HRV จริง) มาใช้คู่ Apple Watch ตั้งแต่ L1 ไหม — แนะนำซื้อ
 
 ## เรนเดอร์ภาพใหม่
 ```bash
