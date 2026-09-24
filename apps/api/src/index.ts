@@ -33,12 +33,43 @@ export { createMockPlanProvider, brokenPlanProvider, type MockProviderOptions } 
 
 export {
   mockTtsProvider,
+  normalizeTtsAudio,
   resolveTtsProvider,
   sniffAudioContentType,
   wavSilence,
   TTS_MAX_TEXT,
+  type TtsAudio,
   type TtsProvider,
   type TtsRequest,
   type TtsLang,
   type TtsVoice,
 } from './providers/tts';
+
+export {
+  createFalTtsProvider,
+  audioUrlOf,
+  whisperText,
+  TtsError,
+  FAL_TTS_ENDPOINT,
+  FAL_DEFAULT_VOICE,
+  FAL_DEFAULT_STABILITY,
+  FAL_MAX_AUDIO_BYTES,
+  WHISPER_TAG,
+  type FalTtsOptions,
+  type TtsErrorCode,
+} from './providers/tts-fal';
+
+export {
+  mixAnchor,
+  pcmToWav,
+  buildMixFilter,
+  resolveFfmpegPath,
+  AnchorMixError,
+  ANCHOR_SAMPLE_RATE,
+  ANCHOR_WHISPER_DELAY_MS,
+  ANCHOR_SIGNATURE_GAIN,
+  ANCHOR_MP3_BITRATE,
+  ANCHOR_MIX_TIMEOUT_MS,
+  type MixAnchorOptions,
+  type AnchorMixErrorCode,
+} from './anchor';

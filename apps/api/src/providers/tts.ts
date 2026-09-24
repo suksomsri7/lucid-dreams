@@ -30,10 +30,29 @@ export type TtsVoice = 'whisper';
 export interface TtsRequest {
   text: string;
   lang: TtsLang;
+  /** The *style*: always the whisper. Not a vendor voice id — see `voiceName`. */
   voice: TtsVoice;
+  /**
+   * Vendor voice id (fal/ElevenLabs calls them `Sarah`, `Laura`, `Charlotte`…).
+   * Absent ⇒ the adapter's own default. It is **not** a user-facing preference: the
+   * owner pins one name per install, the watermark stays one voice for everybody
+   * (§2 principle 3). `/ai/anchor` only forwards it so the owner can A/B two voices
+   * before pinning one.
+   */
+  voiceName?: string;
 }
 
-export type TtsProvider = (req: TtsRequest) => Promise<Buffer>;
+/**
+ * What an adapter hands back. A bare `Buffer` is still accepted — the oracle's fake
+ * provider returns one and so does {@link mockTtsProvider} — but a real adapter knows
+ * the container it downloaded and says so.
+ */
+export interface TtsAudio {
+  buffer: Buffer;
+  contentType: 'audio/wav' | 'audio/mpeg';
+}
+
+export type TtsProvider = (req: TtsRequest) => Promise<Buffer | TtsAudio>;
 
 /** Longest sentence we will ever render — the anchor phrase plus room for a future variant. */
 export const TTS_MAX_TEXT = 120;
@@ -56,6 +75,22 @@ export function sniffAudioContentType(audio: Buffer): 'audio/wav' | 'audio/mpeg'
   // A vendor that answers with a WAV whose header we did not recognise is still a WAV as
   // far as the player is concerned; guessing `audio/wav` here would hide a JSON error page.
   return null;
+}
+
+/**
+ * Normalise whatever the adapter returned into `{buffer, contentType}` — or `null`.
+ *
+ * The sniff wins over the adapter's own claim on purpose: a vendor that answers `200
+ * application/json {"error":…}` while saying `audio/mpeg` must not reach a sleeping
+ * user's headphones, and an adapter bug must not be able to mislabel a file that the
+ * phone then fails to decode at 3 a.m.
+ */
+export function normalizeTtsAudio(result: Buffer | TtsAudio): TtsAudio | null {
+  const buffer = Buffer.isBuffer(result) ? result : result?.buffer;
+  if (!Buffer.isBuffer(buffer) || buffer.byteLength === 0) return null;
+  const sniffed = sniffAudioContentType(buffer);
+  if (!sniffed) return null;
+  return { buffer, contentType: sniffed };
 }
 
 /** A silent mono 16-bit WAV of `ms` milliseconds — same bytes every time (QC fixture). */
@@ -88,9 +123,10 @@ export const mockTtsProvider: TtsProvider = async (req) => {
 /**
  * Pick the provider from the environment.
  *
- * Today there is exactly one branch — `TTS_PROVIDER=mock` for QC — and the default is
- * `null` (endpoint answers 501). When the owner picks a vendor, this is the only function
- * that changes: add the adapter, read its key from env, return it here.
+ * Two branches that need nothing but the environment: `TTS_PROVIDER=mock` for QC and the
+ * default `null` (the endpoints answer 501). **`TTS_PROVIDER=fal` is wired in `main.ts`**,
+ * not here: it needs `FAL_KEY` plus the process logger, and importing `tts-fal.ts` from
+ * this file would make the two modules import each other.
  */
 export function resolveTtsProvider(env: Record<string, string | undefined>): TtsProvider | null {
   switch (env.TTS_PROVIDER) {
