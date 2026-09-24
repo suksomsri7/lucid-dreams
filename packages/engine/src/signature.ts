@@ -183,9 +183,24 @@ export interface AnchorSignature {
  */
 const PENTATONIC_MINOR_DEGREES = [0, 3, 5, 7, 10] as const;
 
-/** The root is drawn here, **before** the octave drop below. */
-const ROOT_MIN_MIDI = 50;
-const ROOT_MAX_MIDI = 57;
+/**
+ * The root is drawn here, **before** the octave drop below — so the root the user actually
+ * hears is 12 lower, MIDI 33–45 (55–110 Hz).
+ *
+ * Reconstructed from the reference file rather than copied from the work order, which quoted
+ * the prototype's root band as 50–57. Two measurements say 45–52:
+ *
+ *   * `.heavy/sigv2-C.wav` — the file the owner listened to and approved — is a pentatonic
+ *     minor on MIDI **35** (measured fundamentals 61.7 · 73.4 · 92.5 · 110 Hz = notes 35 · 38
+ *     · 42 · 45), i.e. a root of **47** before the drop. 47 is not inside 50–57.
+ *   * 45–52 is exactly the band that reproduces oracle G3's window: a root of 45 is the only
+ *     way to reach the bottom note 33, and a root of 52 the only way to reach 57.
+ *
+ * A root of 50–57 would have put every user's bell a third to an octave above the one the
+ * owner chose, which is the one thing this decision was about.
+ */
+const ROOT_MIN_MIDI = 45;
+const ROOT_MAX_MIDI = 52;
 
 /** Each note may be taken in the root's octave or the one above, then everything drops 12. */
 const OCTAVE_CHOICES = [0, 12] as const;
@@ -229,6 +244,23 @@ const REVERB_WET_GAIN = 3;
 
 /** `tau = decay / 6` ⇒ the impulse is ~99.75 % gone by the time it ends (e^-6). */
 const REVERB_TAU_DIVISOR = 6;
+
+/**
+ * The room is the **same for every user**, and this string is its seed.
+ *
+ * It is tempting to draw the reverb's noise from the user's own hash — more personal, one
+ * less constant. Measured: don't. A 2.8 s noise impulse has a random comb ~0.4 Hz wide, and
+ * the notes here are 2 s of an almost pure 60–200 Hz tone, so each note lands on one tooth of
+ * that comb: between two draws, the energy of a single note moves by up to 10 dB (measured on
+ * the reference notes: the 61.7 Hz note carried 57 % of the clip's energy under one draw and
+ * 8 % under another). That is not a personal fingerprint, it is a lottery for whether your
+ * anchor sounds like the one the owner approved.
+ *
+ * So: the melody and the timbre are personal (and hashed), the room is a constant — this
+ * particular one because, of the candidates measured against `.heavy/sigv2-C.wav`, its band
+ * balance and RMS envelope sit closest to the file the owner listened to.
+ */
+const REVERB_ROOM_SEED = 'lucid.anchor.room.v2c';
 
 /** A 64-sample box filter at 48 kHz ≈ a gentle shelf from ~1.5 kHz up: takes the fizz off. */
 const LOWPASS_WINDOW = 64;
@@ -457,13 +489,13 @@ function renderDry(signature: AnchorSignature, sampleRate: number, length: numbe
  * with a unit spike at sample 0 (the direct sound, so the convolution keeps the attack of
  * the note instead of smearing it).
  *
- * The noise is drawn from a generator seeded with the signature's **hash**, so the room is
- * as personal as the melody and as reproducible as everything else here.
+ * The noise is drawn from a generator seeded with {@link REVERB_ROOM_SEED} — a constant, see
+ * there for why the room is not personal — so the same clip comes out on every machine.
  */
-function impulseResponse(signature: AnchorSignature, sampleRate: number): Float64Array {
-  const length = Math.max(1, Math.round((signature.reverb.decayMs / 1000) * sampleRate));
-  const rng = mulberry32(fnv1a32(`ir|${signature.hash}`));
-  const tau = (signature.reverb.decayMs / 1000 / REVERB_TAU_DIVISOR) * sampleRate;
+function impulseResponse(reverb: SignatureReverb, sampleRate: number): Float64Array {
+  const length = Math.max(1, Math.round((reverb.decayMs / 1000) * sampleRate));
+  const rng = mulberry32(fnv1a32(`${REVERB_ROOM_SEED}|${reverb.decayMs}|${sampleRate}`));
+  const tau = (reverb.decayMs / 1000 / REVERB_TAU_DIVISOR) * sampleRate;
 
   const ir = new Float64Array(length);
   let peak = 0;
@@ -622,7 +654,7 @@ export function renderSignaturePcm(signature: AnchorSignature, sampleRate = 4800
 
   const length = Math.max(1, Math.round((signature.durationMs / 1000) * sampleRate));
   const dry = renderDry(signature, sampleRate, length);
-  const wet = convolve(dry, impulseResponse(signature, sampleRate));
+  const wet = convolve(dry, impulseResponse(signature.reverb, sampleRate));
 
   const mix = signature.reverb.mix;
   const mixed = new Float64Array(length);
