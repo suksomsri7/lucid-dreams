@@ -7,6 +7,7 @@
  */
 
 import type { CueResponse, EarSide, SensorEpoch, WakeCause } from '@lucid/engine';
+import type { SessionRecord } from '@lucid/data';
 
 import type { DreamPlan } from '../advisor/types';
 
@@ -24,6 +25,14 @@ export async function ensureNightSession(
   _dateIso: string,
 ): Promise<string> {
   return sessionId ?? 'web-fixture-session';
+}
+
+export async function fetchNightSessionRecord(_sessionId: string): Promise<SessionRecord | null> {
+  return null;
+}
+
+export async function attachArmKeyToSession(_sessionId: string, _armKey: string): Promise<void> {
+  // no-op on web — see file header.
 }
 
 export async function saveEarTestToRepo(_sessionId: string, _entry: EarTestResultInput): Promise<void> {

@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import { Redirect, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { applyOnboardingBypassForAdvisorFixture } from '../src/dev/fixtures';
 import { useT } from '../src/i18n';
+import { registerNotificationResponseHandler } from '../src/notifications';
 import { useOnboardingState } from '../src/store/onboarding';
 import { AppBackground, colors } from '../src/ui';
 
@@ -30,6 +32,10 @@ export default function RootLayout() {
   const { hasOnboarded, hydrated } = useOnboardingState();
   const segments = useSegments();
   const inOnboarding = segments[0] === 'onboarding';
+
+  // One listener for the app's whole lifetime (WO L3.3) — records Done/Later against
+  // `RealityCheck` no matter which screen is on top when the notification is tapped.
+  useEffect(() => registerNotificationResponseHandler(), []);
 
   if (!hydrated) {
     // AsyncStorage hydration is a handful of milliseconds, but rendering *something* of

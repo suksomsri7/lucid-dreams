@@ -20,9 +20,9 @@ import {
 
 import { getPlatform } from '../platform';
 import { ambienceSource } from './ambience';
-import { buildAnchorSignature, ensureAnchorWavUri, getAnchorSeed, type AnchorPan } from './anchor';
+import { buildAnchorSignature, ensureAnchorWavUri, getAnchorSeed, resetAnchorSeed, type AnchorPan } from './anchor';
 
-export { ambienceSource, buildAnchorSignature, getAnchorSeed };
+export { ambienceSource, buildAnchorSignature, getAnchorSeed, resetAnchorSeed };
 export type { AnchorPan };
 
 export interface PlayAnchorOptions {
