@@ -265,7 +265,8 @@ h1.big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
 .mpg.set{gap:7px}
 .set .gl{display:flex;flex-direction:column;gap:4px}
 .set .gl>.lbl{padding-left:6px;font-size:11px}
-.set .li{min-height:40px;padding:0 14px;gap:10px}
+.set .li{min-height:37px;padding:0 14px;gap:10px}
+.mpg.hastab.set{padding-bottom:98px}
 .set .li .ti b{font-size:13.5px;font-weight:600}
 .set .li .ti .sub{font-size:11.5px}
 .set .li .val{font-size:13px}
@@ -275,9 +276,11 @@ h1.big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
 .set .seg{width:132px;padding:2px}
 .set .seg div{height:28px;line-height:28px;font-size:12.5px}
 .set .btn.sm{height:28px;font-size:12px;padding:0 11px;border-radius:14px}
+.set .li .em{font-size:15px;line-height:1;width:20px;text-align:center;flex:none}
+.set .li.off{opacity:.5}
 </style>
 <div class="wrap">
-<p class="cap">09 · ตั้งค่า <span>— หน้าเดียวจบ 4 กลุ่ม: อุปกรณ์ · เสียง · การนอน · ข้อมูล (ภาษา ไทย/EN อยู่แถวสุดท้าย)</span></p>
+<p class="cap">09 · ตั้งค่า <span>— หน้าเดียวจบ 4 กลุ่ม: อุปกรณ์ 3 หมวด (ชีพจร · เสียง · ดวงตา) + ค้นหาอุปกรณ์ · เสียง · การนอน · ข้อมูล</span></p>
 <div class="rowf">
 
   <div class="frame m">
@@ -289,19 +292,24 @@ h1.big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
         <div class="lbl">อุปกรณ์</div>
         <div class="card p0">
           <div class="li">
-            <svg class="i cv"><use href="#i-watch"/></svg>
-            <div class="ti"><b>ตัววัดหัวใจ · Apple Watch</b></div>
-            <div class="val">84%</div><svg class="i sm cv"><use href="#i-cv"/></svg>
+            <span class="em">💓</span>
+            <div class="ti"><b>ชีพจร / การขยับ</b></div>
+            <div class="val">Apple Watch · 84%</div><svg class="i sm cv"><use href="#i-cv"/></svg>
+          </div>
+          <div class="li">
+            <span class="em">🎧</span>
+            <div class="ti"><b>เสียง</b></div>
+            <div class="val">Sleep A20 · 92%</div><svg class="i sm cv"><use href="#i-cv"/></svg>
+          </div>
+          <div class="li off">
+            <span class="em">👁</span>
+            <div class="ti"><b>การเคลื่อนไหวดวงตา</b></div>
+            <div class="val mu">ยังไม่มี · ไม่บังคับ</div><svg class="i sm cv"><use href="#i-cv"/></svg>
           </div>
           <div class="li">
             <svg class="i cv"><use href="#i-plus"/></svg>
-            <div class="ti"><b>เพิ่มเซนเซอร์บลูทูธ</b></div>
-            <div class="val mu">Polar · Garmin</div><svg class="i sm cv"><use href="#i-cv"/></svg>
-          </div>
-          <div class="li">
-            <svg class="i cv"><use href="#i-phones"/></svg>
-            <div class="ti"><b>หูฟัง · Sleep A20</b></div>
-            <div class="val">92%</div><svg class="i sm cv"><use href="#i-cv"/></svg>
+            <div class="ti"><b>ค้นหาอุปกรณ์</b></div>
+            <svg class="i sm cv"><use href="#i-cv"/></svg>
           </div>
         </div>
       </div>

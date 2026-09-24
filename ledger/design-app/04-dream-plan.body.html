@@ -9,25 +9,36 @@
 .mini{display:flex;align-items:center;gap:6px}
 .mini .em{font-size:15px;line-height:1}
 .plan .pr .v .sub{margin-top:2px}
-
-/* ── จอ ข · พร้อมแล้ว? ─────────────────────────────────────────────── */
-.pbtn{width:54px;height:54px;border-radius:27px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--ink)}
-.pbtn svg.i{fill:currentColor;stroke:none;width:19px;margin-left:3px}
-.prow{display:flex;align-items:center;gap:12px;margin-top:9px}
-.qs{font-size:14px;font-weight:600;margin-top:9px}
-.scale.s5 div{height:36px;border-radius:13px;font-size:14px}
 .mpg>.card,.mpg>.btn{flex:none}
+
+/* ── จอ ข · ตรวจอุปกรณ์ (3 หมวด) ───────────────────────────────────── */
+.cat .hd{display:flex;align-items:center;gap:8px;padding:11px 15px 7px}
+.cat .hd .em{font-size:16px;line-height:1;width:20px;text-align:center;flex:none}
+.cat .hd .h2{flex:1;font-size:13.5px}
+.cat .hd .lbl{font-size:10.5px;flex:none}
+.cat .li{min-height:46px;padding:0 15px;gap:10px}
+.cat .li .ti b{font-size:13.5px}
+.cat .li .ti .sub{font-size:11.5px;line-height:1.4}
+.cat .li svg.i.pl{color:var(--acc);width:15px;height:15px;stroke-width:2.2}
+.cat.off{opacity:.5}
 .dv{width:9px;height:9px;border-radius:5px;background:var(--rem);flex:none;
   box-shadow:0 0 0 3px rgba(14,159,122,.16)}
-.chk .li{min-height:46px;padding:0 15px;gap:11px}
-.chk .li .em{font-size:19px;line-height:1;width:22px;text-align:center;flex:none}
-.chk .li .ti b{font-size:13.5px}
-.chk .li .ti .sub{font-size:12px}
-.chk .hd{display:flex;align-items:center;gap:8px;padding:11px 15px 8px}
-.chk .hd .h2{flex:1}
+.dv.off{background:var(--mut);box-shadow:none}
+.pc{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink2);min-height:22px}
+.pc svg.i{color:var(--rem)}
+
+/* ── จอ ค · ทดสอบเสียงสมอ ──────────────────────────────────────────── */
+.bigp{width:84px;height:84px;border-radius:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;color:var(--ink);margin:0 auto;flex:none}
+.bigp svg.i{fill:currentColor;stroke:none;width:23px;height:23px;margin-left:3px}
+.bigp span{font-size:11.5px;font-weight:600}
+.vrow{display:flex;align-items:center;font-size:11.5px;color:var(--mut)}
+.qs{font-size:14px;font-weight:600}
+.scale.s5 div{height:38px;border-radius:14px;font-size:14.5px}
+.note .fade{opacity:.45}
 </style>
 
-<p class="cap">04 · แผนคืนนี้ → พร้อมแล้ว? <span>— ก) สัญญาของคืนนี้ · ข) จำเสียงสมอ (สุ่มรอบ) + ตรวจอุปกรณ์ 5 ข้อ แล้วจึงเริ่มได้</span></p>
+<p class="cap">04 · แผนคืนนี้ → ตรวจอุปกรณ์ → ทดสอบเสียงสมอ <span>— ก) สัญญาของคืนนี้ · ข) ขั้น 1/2 แอปสแกนแล้วบอกว่าพบอะไรใน 3 หมวด · ค) ขั้น 2/2 นับรอบเสียงสมอให้ถูก แล้วปุ่ม “เริ่มคืนนี้” จึงโผล่</span></p>
 
 <div class="rowf">
 
@@ -85,8 +96,8 @@
         <div class="pr">
           <span class="k">อุปกรณ์</span>
           <span class="v" style="display:flex;gap:14px;align-items:center">
-            <span class="mini"><svg class="i sm"><use href="#i-watch"/></svg>84%</span>
-            <span class="mini"><svg class="i sm"><use href="#i-phones"/></svg>92%</span>
+            <span class="mini"><svg class="i sm"><use href="#i-heart"/></svg>1</span>
+            <span class="mini"><svg class="i sm"><use href="#i-phones"/></svg>1</span>
             <span class="chip rem sm"><svg class="i xs"><use href="#i-check"/></svg>ต่อแล้ว</span>
           </span>
         </div>
@@ -98,100 +109,166 @@
       </div>
 
       <div class="sp"></div>
-      <a class="btn pri blk big" style="font-size:15.5px">ไปต่อ · จำเสียง + ตรวจอุปกรณ์</a>
+      <a class="btn pri blk big">ไปต่อ · ตรวจอุปกรณ์</a>
       <div class="lbl" style="text-align:center;margin-top:10px">แก้แผนได้โดยพิมพ์บอก</div>
       <div style="height:10px"></div>
     </div>
     <div class="home"></div>
   </div>
 
-  <!-- ══ จอ ข · พร้อมแล้ว? ══ -->
+  <!-- ══ จอ ข · ตรวจอุปกรณ์ (ขั้น 1/2) ══ -->
   <div class="frame m">
     <div class="sbar">22:47<div class="isl"></div><div class="r">86%</div></div>
     <div class="nav">
       <div class="gbtn"><svg class="i"><use href="#i-back"/></svg></div>
-      <div class="t">พร้อมแล้ว?</div>
+      <div class="t">ตรวจอุปกรณ์</div>
+      <div class="sp"></div>
+      <div class="lbl">ขั้น 1/2</div>
     </div>
     <div class="mpg">
 
-      <!-- การ์ด 1 · จำเสียงสมอ -->
-      <div class="card" style="padding:14px">
-        <div class="ch"><div class="h2">จำเสียงสมอ</div></div>
-        <div class="sub">ใส่หูฟัง แล้วฟังให้ดี — ผมจะเล่นเสียงสมอสุ่มหลายรอบ</div>
-
-        <div class="prow">
-          <span class="glass pbtn"><svg class="i"><use href="#i-play"/></svg></span>
-          <div style="flex:none">
-            <b style="font-size:13.5px;display:block">เล่นอีกครั้ง</b>
-            <span class="lbl">“คุณกำลังฝันอยู่…”</span>
-          </div>
-          <div class="sp"></div>
-          <div class="wave" style="height:34px">
-            <i style="height:9px"></i><i style="height:17px"></i><i style="height:27px"></i><i style="height:13px"></i>
-            <i style="height:21px"></i><i style="height:32px"></i><i style="height:19px"></i><i style="height:11px"></i>
-            <i style="height:24px"></i><i style="height:30px"></i><i style="height:15px"></i><i style="height:22px"></i>
-          </div>
-        </div>
-
-        <div class="qs">ได้ยินกี่รอบ?</div>
-        <div class="scale s5" style="margin-top:8px">
-          <div>1</div><div>2</div><div>3</div><div class="on">4</div><div>5</div>
-        </div>
-        <div style="margin-top:9px">
-          <span class="chip rem sm"><svg class="i xs"><use href="#i-check"/></svg>ถูกต้อง 4 รอบ · จำได้แล้ว 2/2</span>
-        </div>
-        <div class="lbl" style="margin-top:7px">ตอบผิดจะเล่นใหม่ · ต้องถูก 2 รอบติด</div>
+      <div>
+        <span class="chip rem sm"><svg class="i xs"><use href="#i-check"/></svg>พร้อม · ชีพจร 1 · เสียง 1</span>
       </div>
 
-      <!-- การ์ด 2 · ตรวจอุปกรณ์ -->
-      <div class="card p0 chk">
+      <!-- หมวด 1 · ชีพจร / การขยับ -->
+      <div class="card p0 cat">
         <div class="hd">
-          <div class="h2">ตรวจอุปกรณ์</div>
-          <span class="chip rem sm"><svg class="i xs"><use href="#i-check"/></svg>พร้อม 5/5</span>
+          <span class="em">💓</span>
+          <div class="h2">ชีพจร / การขยับ</div>
+          <span class="lbl">ต้องมี ≥ 1</span>
         </div>
         <div class="li">
-          <span class="em">⌚</span>
-          <div class="ti"><b>ตัววัดหัวใจ</b><div class="sub">Apple Watch — ต่อแล้ว · หัวใจ 62</div></div>
+          <div class="ti">
+            <b>Apple Watch Series 9</b>
+            <div class="sub">ต่อแล้ว · หัวใจ 62 · แบต 84%</div>
+          </div>
           <span class="dv"></span>
         </div>
         <div class="li">
+          <svg class="i pl"><use href="#i-plus"/></svg>
+          <div class="ti">
+            <b>ค้นหาอุปกรณ์อื่น</b>
+            <div class="sub mu">สายคาดอก · ปลอกแขน · มือถือบนที่นอน</div>
+          </div>
+          <svg class="i sm cv"><use href="#i-cv"/></svg>
+        </div>
+      </div>
+
+      <!-- หมวด 2 · เสียง -->
+      <div class="card p0 cat">
+        <div class="hd">
           <span class="em">🎧</span>
-          <div class="ti"><b>หูฟัง</b><div class="sub">Sleep A20 — ต่อแล้ว · แบต 92% ≈ 11 ชม.</div></div>
+          <div class="h2">เสียง</div>
+          <span class="lbl">ต้องมี ≥ 1</span>
+        </div>
+        <div class="li">
+          <div class="ti">
+            <b>Sleep A20</b>
+            <div class="sub">ต่อแล้ว · แบต 92% ≈ 11 ชม.</div>
+          </div>
           <span class="dv"></span>
         </div>
         <div class="li">
-          <span class="em">🔊</span>
-          <div class="ti"><b>เสียงออกหูฟัง</b><div class="sub">ผ่าน (จากขั้นจำเสียง)</div></div>
-          <span class="dv"></span>
+          <svg class="i pl"><use href="#i-plus"/></svg>
+          <div class="ti"><b>ค้นหาอุปกรณ์อื่น</b></div>
+          <svg class="i sm cv"><use href="#i-cv"/></svg>
+        </div>
+      </div>
+
+      <!-- หมวด 3 · การเคลื่อนไหวดวงตา (อนาคต) -->
+      <div class="card p0 cat off">
+        <div class="hd">
+          <span class="em">👁</span>
+          <div class="h2">การเคลื่อนไหวดวงตา</div>
+          <span class="lbl">ไม่บังคับ</span>
         </div>
         <div class="li">
-          <span class="em">🔋</span>
-          <div class="ti"><b>iPhone</b><div class="sub">ชาร์จอยู่ 78%</div></div>
-          <span class="dv"></span>
+          <div class="ti">
+            <b>ยังไม่มีอุปกรณ์</b>
+            <div class="sub">รองรับ Dream Mask ในอนาคต</div>
+          </div>
+          <span class="dv off"></span>
         </div>
-        <div class="li">
-          <span class="em">🔕</span>
-          <div class="ti"><b>ห้ามรบกวน</b><div class="sub">อนุญาตเสียงของแอปแล้ว</div></div>
-          <span class="dv"></span>
+      </div>
+
+      <!-- การ์ดเล็ก · มือถือ -->
+      <div class="card" style="padding:12px 15px 11px">
+        <div class="h2" style="font-size:13.5px;margin-bottom:6px">มือถือ</div>
+        <div class="pc"><svg class="i xs"><use href="#i-check"/></svg>iPhone ชาร์จอยู่ 78%</div>
+        <div class="pc"><svg class="i xs"><use href="#i-check"/></svg>ห้ามรบกวน — อนุญาตเสียงของแอปแล้ว</div>
+      </div>
+
+      <div class="sp"></div>
+      <a class="btn pri blk">ถัดไป · ทดสอบเสียง</a>
+      <div style="height:10px"></div>
+    </div>
+    <div class="home"></div>
+  </div>
+
+  <!-- ══ จอ ค · ทดสอบเสียงสมอ (ขั้น 2/2) ══ -->
+  <div class="frame m">
+    <div class="sbar">22:49<div class="isl"></div><div class="r">86%</div></div>
+    <div class="nav">
+      <div class="gbtn"><svg class="i"><use href="#i-back"/></svg></div>
+      <div class="t">ทดสอบเสียงสมอ</div>
+      <div class="sp"></div>
+      <div class="lbl">ขั้น 2/2</div>
+    </div>
+    <div class="mpg">
+
+      <div class="sub" style="line-height:1.55;margin:0 2px">ใส่หูฟัง แล้วฟังให้ดี — ผมจะเล่นเสียงสมอสุ่มหลายรอบ</div>
+
+      <!-- เล่นเสียง -->
+      <div class="card" style="padding:18px 16px 14px;text-align:center">
+        <div class="glass bigp"><svg class="i"><use href="#i-play"/></svg><span>เล่น</span></div>
+        <div style="font-size:14.5px;font-weight:600;margin-top:12px">“คุณกำลังฝันอยู่…”</div>
+        <div class="wave" style="justify-content:center;margin-top:10px">
+          <i style="height:8px"></i><i style="height:15px"></i><i style="height:25px"></i><i style="height:12px"></i>
+          <i style="height:20px"></i><i style="height:31px"></i><i style="height:18px"></i><i style="height:10px"></i>
+          <i style="height:23px"></i><i style="height:29px"></i><i style="height:14px"></i><i style="height:21px"></i>
+          <i style="height:27px"></i><i style="height:13px"></i><i style="height:19px"></i><i style="height:9px"></i>
+        </div>
+      </div>
+
+      <!-- ระดับเสียง -->
+      <div class="card" style="padding:13px 16px 4px">
+        <div class="vrow"><span>เบาไป</span><div class="sp"></div><span>ดังไป</span></div>
+        <div class="slider"><i style="width:15%"></i><b style="left:15%"></b></div>
+        <div class="lbl" style="text-align:center;margin-top:-6px">ระดับ 15% — เบามากคือถูกแล้ว</div>
+        <div style="height:10px"></div>
+      </div>
+
+      <!-- คำถาม -->
+      <div class="card" style="padding:14px 16px">
+        <div class="qs">ได้ยินกี่รอบ?</div>
+        <div class="scale s5" style="margin-top:9px">
+          <div>1</div><div>2</div><div>3</div><div class="on">4</div><div>5</div>
+        </div>
+        <div style="margin-top:11px">
+          <span class="chip rem sm"><svg class="i xs"><use href="#i-check"/></svg>ถูกต้อง · คุณจำเสียงนี้ได้แล้ว</span>
         </div>
       </div>
 
       <div class="sp"></div>
       <a class="btn pri blk big">เริ่มคืนนี้</a>
-      <div class="lbl" style="text-align:center;margin-top:8px">ครบทั้งสองส่วนแล้ว · เริ่มแล้วจอจะมืดเอง</div>
+      <div class="lbl" style="text-align:center;margin-top:9px">เริ่มแล้วจอจะมืดเอง</div>
       <div style="height:8px"></div>
     </div>
     <div class="home"></div>
   </div>
 
   <div class="note">
-    <b>ก่อนจะเริ่มได้ ต้องผ่าน 2 ด่านบนจอเดียว</b><br><br>
-    <b>1 · จำเสียงสมอ</b> — แอปเล่นเสียงสมอ <b>สุ่ม 2–5 รอบ</b> (เว้นช่วงสุ่ม 1–3 วิ) แล้วถาม “ได้ยินกี่รอบ?” ตอบผิดเล่นใหม่ · ต้องถูก <b>2 รอบติด</b><br>
-    ทำไมต้องสุ่มจำนวนรอบ: ถ้าบอกล่วงหน้าว่าจะเล่นกี่รอบ สมองไม่ต้องตั้งใจฟัง — การนับเองบังคับให้ <b>ตั้งใจ</b> ซึ่งก็คือการฝึกจำเสียง (TLR) ที่วัดผลได้ · และตอบถูกยัง <b>พิสูจน์ว่าเสียงออกหูฟังจริงที่ระดับความดังนี้</b> (แถว 🔊 ในเช็กลิสต์จึงเขียวเองจากขั้นนี้)<br><br>
-    <b>2 · ตรวจอุปกรณ์ 5 ข้อ</b> — ต้องเขียวครบ: หัวใจเข้าใน 10 วิล่าสุด · หูฟังแบตพอถึงเช้า (≥ 8 ชม.) · เสียงออกหูฟัง · iPhone ชาร์จอยู่หรือแบต ≥ 50% · ห้ามรบกวนไม่ตัดเสียงของแอป<br><br>
-    <b>ถ้าไม่ครบ</b> ปุ่มจะกลายเป็นสีแดงจาง กดไม่ได้ และบอกตรง ๆ ว่าต้องแก้อะไร<br>
-    <span class="btn dg sm" style="margin-top:6px">แก้ก่อนเริ่ม: หูฟังแบตไม่พอ</span><br><br>
-    ไม่มีแถบแท็บทั้ง 2 จอ — ทางออกมีทางเดียวคือ “เริ่มคืนนี้” หรือย้อนกลับไปคุยต่อ
+    <b>ทำไมแยกเป็น 2 หน้า</b> — คนละเรื่องกัน: <b>ของพร้อม</b> (อุปกรณ์ต่อแล้ว แบตพอถึงเช้า) กับ <b>หูพร้อม</b> (เสียงออกหูฟังจริง และคุณจำเสียงนั้นได้) · รวมไว้จอเดียวจะกลายเป็นเช็กลิสต์ยาวที่คนกดผ่าน ๆ<br><br>
+    <b>ขั้น 1/2 · ตรวจอุปกรณ์</b> — ใช้อุปกรณ์อะไรก็ได้ แอปสแกน/เชื่อมต่อเองแล้ว<b>บอกว่าพบอะไร</b>ในแต่ละหมวด (ชื่อ · สถานะ · แบต) · ต้องมีอย่างน้อย 1 ในหมวด 💓 ชีพจร/การขยับ และ 1 ในหมวด 🎧 เสียง · 👁 ดวงตาเป็นของอนาคต ไม่บังคับ · ถ้าขาดหมวดบังคับ ปุ่มจะเป็นสีแดงจางและบอกตรง ๆ ว่าขาดอะไร<br>
+    <span class="btn dg sm" style="margin-top:6px">ต้องมีอุปกรณ์วัดชีพจร</span><br><br>
+    <b>ขั้น 2/2 · ทดสอบเสียงสมอ</b> — เล่นเสียงสมอ <b>สุ่ม 2–5 รอบ</b> (เว้นช่วงสุ่ม 1–3 วิ) แล้วถาม “ได้ยินกี่รอบ?”<br>
+    ทำไมต้องสุ่มจำนวนรอบ: ถ้ารู้ล่วงหน้าว่ากี่รอบ สมองไม่ต้องตั้งใจฟัง — การนับเองบังคับให้ <b>ตั้งใจ</b> ซึ่งก็คือการฝึกจำเสียงแบบ TLR ที่วัดผลได้ · และตอบถูกยังพิสูจน์ว่าเสียงออกหูฟังจริงที่ระดับความดังนี้<br>
+    <b>ตอบผิด</b> = ไม่ดุ ไม่ล็อก แค่ขึ้น “ยังไม่ตรง ลองฟังใหม่” แล้ว<b>เล่นรอบใหม่อัตโนมัติด้วยจำนวนรอบที่สุ่มใหม่</b><br>
+    <b>ก่อนตอบถูก</b> ปุ่มล่างยังเป็นปุ่มจางกดไม่ได้:<br>
+    <span class="btn gh sm fade" style="margin-top:6px">ตอบให้ถูกก่อนเริ่ม</span><br>
+    ตอบถูกแล้วจึงกลายเป็นปุ่มดำ <b>“เริ่มคืนนี้”</b> → ambience → จอมืดเอง<br><br>
+    ทั้ง 3 จอไม่มีแถบแท็บ — ทางออกมีทางเดียวคือเดินหน้าไปเริ่มคืน หรือย้อนกลับไปคุยต่อ
   </div>
 
 </div>

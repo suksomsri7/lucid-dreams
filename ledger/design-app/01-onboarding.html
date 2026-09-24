@@ -279,9 +279,22 @@ h1.big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
 .chip.rem.sm{font-size:11.5px;padding:0 9px;gap:4px}
 .li.tall{min-height:58px;padding-top:11px;padding-bottom:11px;align-items:flex-start}
 .li.tall .ti b{line-height:1.35}
+/* ── จอ ข · อุปกรณ์ 3 หมวด ─────────────────────────────────────────── */
+.cat .hd{display:flex;align-items:center;gap:8px;padding:12px 15px 8px}
+.cat .hd .em{font-size:17px;line-height:1;width:22px;text-align:center;flex:none}
+.cat .hd .h2{flex:1;font-size:14px}
+.cat .hd .lbl{font-size:10.5px;flex:none}
+.cat .li{min-height:48px;padding:0 15px;gap:10px}
+.cat .li .ti b{font-size:13.5px}
+.cat .li .ti .sub{font-size:11.5px;line-height:1.4}
+.cat .li svg.i.pl{color:var(--acc);width:15px;height:15px;stroke-width:2.2}
+.cat.off{opacity:.5}
+.dot9{width:9px;height:9px;border-radius:5px;background:var(--rem);flex:none;
+  box-shadow:0 0 0 3px rgba(14,159,122,.16)}
+.dot9.off{background:var(--mut);box-shadow:none}
 </style>
 
-<p class="cap">01 · เริ่มใช้งาน <span>— ยินดีต้อนรับ + ข้อควรรู้ + รับทราบ · จับคู่อุปกรณ์และทดสอบเสียง</span></p>
+<p class="cap">01 · เริ่มใช้งาน <span>— ก) ยินดีต้อนรับ + ข้อควรรู้ + รับทราบ · ข) อุปกรณ์ 3 หมวด แอปสแกนแล้วบอกว่าพบอะไร (ทดสอบเสียงย้ายไปทำก่อนเริ่มทุกคืน)</span></p>
 
 <div class="rowf">
 
@@ -339,41 +352,72 @@ h1.big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
       <div class="lbl">ขั้นที่ 2 จาก 2</div>
     </div>
     <div class="mpg">
-      <div class="lbl" style="margin:2px 0 -4px 4px">ตัววัดหัวใจและการขยับ</div>
-      <div class="card p0">
-        <div class="li">
-          <svg class="i"><use href="#i-watch"/></svg>
-          <div class="ti"><b class="dv">ตัววัดหัวใจ · Apple Watch</b><div class="sub">Series 9 · ใส่นอนได้ทั้งคืน</div></div>
-          <span class="chip rem sm"><svg class="i xs"><use href="#i-check"/></svg>พบแล้ว 84%</span>
-        </div>
-        <div class="li">
-          <svg class="i"><use href="#i-plus"/></svg>
-          <div class="ti"><b class="dv">เพิ่มเซนเซอร์บลูทูธ</b><div class="sub">Polar H10 / Garmin</div></div>
-          <svg class="i cv"><use href="#i-cv"/></svg>
-        </div>
-      </div>
+      <div class="sub" style="margin:0 2px;line-height:1.55">แอปค้นหาและเชื่อมต่อให้เอง แล้วบอกว่าพบอะไรบ้าง — ใช้อุปกรณ์อะไรก็ได้ที่คุณมี</div>
 
-      <div class="lbl" style="margin:8px 0 -4px 4px">เสียง</div>
-      <div class="card p0">
-        <div class="li">
-          <svg class="i"><use href="#i-phones"/></svg>
-          <div class="ti"><b class="dv">หูฟัง · Sleep A20</b><div class="sub">หูฟังนอน · เชื่อมต่อแล้ว</div></div>
-          <span class="chip rem sm"><svg class="i xs"><use href="#i-check"/></svg>พบแล้ว 92%</span>
+      <!-- หมวด 1 · ชีพจร / การขยับ -->
+      <div class="card p0 cat">
+        <div class="hd">
+          <span class="em">💓</span>
+          <div class="h2">ชีพจร / การขยับ</div>
+          <span class="lbl">ต้องมี ≥ 1</span>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="ch"><div class="h2">ทดสอบเสียง</div><span class="lbl">ระดับ 15%</span></div>
-        <div class="row">
-          <div class="glass rb"><svg class="i"><use href="#i-play"/></svg></div>
-          <div style="flex:1">
-            <div style="font-size:14.5px;font-weight:600">“ได้ยินไหม”</div>
-            <div class="sub">เสียงผู้หญิง · กระซิบ · ไทย</div>
+        <div class="li">
+          <div class="ti">
+            <b>Apple Watch Series 9</b>
+            <div class="sub">ต่อแล้ว · ใส่นอนได้ทั้งคืน · แบต 84%</div>
           </div>
-          <svg class="i mu"><use href="#i-vol"/></svg>
+          <span class="dot9"></span>
         </div>
-        <div class="slider"><i style="width:15%"></i><b style="left:15%"></b></div>
-        <div class="lbl">เบามาก — ถ้าไม่ได้ยิน เลื่อนขึ้นทีละนิด</div>
+        <div class="li">
+          <svg class="i pl"><use href="#i-plus"/></svg>
+          <div class="ti">
+            <b>ค้นหาอุปกรณ์อื่น</b>
+            <div class="sub mu">สายคาดอก · ปลอกแขน · มือถือบนที่นอน</div>
+          </div>
+          <svg class="i sm cv"><use href="#i-cv"/></svg>
+        </div>
+      </div>
+
+      <!-- หมวด 2 · เสียง -->
+      <div class="card p0 cat">
+        <div class="hd">
+          <span class="em">🎧</span>
+          <div class="h2">เสียง</div>
+          <span class="lbl">ต้องมี ≥ 1</span>
+        </div>
+        <div class="li">
+          <div class="ti">
+            <b>Sleep A20</b>
+            <div class="sub">ต่อแล้ว · หูฟังนอน · แบต 92%</div>
+          </div>
+          <span class="dot9"></span>
+        </div>
+        <div class="li">
+          <svg class="i pl"><use href="#i-plus"/></svg>
+          <div class="ti"><b>ค้นหาอุปกรณ์อื่น</b></div>
+          <svg class="i sm cv"><use href="#i-cv"/></svg>
+        </div>
+      </div>
+
+      <!-- หมวด 3 · การเคลื่อนไหวดวงตา -->
+      <div class="card p0 cat off">
+        <div class="hd">
+          <span class="em">👁</span>
+          <div class="h2">การเคลื่อนไหวดวงตา</div>
+          <span class="lbl">ไม่บังคับ</span>
+        </div>
+        <div class="li">
+          <div class="ti">
+            <b>ยังไม่มีอุปกรณ์</b>
+            <div class="sub">ไม่บังคับ · รองรับ Dream Mask ในอนาคต</div>
+          </div>
+          <span class="dot9 off"></span>
+        </div>
+      </div>
+
+      <div class="card soft" style="border-radius:20px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+        <svg class="i sm mu" style="margin-top:2px"><use href="#i-info"/></svg>
+        <div class="sub">การทดสอบเสียงย้ายไปทำก่อนเริ่มทุกคืน — จะได้รู้ทุกคืนว่าเสียงออกหูฟังจริง</div>
       </div>
 
       <div class="sp"></div>
