@@ -124,6 +124,19 @@ export function __resetOnboardingStateForTests(): void {
   emit();
 }
 
+/**
+ * Real reset path — the last step of Settings › ลบทั้งหมด (WO L3.6, mockup 09's "ลบทั้งหมด"
+ * button). Same effect as {@link __resetOnboardingStateForTests}; the caller
+ * (`app/(tabs)/settings.tsx`) always clears `AsyncStorage` wholesale immediately before
+ * or after this, so no persist call is needed here — only the in-memory state, so the
+ * app currently running redirects to `/onboarding` on its very next render.
+ */
+export function resetOnboardingAfterDeleteAll(): void {
+  state = DEFAULT_STATE;
+  hydrated = true;
+  emit();
+}
+
 /** Re-renders whenever the state or the hydration flag changes. */
 export function useOnboardingState(): OnboardingState & { hydrated: boolean } {
   const snapshot = useSyncExternalStore(subscribe, getOnboardingState, getOnboardingState);

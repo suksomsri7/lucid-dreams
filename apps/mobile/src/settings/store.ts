@@ -185,3 +185,10 @@ export function __resetSettingsForTests(): void {
   hydrated = true;
   emit();
 }
+
+/** Real reset path — Settings › ลบทั้งหมด (WO L3.6). See `store/onboarding.ts#resetOnboardingAfterDeleteAll`'s doc comment; same shape, same reason no persist call is needed here. */
+export function resetSettingsAfterDeleteAll(): void {
+  state = DEFAULT_SETTINGS;
+  hydrated = true;
+  emit();
+}

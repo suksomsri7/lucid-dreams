@@ -158,3 +158,20 @@ export function clearAnchorCache(): void {
   const dir = anchorDirectory();
   if (dir.exists) dir.delete();
 }
+
+/**
+ * Settings › รีเซ็ตลายน้ำ (WO L3.6, mockup `09-settings.png`'s "รีเซ็ตลายน้ำ" row — DESIGN
+ * §2 principle 3: "เปลี่ยนไม่ได้ยกเว้น 'รีเซ็ตลายน้ำ' ... เตือนว่าต้องฝึกใหม่"). A brand new
+ * per-install seed makes `buildAnchorSignature` produce a completely different melody —
+ * the cached renders of the *old* one are deleted too, so nothing stale can ever play
+ * again by accident (`ensureAnchorWavUri` caches by the signature's own hash, so an old
+ * file left on disk would simply never be looked up again either way, but deleting it is
+ * one less file for "ส่งออก"/diagnostics to ever have to explain).
+ */
+export async function resetAnchorSeed(): Promise<string> {
+  const fresh = randomSeed();
+  cachedAnchorSeed = fresh;
+  await AsyncStorage.setItem(ANCHOR_SEED_STORAGE_KEY, fresh).catch(() => undefined);
+  clearAnchorCache();
+  return fresh;
+}
