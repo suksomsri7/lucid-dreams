@@ -318,43 +318,66 @@ function placeWakeBouts(
   const bouts: SimWakeBout[] = [];
   if (wakeCount <= 0) return bouts;
 
-  // Total WAKE (including the morning) stays under 10 % of the record, so a night
-  // with many awakenings is still a night (oracle E4: WAKE ≤ 12 %).
-  const wakeBudget = Math.max(0, Math.floor(stages.length * 0.1) - morningEpochs);
-  const maxPerBout = Math.max(4, Math.floor(wakeBudget / wakeCount));
+  /** 2 min — shorter than this is a position change, not an awakening (DESIGN §5.4). */
+  const MIN_BOUT = 4;
+  /** 8 min — longer than this is "awake in the middle of the night", a different story. */
+  const MAX_BOUT = 16;
 
-  // Candidate windows: start of a light-sleep segment, at least one hour after onset.
+  // Total WAKE (including the morning) stays under 11.5 % of the record, so even a
+  // night with eight awakenings is still a night (oracle E4: WAKE ≤ 12 %).
+  const wakeBudget = Math.max(0, Math.floor(stages.length * 0.115) - morningEpochs);
+  if (wakeBudget < MIN_BOUT) return bouts;
+  const maxPerBout = clamp(Math.floor(wakeBudget / wakeCount), MIN_BOUT, MAX_BOUT);
+
+  // Candidate windows in light sleep, at least one hour after onset. `offset 0` of a
+  // segment is a *primary* window (the natural place: right where the previous stage
+  // ended); later offsets are *fillers*, only used when many awakenings are asked for.
   interface Candidate { start: number; room: number; afterRem: boolean; cycle: number }
-  const candidates: Candidate[] = [];
+  const primary: Candidate[] = [];
+  const fillers: Candidate[] = [];
   let cursor = 0;
   for (let s = 0; s < segments.length; s += 1) {
     const seg = segments[s] as Segment;
     const prev = s > 0 ? (segments[s - 1] as Segment) : null;
     if (seg.stage === 'N2' || seg.stage === 'N1') {
-      const start = cursor;
-      if (start - onsetIndex >= 60 * EPOCHS_PER_MIN && start + 6 < stages.length - morningEpochs) {
-        candidates.push({
+      for (let offset = 0; offset + MIN_BOUT + 2 <= seg.length; offset += MIN_BOUT + 2) {
+        const start = cursor + offset;
+        if (start - onsetIndex < 60 * EPOCHS_PER_MIN) continue;
+        if (start + MIN_BOUT + 2 > stages.length - morningEpochs) break;
+        const candidate: Candidate = {
           start,
-          room: seg.length - 2,
-          afterRem: prev?.stage === 'REM',
+          room: seg.length - offset - 2,
+          afterRem: offset === 0 && prev?.stage === 'REM',
           cycle: seg.cycle,
-        });
+        };
+        (offset === 0 ? primary : fillers).push(candidate);
       }
     }
     cursor += seg.length;
   }
 
-  // Post-REM windows first, latest cycles first; then anything else, shuffled.
-  const preferred = candidates.filter((c) => c.afterRem).sort((a, b) => b.cycle - a.cycle);
-  const rest = rng.shuffle(candidates.filter((c) => !c.afterRem));
-  const ordered = [...preferred, ...rest].filter((c) => c.room >= 4);
+  // Post-REM windows first, latest cycles first (that is where awakenings really
+  // cluster); then the other primary windows, shuffled; fillers last.
+  const preferred = primary.filter((c) => c.afterRem).sort((a, b) => b.cycle - a.cycle);
+  const rest = rng.shuffle(primary.filter((c) => !c.afterRem));
+  const ordered = [...preferred, ...rest, ...fillers].filter((c) => c.room >= MIN_BOUT);
 
   let spent = 0;
   for (const cand of ordered) {
     if (bouts.length >= wakeCount) break;
-    const want = rng.int(4, 16);
+    const want = rng.int(MIN_BOUT, MAX_BOUT);
     const length = Math.min(want, maxPerBout, cand.room, Math.max(0, wakeBudget - spent));
-    if (length < 4) continue;
+    if (length < MIN_BOUT) continue;
+
+    // Two bouts must never touch, or they would read as one long awakening: keep a
+    // sleeping epoch on each side (the one after is the N1 re-entry written below).
+    let free = cand.start > 0 && stages[cand.start - 1] !== 'WAKE';
+    for (let i = 0; free && i <= length + 1; i += 1) {
+      const at = cand.start + i;
+      if (at >= stages.length - morningEpochs || stages[at] === 'WAKE') free = false;
+    }
+    if (!free) continue;
+
     for (let i = 0; i < length; i += 1) stages[cand.start + i] = 'WAKE';
     // Sleep is re-entered through N1, never straight back into N2/N3.
     for (let i = 0; i < 2; i += 1) {
