@@ -1,12 +1,66 @@
+/// <reference types="node" />
+// This file runs under plain Node at `expo prebuild`/config-eval time (never bundled
+// into the app), so it needs `@types/node` — the rest of `apps/mobile` deliberately does
+// not pull it in globally (`expo/types`, referenced via `expo-env.d.ts`, covers the
+// handful of Node-ish ambients the RN code itself needs, like `process.env`). Confirmed
+// this one-file reference does not change `pnpm typecheck`'s result for any other file.
+import fs from 'node:fs';
+import path from 'node:path';
+
+import { withDangerousMod, type ConfigPlugin } from '@expo/config-plugins';
 import type { ConfigContext, ExpoConfig } from 'expo/config';
+
+const INFO_PLIST_LOCALES = ['en', 'th'] as const;
+
+/**
+ * Copies `locales/<lang>/InfoPlist.strings` into the generated Xcode project's
+ * `<lang>.lproj/InfoPlist.strings` (APP-RUN §0.5 S10 · WO L1.3) so the system
+ * permission prompts iOS shows are actually localised, not just the base
+ * `ios.infoPlist` English text below.
+ *
+ * Deliberately scoped to *file placement* only — it does not register the files as a
+ * `PBXVariantGroup` in the generated `.pbxproj` (the step that makes a real Xcode build
+ * embed and use them). There is no Mac/Xcode on this VPS to test that against, and
+ * getting pbxproj surgery wrong risks a broken project file that only surfaces the next
+ * time someone attempts a real iOS build — worse than the current, honestly documented
+ * gap. Verified instead by running `expo prebuild -p ios --no-install` and confirming
+ * both `.strings` files land on disk (`ledger/wo-notes/L1.3.md` §"S10"); full Xcode
+ * target wiring is left as a debt for whoever does the first real device build (R1) or
+ * L3.6 (which already owns the rest of Store compliance, e.g. `PrivacyInfo.xcprivacy`).
+ *
+ * Defined inline here rather than in its own `plugins/*.ts` file: `expo/config`'s loader
+ * transpiles this single file on the fly but does not run a second require through the
+ * same TS-aware loader for a sibling relative import, so `require('./plugins/...')`
+ * failed at prebuild with `Cannot find module` (confirmed by running the prebuild below
+ * before moving the code here).
+ */
+const withInfoPlistLocales: ConfigPlugin = (config) =>
+  withDangerousMod(config, [
+    'ios',
+    (modConfig) => {
+      const { platformProjectRoot, projectName, projectRoot } = modConfig.modRequest;
+      if (!projectName) return modConfig;
+
+      for (const locale of INFO_PLIST_LOCALES) {
+        const source = path.join(projectRoot, 'locales', locale, 'InfoPlist.strings');
+        if (!fs.existsSync(source)) continue;
+
+        const targetDir = path.join(platformProjectRoot, projectName, `${locale}.lproj`);
+        fs.mkdirSync(targetDir, { recursive: true });
+        fs.copyFileSync(source, path.join(targetDir, 'InfoPlist.strings'));
+      }
+
+      return modConfig;
+    },
+  ]);
 
 /**
  * Expo config for Lucid Dream (iOS first, Android-ready — APP-RUN §0.2 rule 8).
  *
- * All permission copy below is English and plain, because iOS shows these strings
- * verbatim in the system prompt. The Thai versions live in `src/i18n/th.ts` and are
- * shown by our own pre-permission screens (APP-RUN §0.5 S10 wants TH+EN copy).
- * Info.plist itself can be localised later with `InfoPlist.strings` in R1+.
+ * All permission copy below is the English base Expo puts in `Info.plist` directly.
+ * The real, localised prompt text (what iOS actually shows the user, TH+EN — APP-RUN
+ * §0.5 S10) lives in `locales/{en,th}/InfoPlist.strings` and is copied into the
+ * generated project by `withInfoPlistLocales` below (WO L1.3).
  */
 
 const IOS_BUNDLE_ID = 'app.luciddream.ios'; // placeholder until the new Apple account exists (APP-RUN §0.3)
@@ -56,6 +110,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       // การนอนมาก่อน (DESIGN §2.1): แอปไม่มี UI กลางคืน จอดับได้
       UIRequiresFullScreen: false,
       ITSAppUsesNonExemptEncryption: false,
+      // S10 (APP-RUN §0.5): the app supports Thai + English (DESIGN §2.7 "สองภาษาเท่ากัน")
+      // — the actual translated permission strings live in `locales/{en,th}/InfoPlist.strings`
+      // and are copied into the generated project by `withInfoPlistLocales` below.
+      CFBundleLocalizations: ['en', 'th'],
     },
     entitlements: {
       'com.apple.developer.healthkit': true,
@@ -87,6 +145,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         appleTeamId: process.env.EXPO_APPLE_TEAM_ID,
       },
     ],
+    // S10 permission-string localisation (WO L1.3) — see `withInfoPlistLocales` above.
+    // `@expo/config-types`'s `ExpoConfig['plugins']` type only lists `string | [string,
+    // any]` entries, even though `expo/config`'s actual plugin resolver accepts a bare
+    // `ConfigPlugin` function at runtime (confirmed by the prebuild run in
+    // `ledger/wo-notes/L1.3.md` — the file really does land). Cast to bridge that
+    // type-vs-runtime gap rather than widen the whole `plugins` array's type.
+    withInfoPlistLocales as unknown as string,
   ],
 
   extra: {

@@ -7,6 +7,7 @@ import {
   IosDeviceInfoReader,
   IosHealthImport,
   IosLiveStatus,
+  IosNotificationsPermission,
   IosSpeechToText,
 } from './ios/IosPeripherals';
 import { WatchSensorSource } from './ios/WatchSensorSource';
@@ -21,6 +22,7 @@ export function createNativePlatform(): PlatformBundle {
     liveStatus: new IosLiveStatus(),
     healthImport: new IosHealthImport(),
     speechToText: new IosSpeechToText(),
+    notifications: new IosNotificationsPermission(),
     battery: new IosBatteryReader(),
     deviceInfo: new IosDeviceInfoReader(),
   };

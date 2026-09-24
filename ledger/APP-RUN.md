@@ -233,7 +233,8 @@
 |---|---|---|---|
 | L1.1 | ✅ DONE 24 ก.ย. (oracle 41/41 · SDK 57 · ภาพ .qc-shots/L1.1) | main |
 | L1.2 | ✅ DONE 24 ก.ย. (oracle 32/32 · parity gallery ✓ · settings Seg แก้แล้ว) | main | จอ 3 แท็บยังเป็น placeholder ตามแผน — parity ของจอจริงตัดสินที่ L1.4/L3.5/L3.6 |
-| L1.3 | ▶ building (Sonnet · wo/L1.3) | — | onboarding 2 จอ ตาม mockup 01 · oracle 20 ข้อ · parity บังคับ |
+| L1.3 | ✅ DONE 24 ก.ย. (22/22 · parity ตรง mockup 01 ทั้ง 2 จอ) | main | จุดต่างที่แก้: เอาสวิตช์ AI ออก · ปุ่มตรึงล่าง · เพิ่ม fixture QC |
+| L1.4 | ▶ building (Sonnet · wo/L1.4) | — | ห้องที่ปรึกษา UI ตาม mockup 02/03/06ก · oracle 16 ข้อ · parity บังคับ |
 | L1.5 | ▶ building (Opus · wo/L1.5) | — | สมองที่ปรึกษา (engine advisor) + apps/api (Hono+SQLite · OpenRouter provider + mock) · oracle 11+11 |
 | L1.8 | ✅ DONE 24 ก.ย. (vitest 16/16) | main | หนี้ S4: Data Protection ต้องทำเป็น config plugin ก่อน R1 (ใส่ใน L1.7) |
 | L2.1 | ✅ DONE 24 ก.ย. (vitest 23/23 · sim 200 คืน REM 22.6% · latency 81 นาที) | main | หนี้: hrSd จำลองกว้างกว่าจริง · N1 ต่ำ · fitness กฎ node:* นอก cli/ (เพิ่มที่ L2.5) |

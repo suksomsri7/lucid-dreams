@@ -54,6 +54,7 @@ export type {
   HealthImport,
   LiveStatus,
   LiveStatusContent,
+  NotificationsPermission,
   PlatformBundle,
   SensorEpoch,
   SensorSource,

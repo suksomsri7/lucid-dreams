@@ -1,0 +1,12 @@
+/* Lucid Dream — Thai localisation of the iOS permission prompts (APP-RUN §0.5 S10 ·
+   WO L1.3). Source of truth for the English copy is `app.config.ts`'s `ios.infoPlist`;
+   keep these two in sync in meaning (not literal translation) whenever a permission
+   string changes there. Copied into `ios/<project>/th.lproj/InfoPlist.strings` at
+   prebuild time by `withInfoPlistLocales` in `app.config.ts`. */
+
+"NSHealthShareUsageDescription" = "Lucid Dream อ่านข้อมูลการนอนและอัตราการเต้นของหัวใจจาก Health เพื่อบอกว่าคุณกำลังฝันอยู่ และกระซิบเฉพาะตอนนั้น";
+"NSHealthUpdateUsageDescription" = "Lucid Dream บันทึกช่วงฝึกสติที่ Apple Watch ทำขณะคุณหลับ";
+"NSMicrophoneUsageDescription" = "Lucid Dream บันทึกเสียงเล่าฝันของคุณตอนเช้าเพื่อถอดเป็นข้อความ ไฟล์เสียงเก็บอยู่ใน iPhone เครื่องนี้";
+"NSSpeechRecognitionUsageDescription" = "Lucid Dream แปลงเสียงที่บันทึกตอนเช้าเป็นข้อความบน iPhone เครื่องนี้ ไม่ต้องพิมพ์เอง";
+"NSBluetoothAlwaysUsageDescription" = "Lucid Dream เชื่อมต่อกับสายวัดชีพจรหรือปลอกแขน และหูฟังของคุณ ขณะคุณหลับ";
+"NSUserNotificationsUsageDescription" = "Lucid Dream ส่งการเช็กความจริงสั้น ๆ ระหว่างวัน และเตือนตอนเย็นก่อนเข้านอน";

@@ -13,6 +13,9 @@
  *  - `IosHealthImport` → HealthKit read access, scheduled for L2.9 (the entitlement and
  *    the usage strings are already in `app.config.ts`).
  *  - `IosSpeechToText` → `expo-speech-recognition` (DESIGN §8.2), scheduled for L1.6.
+ *  - `IosNotificationsPermission` → `expo-notifications`, scheduled for L1.7/L3.1 (the
+ *    usage string is already in `app.config.ts`; WO L1.3 only needs the ask to happen
+ *    once at onboarding, not the scheduling API).
  */
 
 import * as Battery from 'expo-battery';
@@ -26,6 +29,7 @@ import type {
   DeviceInfoReader,
   HealthImport,
   LiveStatus,
+  NotificationsPermission,
   SleepPhase,
   SpeechResult,
   SpeechToText,
@@ -62,8 +66,13 @@ export class IosHealthImport implements HealthImport {
     return false; // HealthKit bridge lands in L2.9
   }
 
-  async requestReadAccess(): Promise<boolean> {
-    return false; // never claim access we do not have (APP-RUN §0.5 S10)
+  async requestAuthorization(): Promise<boolean> {
+    // WO L1.3: no maintained Expo HealthKit module targets SDK 57 yet, so this stays a
+    // named-and-honest stub (never claim access we do not have — APP-RUN §0.5 S10) —
+    // the entitlement + usage strings are already declared in `app.config.ts` so the
+    // native bridge in L2.9 only has to fill this function in, nothing else.
+    // TODO(L2.9): call the real HealthKit authorization request here.
+    return false;
   }
 
   async fetchSleepPhases(): Promise<SleepPhase[]> {
@@ -72,6 +81,26 @@ export class IosHealthImport implements HealthImport {
 
   async fetchHeartRateSamples(): Promise<{ atIso: string; bpm: number }[]> {
     throw NOT_WIRED('HealthKit heart rate import', 'L2.9');
+  }
+}
+
+// ---------------------------------------------------------------------------
+
+/**
+ * The system notification prompt (DESIGN §3.4 daytime reality-check / evening reminder —
+ * WO L1.3 only asks for the permission at onboarding time, scheduling those is L1.7/L3.1).
+ * No `expo-notifications` dependency added yet (see the long comment on
+ * `NotificationsPermission` in `../types.ts`) — this stays declared-but-not-wired like
+ * `IosLiveStatus`/`IosHealthImport` above.
+ */
+export class IosNotificationsPermission implements NotificationsPermission {
+  async isAvailable(): Promise<boolean> {
+    return false; // becomes `true` once expo-notifications is added (L1.7/L3.1)
+  }
+
+  async requestAuthorization(): Promise<boolean> {
+    // TODO(L1.7/L3.1): call the real notification permission request here.
+    return false;
   }
 }
 

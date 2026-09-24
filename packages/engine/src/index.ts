@@ -48,6 +48,7 @@ export {
 } from './diagnostics';
 
 export {
+<<<<<<< HEAD
   type NightState,
   NIGHT_STATES,
   type SleepStage,
@@ -152,6 +153,15 @@ export {
   remLatencySec,
   wasoSec,
 } from './metrics';
+=======
+  DeviceRegistry,
+  summarizeDevices,
+  type DeviceCategory,
+  type DeviceEntry,
+  type DeviceCategorySummary,
+  type DeviceListener,
+} from './devices';
+>>>>>>> wo/L1.3
 
 /** Engine package version — reported inside diagnostics so QC knows what produced a file. */
 export const ENGINE_VERSION = '0.1.0';

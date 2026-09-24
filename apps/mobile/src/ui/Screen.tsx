@@ -5,7 +5,7 @@
  */
 
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppBackground, NightBackground } from './AppBackground';
@@ -16,26 +16,49 @@ export interface ScreenProps {
   night?: boolean;
   /** Leaves room for the floating tab bar (default true — every tab screen has one). */
   withTabBarInset?: boolean;
+  /** Extra style merged onto the `ScrollView`'s `contentContainerStyle`. */
+  contentStyle?: StyleProp<ViewStyle>;
+  /**
+   * A primary action pinned above the home indicator, content scrolling *above* it
+   * (WO L1.3 parity fix: onboarding's welcome/devices screens, mockup 01(a)/(b), both
+   * pin their button this way rather than at the end of scrolling content). Rendered as
+   * a sibling below the `ScrollView`, own `paddingBottom: insets.bottom` so it never
+   * sits under the home indicator. Screens that omit this prop keep the old
+   * button-scrolls-with-content layout untouched.
+   */
+  footer?: ReactNode;
   testID?: string;
 }
 
-export function Screen({ children, night: isNight = false, withTabBarInset = true, testID }: ScreenProps) {
+export function Screen({
+  children,
+  night: isNight = false,
+  withTabBarInset = true,
+  contentStyle,
+  footer,
+  testID,
+}: ScreenProps) {
   const insets = useSafeAreaInsets();
   const Background = isNight ? NightBackground : AppBackground;
 
   return (
     <Background style={styles.fill} testID={testID}>
       <ScrollView
+        style={styles.scroll}
         contentContainerStyle={[
           styles.content,
           {
             paddingTop: insets.top + spacing.lg,
-            paddingBottom: insets.bottom + (withTabBarInset ? 120 : spacing.xxl),
+            paddingBottom: footer ? spacing.lg : insets.bottom + (withTabBarInset ? 120 : spacing.xxl),
           },
+          contentStyle,
         ]}
       >
         {children}
       </ScrollView>
+      {footer ? (
+        <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.lg }]}>{footer}</View>
+      ) : null}
     </Background>
   );
 }
@@ -52,5 +75,7 @@ export function ScreenStatic({ children, night: isNight = false, testID }: Omit<
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  scroll: { flex: 1 },
   content: { paddingHorizontal: spacing.xl, gap: spacing.lg },
+  footer: { paddingHorizontal: spacing.xl, paddingTop: spacing.md },
 });

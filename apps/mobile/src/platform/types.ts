@@ -156,8 +156,16 @@ export interface SleepPhase {
  */
 export interface HealthImport {
   isAvailable(): Promise<boolean>;
-  /** Returns `true` only if read access was actually granted. */
-  requestReadAccess(): Promise<boolean>;
+  /**
+   * Ask for read access to sleep + heart-rate samples (DESIGN §4-01 · APP-RUN §2 L1.3).
+   * Returns `true` only if access was actually granted — a caller must never believe it
+   * has HealthKit data when it does not (APP-RUN §0.5 S10). Renamed from the L1.1 stub's
+   * `requestReadAccess` to `requestAuthorization` (WO L1.3): no call sites existed yet
+   * (grepped before renaming), and one verb for "ask the OS for this permission" matches
+   * the sibling `SpeechToText.requestPermissions()` / the new `NotificationsPermission`
+   * below more closely than "read access" did.
+   */
+  requestAuthorization(): Promise<boolean>;
   fetchSleepPhases(range: { fromIso: string; toIso: string }): Promise<SleepPhase[]>;
   fetchHeartRateSamples(range: {
     fromIso: string;
@@ -190,6 +198,25 @@ export interface SpeechToText {
 }
 
 // ---------------------------------------------------------------------------
+// 6. NotificationsPermission — asked once, on the devices screen's "ready" button (L1.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Just the permission prompt. The daytime reality-check / evening reminder notifications
+ * themselves (DESIGN §3.4) are scheduled for L1.7/L3.1 — this WO only needs the ask to
+ * happen at onboarding time so the system prompt is not a surprise later. No
+ * `expo-notifications` dependency added for this (APP-RUN §0.5 S9 wants every new
+ * dependency justified, and a single permission prompt does not need the whole
+ * scheduling API yet) — same "declared but not wired" shape as `HealthImport`/`LiveStatus`
+ * above: `isAvailable()` stays honest (`false`) and the ask resolves `false` until a real
+ * native call lands.
+ */
+export interface NotificationsPermission {
+  isAvailable(): Promise<boolean>;
+  requestAuthorization(): Promise<boolean>;
+}
+
+// ---------------------------------------------------------------------------
 // Battery + the bundle the app consumes
 // ---------------------------------------------------------------------------
 
@@ -216,6 +243,7 @@ export interface PlatformBundle {
   liveStatus: LiveStatus;
   healthImport: HealthImport;
   speechToText: SpeechToText;
+  notifications: NotificationsPermission;
   battery: BatteryReader;
   deviceInfo: DeviceInfoReader;
 }
