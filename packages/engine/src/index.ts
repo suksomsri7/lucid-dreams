@@ -47,5 +47,46 @@ export {
   normalizeEpochs,
 } from './diagnostics';
 
+export {
+  type SleepStage,
+  SLEEP_STAGES,
+  type StageSample,
+  type PRemSample,
+  isAsleep,
+  type NightMode,
+  type CueType,
+  VOLUME_MIN,
+  VOLUME_MAX,
+  type NightParams,
+  DEFAULT_NIGHT_PARAMS,
+  resolveNightParams,
+  type CueResponse,
+  type CueEvent,
+  type WakeCause,
+  type WakeEvent,
+} from './types';
+
+export { type Rng, mulberry32, clamp, round } from './rng';
+
+export {
+  type SimulateNightOptions,
+  type SimCyclePlan,
+  type SimWakeBout,
+  type SimNightParams,
+  type SimulatedNight,
+  simulateNight,
+} from './simulate';
+
+export { type ReplayInput, type ReplayReport, replayNight, replayNightReport } from './replay';
+
+export {
+  type RemMetrics,
+  remMetrics,
+  type StageFractions,
+  stageFractions,
+  remLatencySec,
+  wasoSec,
+} from './metrics';
+
 /** Engine package version — reported inside diagnostics so QC knows what produced a file. */
 export const ENGINE_VERSION = '0.1.0';

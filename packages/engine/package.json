@@ -11,6 +11,7 @@
   },
   "scripts": {
     "test": "vitest run",
+    "engine:sim": "tsx src/cli/sim.ts",
     "test:watch": "vitest",
     "typecheck": "tsc -b"
   },
