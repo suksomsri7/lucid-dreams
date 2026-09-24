@@ -39,7 +39,7 @@ describe('L2.1 simulateNight', () => {
     const c: Record<string, number> = {};
     for (const s of n.truth) c[s.stage] = (c[s.stage] ?? 0) + 1;
     const total = n.truth.length;
-    expect(c.REM / total).toBeGreaterThan(0.15); expect(c.REM / total).toBeLessThan(0.30);
+    const remFrac = (c.REM ?? 0) / total; expect(remFrac).toBeGreaterThan(0.15); expect(remFrac).toBeLessThan(0.30);
     expect((c.WAKE ?? 0) / total).toBeLessThanOrEqual(0.12);
     expect(c.N3 ?? 0).toBeGreaterThan(0);
   });
