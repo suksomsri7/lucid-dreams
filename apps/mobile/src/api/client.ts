@@ -151,3 +151,34 @@ export async function postScore(request: ScoreRequest): Promise<unknown | null> 
     return null;
   }
 }
+
+// ---------------------------------------------------------------------------
+// WO L3.6 — "delete everything" (§0.5 S4: the server half of it, `DELETE /device`)
+// ---------------------------------------------------------------------------
+
+/**
+ * The last step of Settings › ลบทั้งหมด (mockup 09, DESIGN §7's own note: "ลบได้ทั้งหมด
+ * ในตั้งค่า"). This WO cannot add the actual `DELETE /device` route (`apps/api` is
+ * off-limits) — it only has to exist on the server for this call to matter; until then
+ * every response the server could plausibly give (404 the route isn't built yet, 401 the
+ * token was already gone, network failure) all mean the same thing here: **the local
+ * wipe must proceed regardless** (`settings.tsx`'s own delete flow never awaits this for
+ * its success/failure, same "never blocks on the network" policy `requestAiScore`/
+ * `postScore` already use). No fresh-token retry on 401 like the two calls above — a 401
+ * here means the account is already gone server-side, which is exactly the state being
+ * asked for.
+ */
+export async function deleteDevice(): Promise<void> {
+  try {
+    const token = await getDeviceToken();
+    await fetch(`${apiBaseUrl()}/device`, {
+      method: 'DELETE',
+      headers: { authorization: `Bearer ${token}` },
+    });
+  } catch {
+    // Best-effort — see the doc comment above.
+  } finally {
+    cachedToken = null;
+    await AsyncStorage.removeItem(DEVICE_TOKEN_KEY).catch(() => undefined);
+  }
+}

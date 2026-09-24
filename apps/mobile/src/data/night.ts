@@ -20,8 +20,12 @@
  */
 
 import type { CueResponse, EarSide, SensorEpoch, WakeCause } from '@lucid/engine';
+import type { SessionRecord } from '@lucid/data';
 
 import type { DreamPlan } from '../advisor/types';
+import { getAnchorSeed } from '../audio/anchor';
+import { CONTROL_NIGHT_RATIO, isControlNight } from '../night/controlNight';
+import { ensureSettingsHydrated } from '../settings/store';
 import { getRepo } from './index';
 
 export interface EarTestResultInput {
@@ -34,10 +38,20 @@ export interface EarTestResultInput {
 
 /**
  * Returns the existing session id unchanged, or creates a fresh `NightSession` for
- * tonight's plan and returns its id. `mode` is always `'CUE'` here — the 1-in-4
- * control-night selection (DESIGN §9 settings) is not built yet in any WO; this at
- * least reproduces the sessions table shape correctly for the day it lands (documented
- * debt in `ledger/wo-notes/L1.7ui.md`).
+ * tonight's plan and returns its id.
+ *
+ * This is the **one** place a night's mode/arm are decided (WO L3.3/L3.4 — see
+ * `ledger/wo-notes/L3ui.md`): the repo has no "update a session's mode/params after
+ * creation" call, so whichever caller happens to create the row first (this screen's ear
+ * test, or `night/session.ts#startNightSession` if a session somehow does not exist yet)
+ * fixes it for the whole night. `mode` is the 1-in-4 control-night pick
+ * (`src/night/controlNight.ts`, off unless `settings.controlNightsEnabled`); the arm
+ * decision (`src/learning/pickTonightPlan`) is intentionally *not* made here — it needs
+ * the ear test's chosen volume, which this function's caller (`night/session.ts`) has
+ * and `store/night.ts#recordEarTest`'s caller does not always have yet, so the arm's
+ * `armKey` is added to `params` separately, right before the controller starts
+ * (`night/session.ts`'s own `ensureNightSession` call site), via
+ * {@link attachArmKeyToSession}.
  */
 export async function ensureNightSession(
   sessionId: string | null,
@@ -46,13 +60,42 @@ export async function ensureNightSession(
 ): Promise<string> {
   if (sessionId !== null) return sessionId;
   const repo = await getRepo();
+  const settings = await ensureSettingsHydrated();
+  const seed = await getAnchorSeed();
+  const mode = settings.controlNightsEnabled && isControlNight(dateIso, CONTROL_NIGHT_RATIO, seed) ? 'CONTROL' : 'CUE';
   const session = await repo.sessions.create({
     dateIso,
-    mode: 'CUE',
+    mode,
     themeKey: plan.theme.titleEn,
     params: { plan },
   });
   return session.id;
+}
+
+/** The session's own record — `night/session.ts` reads `.mode` off it, `src/learning/`
+ * reads `.params.armKey` off it. There is no repo call for "just the row", so this is a
+ * thin pass-through over `sessions.get`. */
+export async function fetchNightSessionRecord(sessionId: string): Promise<SessionRecord | null> {
+  const repo = await getRepo();
+  return repo.sessions.get(sessionId);
+}
+
+/**
+ * Repo has no "update a session's params" call — the only column-level update it exposes
+ * besides `mode` (fixed at creation) is a full re-`INSERT ... ON CONFLICT` the repo does
+ * not offer either. This performs the one JSON-merge write the learning loop needs
+ * (attach `armKey` to an already-created session's `params`) directly through the raw
+ * driver, the same "small wrapper, not a repo change" pattern as `src/data/
+ * personalModel.ts`/`realityCheck.ts` — see those files' headers for why `packages/data`
+ * itself is off-limits to this WO. A CONTROL night is never given an arm (§5.5: nothing
+ * to learn from a night that played nothing), so this is a no-op there.
+ */
+export async function attachArmKeyToSession(sessionId: string, armKey: string): Promise<void> {
+  const repo = await getRepo();
+  const session = await repo.sessions.get(sessionId);
+  if (session === null || session.mode === 'CONTROL') return;
+  const nextParams = { ...session.params, armKey };
+  await repo.db.run(`UPDATE "NightSession" SET "params" = ? WHERE "id" = ?`, [JSON.stringify(nextParams), sessionId]);
 }
 
 export async function saveEarTestToRepo(sessionId: string, entry: EarTestResultInput): Promise<void> {
