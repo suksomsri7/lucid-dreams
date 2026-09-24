@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-24 รอบ 13 · ✅ **L1.1 merged main** (SDK 57 · oracle 41/41) · ▶ เริ่ม **L1.2 (Sonnet UI)** ‖ **L1.8 (Opus data)** ขนาน (worktree lucid-dreams-L1.2 / -L1.8) · หนี้จาก L1.1: permission strings EN only + PrivacyInfo (L1.3/L3.6) · ภาษาเริ่มต้นฮาร์ดโค้ด th (L1.2) · สตริงนาฬิกา EN (L2.2) · platform บนเว็บรายงาน 'android' ควรเป็น 'web' (L1.2) · WCSession bridge ฝั่งมือถือ = stub (L2.2)
 - 2026-09-24 รอบ 12 · ✅ Expo token (`luciddreams-team`) เก็บ `/root/.lucid/expo.env` · Apple Dev = ทีมเดิม · AI = OpenRouter (key ให้ตอน L1.5 — **ต้องแจ้งเจ้าของเมื่อถึง**) · L1.1 กำลังสร้าง (Opus)
 - 2026-09-24 รอบ 11 · ✅ **มติครบ** (ชื่อ Lucid Dream · TestFlight ให้เจ้าของ · คืนควบคุมตามแนะนำ · เสียงสมอ=ลายน้ำ 1 เสียง/ภาษา · Claude key แยก · Apple Dev เปิดใหม่ · Boost ปิด · Android เลื่อนแต่โค้ดรองรับ · ทดสอบเสียงแยกซ้าย/ขวา · ระดับเสียงผู้ใช้=เริ่มต้นเท่านั้น) · repo `github.com/suksomsri7/lucid-dreams` push แล้ว · **▶ เริ่ม RUN L1.1** (ดู `APP-RUN.md §3.1` + `RUN-STATE.json`) · รอเจ้าของ: สมัคร Apple Dev/Expo (APP-RUN §7) + Claude key
 - 2026-09-24 รอบ 10 · UX: แยกหน้าตรวจอุปกรณ์ (3 หมวด ชีพจร/เสียง/ดวงตา · แอปบอกว่าพบอะไร) กับหน้าทดสอบเสียง (ถูกแล้วเริ่ม) · ยังไม่ซื้อ Polar · ภาพ 01/04/09 วาดใหม่+ส่ง TG แล้ว · **รอเจ้าของตอบคำถามเคาะ (แชท 24 ก.ย.) → เริ่ม L1.1**

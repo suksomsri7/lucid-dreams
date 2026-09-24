@@ -1,14 +1,12 @@
 {
  "run": "APP-RUN Phase 1",
- "wo": "L1.1",
- "step": "reviewing",
- "branch": "wo/L1.1",
- "worktree": "/root/projects/lucid-dreams-L1.1",
- "builder": "opus",
+ "wo": "L1.2+L1.8",
+ "step": "writing-oracle",
+ "branch": null,
+ "worktree": null,
+ "builder": "sonnet+opus",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T09:40Z",
- "lastCommit": null,
- "blockedOn": [
-  "L1.1: builder อัป Expo SDK 57 + fix PhoneLink thread (Fable review รอบ 1 ผ่าน 41/41)"
- ]
+ "lastCheckpoint": "2026-09-24T10:10Z",
+ "lastCommit": "L1.1 merged",
+ "blockedOn": []
 }
