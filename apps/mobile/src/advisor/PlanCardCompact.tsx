@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   surface: { paddingBottom: 2 },
   // Header padding trimmed a touch below the card's default `spacing.lg` (chrome, not
   // one of the asked 12×18 row values) — same fitting goal as `row`/`rowLast` below.
-  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: 18, paddingTop: 12, paddingBottom: spacing.xs },
+  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: 18, paddingTop: spacing.sm, paddingBottom: spacing.xs },
   emoji: { fontSize: 28, lineHeight: 32 },
   headerText: { flex: 1, minWidth: 0 },
   // 12×18 (Fable parity review round 2 — tighter than the card's default `spacing.lg`

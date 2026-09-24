@@ -52,12 +52,22 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
   const inputRef = useRef<TextInput>(null);
   const listRef = useRef<FlatList<Message>>(null);
   const unsubscribers = useRef<Array<() => void>>([]);
+  // Tracks the message count this screen has already scrolled for — starts at whatever
+  // the room opens with (0 for a brand-new room, several for a resumed/seeded
+  // conversation), so the very first render never auto-scrolls away from the top.
+  const scrolledThrough = useRef(advisor.messages.length);
 
   // Fable parity review round 2: top-anchored per mockup 02 (AI pill + first bubble +
   // theme chips start right under the nav, empty space below, composer pinned at the
   // bottom) — a plain top-anchored list, not `inverted`. Scroll to the newest content
-  // ourselves instead, same as any normal chat UI without an inverted list.
+  // ourselves, but only when a message is actually *appended during this screen's
+  // lifetime* — a room that opens already carrying a conversation (mockup 03's
+  // `?fixture=advisor-plan`, or a real resumed session) should still show from the top
+  // first, same as opening any chat app to unread history, not jump straight to the
+  // newest message and hide where the conversation started.
   useEffect(() => {
+    if (advisor.messages.length <= scrolledThrough.current) return;
+    scrolledThrough.current = advisor.messages.length;
     const timer = setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
     return () => clearTimeout(timer);
   }, [advisor.messages.length]);
