@@ -29,10 +29,12 @@ describe('L2.5 REM estimator', () => {
     for (const v of Object.values(w) as number[]) { expect(v).toBeGreaterThanOrEqual(0); expect(v).toBeLessThanOrEqual(5); }
     expect(f1On(hold, w)).toBeGreaterThanOrEqual(before - 0.02);
   });
-  it('Q7 histogram บุคคล (REM หนาแน่น 04:30–05:30) ดัน p ช่วงนั้นขึ้นเทียบไม่มี histogram', () => {
-    const n = simulateNight({ seed: 11, sleepAtIso: sleepAt }); const hist = new Array(48).fill(0.1); for (let i = 25; i < 27; i++) hist[i] = 1.0; // ช่อง 30 นาที: 12:30–13:30 UTC ≈ 19:30–20:30 ICT (ตัวอย่างเท่านั้น)
-    const a = estimateNight(n.epochs, n.onsetT); const b = estimateNight(n.epochs, n.onsetT, { personalHistogram: hist });
-    const idx = n.epochs.findIndex((e: any) => new Date(e.t * 1000).getUTCHours() === 12 && new Date(e.t * 1000).getUTCMinutes() >= 30);
-    if (idx >= 0) expect(b[idx].p).toBeGreaterThanOrEqual(a[idx].p);
+  it('Q7 histogram บุคคล (REM หนาแน่น 21:30–22:30 UTC = ช่อง 43–44) ดัน p ช่วงนั้นขึ้นเทียบไม่มี histogram · histogram แบนไม่เปลี่ยน p', () => {
+    const n = simulateNight({ seed: 11, sleepAtIso: sleepAt }); const hist = new Array(48).fill(0.1); hist[43] = 1.0; hist[44] = 1.0;
+    const a = estimateNight(n.epochs, n.onsetT); const b = estimateNight(n.epochs, n.onsetT, { personalHistogram: hist }); const flat = estimateNight(n.epochs, n.onsetT, { personalHistogram: new Array(48).fill(0.5) });
+    const idxs = n.epochs.map((e: any, i: number) => ({ e, i })).filter(({ e }: any) => { const d = new Date(e.t * 1000); const h = d.getUTCHours(), m = d.getUTCMinutes(); return (h === 21 && m >= 30) || (h === 22 && m < 30); }).map(({ i }: any) => i);
+    expect(idxs.length).toBeGreaterThan(0);
+    let lifted = 0; for (const i of idxs) { if (b[i].p > a[i].p) lifted++; expect(Math.abs(flat[i].p - a[i].p)).toBeLessThan(1e-6); }
+    expect(lifted / idxs.length).toBeGreaterThan(0.9);
   });
 });
