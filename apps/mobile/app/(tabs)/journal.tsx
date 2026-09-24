@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Directory, File, Paths } from 'expo-file-system';
 import { useRouter } from 'expo-router';
 import * as Sharing from 'expo-sharing';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { NightSummary, StatsResult } from '@lucid/data';
 import { explainLearning, type PersonalModel } from '@lucid/engine';
@@ -14,7 +14,7 @@ import { exportNightJson, fetchNightReport } from '../../src/data/report';
 import { retryPendingAppleImports } from '../../src/health/appleSleep';
 import { getPersonalModel } from '../../src/learning';
 import { useT, type Locale, type TranslateParams, type TranslationKey } from '../../src/i18n';
-import { GlassCard, Hyp, Row, Screen, Sub, Title, colors, spacing, typeScale, type HypBar } from '../../src/ui';
+import { GlassCard, Hyp, Icon, Screen, Sub, Title, colors, spacing, typeScale, type HypBar } from '../../src/ui';
 
 type Translate = (key: TranslationKey, params?: TranslateParams) => string;
 
@@ -115,7 +115,6 @@ export default function JournalScreen() {
       <View style={styles.headerRow}>
         <View style={{ flex: 1 }}>
           <Title>{t('journal.title')}</Title>
-          <Sub>{t('journal.subtitle')}</Sub>
         </View>
         <Text
           accessibilityRole="link"
@@ -193,7 +192,7 @@ export default function JournalScreen() {
       ) : (
         <GlassCard noPadding>
           {nights.map((night, index) => (
-            <Row
+            <NightRow
               key={night.id}
               label={nightLabel(night, locale)}
               value={nightValue(night, t)}
@@ -215,6 +214,45 @@ function LegendDot({ tone, label }: { tone: string; label: string }) {
       <View style={[styles.legendSwatch, { backgroundColor: tone }]} />
       <Sub>{label}</Sub>
     </View>
+  );
+}
+
+interface NightRowProps {
+  label: string;
+  value: string;
+  onPress?: () => void;
+  last?: boolean;
+  testID?: string;
+}
+
+/**
+ * One row of the night list — two lines (mockup `08-journal.png`: bold date+theme line,
+ * then a `Sub`-styled "theme match · lucid · cue count" line below), not `Row`'s usual
+ * label-left/value-right single line. `Row` stays untouched (settings.tsx's many
+ * single-line rows are correct as-is, mockup `09-settings.png`) — this is a dedicated
+ * layout, same reason `EventRow` exists as its own component rather than a `Row` mode.
+ * Stacking onto two lines is also what fixes the English date truncation the one-line
+ * version had (`ledger/wo-notes/L3ui.md` debt #1) — an EN value string no longer has to
+ * share a row with the date, so the date never has to shrink for it.
+ */
+function NightRow({ label, value, onPress, last = false, testID }: NightRowProps) {
+  const content = (
+    <View
+      style={[styles.nightRow, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.hairline }]}
+      testID={testID}
+    >
+      <View style={{ flex: 1 }}>
+        <Text style={[typeScale.body, styles.nightRowLabel]}>{label}</Text>
+        <Sub>{value}</Sub>
+      </View>
+      {onPress ? <Icon name="chevronRight" size={16} color={colors.mut} /> : null}
+    </View>
+  );
+  if (!onPress) return content;
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress}>
+      {content}
+    </Pressable>
   );
 }
 
@@ -376,4 +414,6 @@ const styles = StyleSheet.create({
   legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginTop: spacing.xs },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   legendSwatch: { width: 10, height: 10, borderRadius: 3 },
+  nightRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
+  nightRowLabel: { fontWeight: '700', color: colors.ink },
 });

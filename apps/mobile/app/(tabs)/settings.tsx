@@ -36,7 +36,7 @@ import { resetSettingsAfterDeleteAll } from '../../src/settings/store';
 import { deleteEverythingLocal, exportAllData } from '../../src/settings/data';
 import { resetOnboardingAfterDeleteAll, setConsentAi, useOnboardingState } from '../../src/store/onboarding';
 import { clearNightPlan } from '../../src/store/night';
-import { Button, GlassCard, Icon, Row, Screen, Seg, Sub, Switch, Title, colors, radius, spacing, typeScale } from '../../src/ui';
+import { Button, GlassCard, Icon, Row, Screen, SectionLabel, Seg, Sub, Switch, Title, colors, radius, spacing, typeScale } from '../../src/ui';
 
 /** Re-checked whenever the screen mounts — cheap, side-effect-free reads (same policy `plan/devices.tsx` uses). */
 const REFRESH_MS = 4000;
@@ -160,7 +160,8 @@ export default function SettingsScreen() {
       <Sub>{t('settings.subtitle')}</Sub>
 
       {/* Devices */}
-      <GlassCard title={t('settings.section.devices')} noPadding testID="settings-devices-card">
+      <SectionLabel style={styles.sectionLabel}>{t('settings.section.devices')}</SectionLabel>
+      <GlassCard style={styles.cardTight} noPadding testID="settings-devices-card">
         <DeviceRow
           icon="heart"
           label={t('onboarding.devices.heart.title')}
@@ -195,7 +196,8 @@ export default function SettingsScreen() {
       </GlassCard>
 
       {/* Sound */}
-      <GlassCard title={t('settings.section.sound')} noPadding testID="settings-sound-card">
+      <SectionLabel style={styles.sectionLabel}>{t('settings.section.sound')}</SectionLabel>
+      <GlassCard style={styles.cardTight} noPadding testID="settings-sound-card">
         <Row label={t('settings.sound.anchor')} value={t('settings.sound.anchor.listen')} onPress={() => void handlePlayAnchor()} testID="settings-anchor-listen" />
         <Row label={t('settings.sound.reset')} value={t('settings.sound.reset.sub')} onPress={() => setSheet('resetAnchor')} testID="settings-anchor-reset" />
         <View style={styles.volumeRow} testID="settings-volume-row">
@@ -210,12 +212,16 @@ export default function SettingsScreen() {
             <Text style={[typeScale.body, styles.rowLabel]}>{t('settings.sound.autoAdjust')}</Text>
             <Sub>{t('settings.sound.autoAdjust.sub')}</Sub>
           </View>
-          <Switch value disabled onValueChange={() => undefined} testID="settings-auto-adjust" />
+          {/* Always on in normal mode (mockup `09-settings.png`: full-brightness green, not
+              faded) — the lock is conveyed by the sub line above, not by a disabled-looking
+              control (Fable parity review); `onValueChange` stays a no-op. */}
+          <Switch value onValueChange={() => undefined} testID="settings-auto-adjust" />
         </View>
       </GlassCard>
 
       {/* Sleep */}
-      <GlassCard title={t('settings.section.sleep')} noPadding testID="settings-sleep-card">
+      <SectionLabel style={styles.sectionLabel}>{t('settings.section.sleep')}</SectionLabel>
+      <GlassCard style={styles.cardTight} noPadding testID="settings-sleep-card">
         <Row
           label={t('settings.sleep.guard', { hours: settings.guardHours })}
           value={t('settings.sleep.guard.value', { maxCues: settings.maxCuesPerNight })}
@@ -246,7 +252,8 @@ export default function SettingsScreen() {
       </GlassCard>
 
       {/* Data */}
-      <GlassCard title={t('settings.section.data')} noPadding testID="settings-data-card">
+      <SectionLabel style={styles.sectionLabel}>{t('settings.section.data')}</SectionLabel>
+      <GlassCard style={styles.cardTight} noPadding testID="settings-data-card">
         <View style={styles.switchRow}>
           <Text style={[typeScale.body, styles.rowLabel, { flex: 1 }]}>{t('settings.data.consentAi')}</Text>
           <Switch value={consentAi} onValueChange={setConsentAi} testID="settings-consent-ai" />
@@ -605,6 +612,14 @@ function DeviceSearchSheet({ visible, onClose, t }: DeviceSearchSheetProps) {
 }
 
 const styles = StyleSheet.create({
+  // Section captions sit OUTSIDE/above their card (mockup `09-settings.png`: Devices /
+  // Sound / Sleep / Data are plain muted text in the page background, not drawn
+  // inside the white/tinted card) — `GlassCard`'s own `title` prop draws the label
+  // *inside* the surface instead, which is right for every other screen that uses it but
+  // wrong here, so these 4 sections render `SectionLabel` as a normal sibling and pull
+  // the card up underneath it with `cardTight` instead of passing `title`.
+  sectionLabel: { marginLeft: spacing.xs },
+  cardTight: { marginTop: -(spacing.lg - spacing.xs) },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
