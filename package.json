@@ -20,5 +20,8 @@
   "devDependencies": {
     "tsx": "^4.20.3",
     "typescript": "~6.0.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["better-sqlite3"]
   }
 }
