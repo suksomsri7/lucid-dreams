@@ -90,13 +90,10 @@ export function Chip({
     >
       <GlassSurface
         tint={tone === 'default' && isNight ? 'clear' : 'regular'}
+        background={background}
         night={isNight}
         radius={radius.chip}
-        style={[
-          styles.surface,
-          { backgroundColor: background },
-          isNight && tone === 'default' ? styles.nightOutline : undefined,
-        ]}
+        style={[styles.surface, isNight && tone === 'default' ? styles.nightOutline : undefined]}
       >
         {content}
       </GlassSurface>

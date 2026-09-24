@@ -85,6 +85,7 @@ export function Button({
       {({ pressed }) => (
         <GlassSurface
           tint={tone === 'gh' ? 'soft' : 'clear'}
+          background={tone === 'gh' ? undefined : background}
           night={isNight}
           radius={SIZE_RADIUS[size]}
           style={[
@@ -92,7 +93,6 @@ export function Button({
             {
               height: SIZE_HEIGHT[size],
               paddingHorizontal: SIZE_PADDING[size],
-              backgroundColor: background,
               borderColor: isFilled ? 'rgba(255,255,255,0.3)' : undefined,
             },
             pressed ? styles.pressed : undefined,

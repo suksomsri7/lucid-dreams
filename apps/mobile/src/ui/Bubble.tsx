@@ -22,7 +22,13 @@ export function Bubble({ role, text, voice = false, time, night: isNight = false
   if (role === 'me') {
     return (
       <View style={styles.meWrap} testID={testID}>
-        <GlassSurface tint="clear" night={isNight} radius={radius.bubble} style={styles.meSurface}>
+        <GlassSurface
+          tint="clear"
+          background="rgba(107,92,255,0.82)"
+          night={isNight}
+          radius={radius.bubble}
+          style={styles.meSurface}
+        >
           <View style={voice ? styles.voiceRow : undefined}>
             {voice ? <Icon name="mic" size={14} color={colors.white} /> : null}
             <Text style={[typeScale.body, styles.meText]}>{text}</Text>
@@ -51,7 +57,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 11,
     borderBottomRightRadius: radius.bubbleTail,
-    backgroundColor: 'rgba(107,92,255,0.82)',
     borderColor: 'rgba(255,255,255,0.4)',
   },
   meText: { color: '#ffffff' },
