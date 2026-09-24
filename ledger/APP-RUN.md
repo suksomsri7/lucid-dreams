@@ -240,7 +240,7 @@
 | L2.3e/L3.2e/L3.4 | ▶ building (Opus · wo/L3e · เริ่มใหม่หลังโควตา 13:00) | — | engine: BLE HRM parser + SensorHub · AiScore sanitize + ข้อความผลเช้า · bandit/PersonalModel · oracle 10+5+8 |
 | L1.7ui | ✅ DONE 24 ก.ย. (21/21 · parity 04 a–d) | main | เหลือส่วน native ของ L1.7: Live Activity · DND จริง · pan native · ต่อ /ai/anchor ในแอป |
 | L2.8ui/2.9/2.10 | ▶ building (Sonnet · wo/L2.8ui) | — | จอกลางคืน (controller จริง) · นำเข้าสเตจ Apple (JS) · หน้ารายงานเมื่อคืน · oracle qc-L2.8-10 · parity 05/07 |
-| L1.5 | ✅ DONE 24 ก.ย. (engine 73/73 · api 21/21) | main | รอ: OpenRouter key (ยิงจริง) · DNS lucid → 72.62.196.201 · **TTS = fal.ai→ElevenLabs v3 [whispers] (มติเจ้าของ · ใช้ FAL key เดิม)** ตัวอย่างส่ง TG แล้ว รอเลือกเสียง |
+| L1.5 | ✅ DONE 24 ก.ย. (engine 73/73 · api 21/21) | main | ✅ DNS+SSL `dreaming.suksomsri.cloud` (24 ก.ย.) · รอ: OpenRouter key (ยิงจริง) · **TTS = fal.ai→ElevenLabs v3 [whispers] (มติเจ้าของ · ใช้ FAL key เดิม)** ตัวอย่างส่ง TG แล้ว รอเลือกเสียง |
 | L2.4/2.5 | ✅ DONE 24 ก.ย. (87/87 · onset 99.5% ≤10 นาที บนจำลอง · F1 0.98 จำลอง — คาดจริง 0.5–0.7) | main | ปรับเทียบ R2 |
 | L2.6/2.7 | ✅ DONE 24 ก.ย. (106/106 · fuzz 2,200 คืน 0 ข้อผิด) | main | R2: พิจารณาลด maxCuesPerNight · ปรับเกณฑ์ตื่น 0.15 g จากคืนจริง |
 | L1.5b | ✅ DONE 24 ก.ย. (api 42/42 · smoke fal จริง) | main | prod: TTS_PROVIDER=fal TTS_VOICE=Sarah · **ตามมา L1.6s**: กระซิบ EN ครั้งเดียว "You… are… dreaming…" + atempo 0.85 + **signature v2-C (มติเจ้าของ)** ลง engine (`signature.ts` v2 + แก้ข้อสอบ G3 ความยาว/โน้ต) และ `/ai/anchor` (delay 2600 ms · tone 0.9 · whisper 1.1) · ล้าง tts_cache เมื่อเปลี่ยน |

@@ -6,10 +6,9 @@
  "worktree": "/root/projects/lucid-dreams-L2.8ui · -L3e · -L1.6s",
  "builder": "sonnet+opus+opus",
  "startedAt": "2026-09-24",
- "lastCheckpoint": "2026-09-24T14:40Z",
+ "lastCheckpoint": "2026-09-24T14:05Z",
  "lastCommit": "L1.7ui merged",
  "blockedOn": [
-  "เจ้าของ: DNS lucid → 72.62.196.201",
-  "เจ้าของ: OpenRouter key"
+  "เจ้าของ: OpenRouter API key"
  ]
 }
