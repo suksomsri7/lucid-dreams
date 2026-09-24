@@ -79,7 +79,7 @@ export const en: Translations = {
   'onboarding.welcome.tagline':
     'An advisor that helps you dream what you want to dream — and know that you are dreaming.',
   'onboarding.consent.medical.title': 'Not a medical device',
-  'onboarding.consent.medical.body': 'This is dream training, not medical care.',
+  'onboarding.consent.medical.body': 'This is dream training, not medical treatment.',
   'onboarding.consent.notFor.title': 'Not recommended for everyone',
   'onboarding.consent.notFor.body': 'Psychiatric conditions · severe insomnia · PTSD',
   'onboarding.consent.local.title': 'Your data stays on this phone',

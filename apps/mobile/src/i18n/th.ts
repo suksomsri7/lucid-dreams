@@ -78,7 +78,7 @@ export const th = {
   // onboarding (ใบ L1.3) — mockup 01 (ก) ยินดีต้อนรับ + ข้อควรรู้ + รับทราบ · (ข) อุปกรณ์ 3 หมวด
   'onboarding.welcome.tagline': 'ที่ปรึกษาที่ช่วยให้คุณฝันเรื่องที่อยากฝัน และรู้ตัวว่ากำลังฝัน',
   'onboarding.consent.medical.title': 'ไม่ใช่เครื่องมือแพทย์',
-  'onboarding.consent.medical.body': 'เป็นการฝึกความฝัน ไม่ใช่การดูแลทางการแพทย์',
+  'onboarding.consent.medical.body': 'เป็นการฝึกความฝัน ไม่ใช่การรักษา',
   'onboarding.consent.notFor.title': 'ไม่แนะนำสำหรับบางคน',
   'onboarding.consent.notFor.body': 'ผู้มีอาการทางจิตเวช · นอนไม่หลับรุนแรง · PTSD',
   'onboarding.consent.local.title': 'ข้อมูลอยู่ในเครื่อง',
