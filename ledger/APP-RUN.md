@@ -241,7 +241,8 @@
 | L1.7ui | ✅ DONE 24 ก.ย. (21/21 · parity 04 a–d) | main | เหลือส่วน native ของ L1.7: Live Activity · DND จริง · pan native · ต่อ /ai/anchor ในแอป |
 | L2.8ui/2.9/2.10 | ✅ DONE 24 ก.ย. (24/24 · parity 05a/07) | main | native ค้าง → L2.2n |
 | L2.2n (L2.2 + L1.7 native) | ✅ DONE 24 ก.ย. (20/20 · prebuild ตรวจ pbxproj) | main | 🔴 Swift ยังไม่ผ่าน compiler → R1 · developer portal: App Group + HealthKit · หนี้: setStreakNights ยังไม่มีใครเรียก (L3ui) |
-| L2.3 (app) | ▶ building (Opus · wo/L2.3) | — | BLE HR (react-native-ble-plx 0x180D scan/connect/reconnect · parser จาก engine) + มือถือบนที่นอน (expo-sensors) + SensorHub รวมแหล่ง · หน้าค้นหาอุปกรณ์ · S8 |
+| L2.3 (app) | ✅ DONE 25 ก.ย. (oracles ครบ · ภาพ .qc-shots/L2.3) | main | ทดสอบกับสายคาดจริงเมื่อเจ้าของซื้อ |
+| L3.F | ▶ Fable กำลังปิด | — | ชุดทดสอบทั้งหมด · ทุกจอ TH/EN · audit · handover · แจ้งพร้อม build R1 |
 | L3.1 | ✅ DONE 24 ก.ย. (M1 10/10 · parity 06a/b) | main | route /ai/score → L3.2s |
 | L3.2s | ✅ DONE 24 ก.ย. (api 65/65 · smoke จริง · prod อัปเดต) | main | L3.F: weekly ตัดคืน CONTROL ออกจนครบ 3 คืน |
 | L3.3/3.4app/3.5/3.6 | ✅ DONE 24 ก.ย. (33/33 · parity 08/09) | main | หนี้: complication setStreakNights ยังไม่เรียก · weekly ยังไม่มีจอเรียก · L3.F |
