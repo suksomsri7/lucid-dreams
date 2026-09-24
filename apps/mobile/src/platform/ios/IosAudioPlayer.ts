@@ -39,6 +39,21 @@ function clampVolume(volume: number): number {
   return Math.min(Math.max(volume, 0), MAX_VOLUME);
 }
 
+/**
+ * `null` when the file can carry the requested pan, otherwise a short machine-readable reason.
+ *
+ * The only sources that can be hard-panned are the ones `src/audio/anchor.ts` renders, and it
+ * names them `<hash>-l.wav` / `<hash>-r.wav` / `<hash>-c.wav`. Anything else asked to play on one
+ * side would come out of both (a bundled asset, or a centre render passed with `pan: -1`).
+ */
+function describePanMismatch(source: string, pan: number | undefined): string | null {
+  if (pan === undefined || pan === 0) return null;
+  const wanted = pan < 0 ? 'l' : 'r';
+  const file = source.split('/').pop() ?? source;
+  if (file.endsWith(`-${wanted}.wav`)) return null;
+  return `${file}:wanted-${wanted}`;
+}
+
 export class IosAudioPlayer implements AudioPlayer {
   private player: ExpoAudioPlayer | null = null;
   private playerSource: number | null = null;
@@ -121,9 +136,29 @@ export class IosAudioPlayer implements AudioPlayer {
    * looping all-night bed) so a one-shot never fights the bed for the shared instance,
    * and is disposed the moment it finishes so a rapid run of ear-test rounds does not
    * leak native players.
+   *
+   * ## `pan`
+   *
+   * `expo-audio` has no per-player pan control (checked again in SDK 57 against
+   * `node_modules/expo-audio/build/AudioModule.types.d.ts`: `volume`, `playbackRate`, `muted`,
+   * nothing panning-shaped), and neither does `expo-av`. Hard left/right therefore lives in the
+   * **file**: `src/audio/anchor.ts` encodes the mono signature PCM into a stereo WAV with one
+   * channel written as true silence, named `<hash>-l.wav` / `<hash>-r.wav` (`-c` for centre).
+   * That was already the design when `playOneShot` was introduced; what L2.2n adds is the check
+   * below, because "the ear test proved both channels work" is a claim the app makes to the user
+   * (DESIGN §3.2 step 3) and it is only true if the file really was one-sided.
+   *
+   * A mismatch does not throw: the ear-test screen awaits this call, and a thrown error there
+   * would leave the user stuck on a step with no way forward. It is recorded as an `ERROR` audio
+   * event instead, which lands in the night's diagnostics export — so a wrong-file bug shows up
+   * in R1's data rather than as silence nobody can explain.
    */
   async playOneShot(options: { source: string; volume: number; pan?: number }): Promise<void> {
     const target = clampVolume(options.volume);
+    const panMismatch = describePanMismatch(options.source, options.pan);
+    if (panMismatch !== null) {
+      this.emit('ERROR', `PAN_SOURCE_MISMATCH:${panMismatch}`, target);
+    }
     const shot = createAudioPlayer(options.source, { updateInterval: 100 });
     shot.volume = target;
 

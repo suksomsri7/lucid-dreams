@@ -81,7 +81,7 @@ const withDataProtection: ConfigPlugin = (config) =>
   });
 
 /**
- * Expo config for Lucid Dream (iOS first, Android-ready — APP-RUN §0.2 rule 8).
+ * Expo config for Dreaming (iOS first, Android-ready — APP-RUN §0.2 rule 8).
  *
  * All permission copy below is the English base Expo puts in `Info.plist` directly.
  * The real, localised prompt text (what iOS actually shows the user, TH+EN — APP-RUN
@@ -92,8 +92,64 @@ const withDataProtection: ConfigPlugin = (config) =>
 const IOS_BUNDLE_ID = 'app.dreaming.ios'; // placeholder until the new Apple account exists (APP-RUN §0.3)
 const ANDROID_PACKAGE = 'app.dreaming.android'; // Phase 2 — no Android build in Phase 1
 
+/**
+ * What Apple calls "required reason APIs" and "collected data types" (S10).
+ *
+ * Kept deliberately short and defensible — an over-declared manifest is a claim about the app
+ * that is not true, and the whole point of the file is that Apple (and the owner) can trust it:
+ *
+ * - **UserDefaults · CA92.1** — the watch app and the complication share the streak through the
+ *   App Group's `UserDefaults` (`targets/watch/StreakStore.swift`). CA92.1 is exactly "access to
+ *   an app group container shared with other apps/extensions from the same developer"; the
+ *   plain-container reason 1C8F.1 would be the wrong one.
+ * - **File timestamps · C617.1** — `src/audio/anchor.ts` asks `File.exists` before re-rendering a
+ *   cached anchor WAV, and `src/data/*` opens the SQLite files. All inside the app's own
+ *   container, which is what C617.1 covers.
+ *
+ * Deliberately **not** declared as collected data, and why (APP-RUN §0.5 S4):
+ * - *health* — heart rate and sleep stages never leave the device; "collected" in Apple's
+ *   definition means transmitted off device, and declaring it would say we send health data to a
+ *   server, which would be false;
+ * - *audio* — the morning recording is transcribed on device and deleted; nothing is uploaded
+ *   ("ไม่ส่งเสียงขึ้นเซิร์ฟเวอร์เลย").
+ * What *is* transmitted, and is therefore declared: the dream text the user chooses to send to
+ * `/ai/*` (only with `consentAi`), and the device token that identifies the install.
+ * This differs from the work order, which asked for "data types: health, audio" — see
+ * `ledger/wo-notes/L2.2n.md` §disagreements.
+ */
+const PRIVACY_MANIFEST = {
+  NSPrivacyTracking: false,
+  NSPrivacyTrackingDomains: [],
+  NSPrivacyAccessedAPITypes: [
+    {
+      NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryUserDefaults',
+      NSPrivacyAccessedAPITypeReasons: ['CA92.1'],
+    },
+    {
+      NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryFileTimestamp',
+      NSPrivacyAccessedAPITypeReasons: ['C617.1'],
+    },
+  ],
+  NSPrivacyCollectedDataTypes: [
+    {
+      // The dream text sent to the advisor, only when the user turned that on.
+      NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypeOtherUserContent',
+      NSPrivacyCollectedDataTypeLinked: true,
+      NSPrivacyCollectedDataTypeTracking: false,
+      NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
+    },
+    {
+      // The random 256-bit device token every request carries (APP-RUN §0.5 S2).
+      NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypeDeviceID',
+      NSPrivacyCollectedDataTypeLinked: true,
+      NSPrivacyCollectedDataTypeTracking: false,
+      NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
+    },
+  ],
+};
+
 const MICROPHONE_PERMISSION =
-  'Lucid Dream records your dream in the morning so it can be written down. The recording stays on this iPhone.';
+  'Dreaming records your dream in the morning so it can be written down. The recording stays on this iPhone.';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -123,16 +179,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       // double quotes on purpose: the L1.1 oracle (S4.1) greps for the literal "audio"
       UIBackgroundModes: ["audio"],
       NSHealthShareUsageDescription:
-        'Lucid Dream reads your sleep and heart rate from Health so it can tell when you are dreaming and only whisper then.',
+        'Dreaming reads your sleep and heart rate from Health so it can tell when you are dreaming and only whisper then.',
       NSHealthUpdateUsageDescription:
-        'Lucid Dream saves the mindfulness session your Apple Watch runs while you sleep.',
+        'Dreaming saves the mindfulness session your Apple Watch runs while you sleep.',
       NSMicrophoneUsageDescription: MICROPHONE_PERMISSION,
       NSSpeechRecognitionUsageDescription:
-        'Lucid Dream turns your morning recording into text on this iPhone, so you do not have to type your dream.',
+        'Dreaming turns your morning recording into text on this iPhone, so you do not have to type your dream.',
       NSBluetoothAlwaysUsageDescription:
-        'Lucid Dream connects to your heart rate strap or armband, and to your headphones, while you sleep.',
+        'Dreaming connects to your heart rate strap or armband, and to your headphones, while you sleep.',
       NSUserNotificationsUsageDescription:
-        'Lucid Dream sends a short reality check during the day and a reminder in the evening.',
+        'Dreaming sends a short reality check during the day and a reminder in the evening.',
       // การนอนมาก่อน (DESIGN §2.1): แอปไม่มี UI กลางคืน จอดับได้
       UIRequiresFullScreen: false,
       ITSAppUsesNonExemptEncryption: false,
@@ -140,11 +196,49 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       // — the actual translated permission strings live in `locales/{en,th}/InfoPlist.strings`
       // and are copied into the generated project by `withInfoPlistLocales` below.
       CFBundleLocalizations: ['en', 'th'],
+      // ActivityKit refuses `Activity.request` without this (WO L2.2n · DESIGN §4-05 จอ ข).
+      // The widget that draws the card is `targets/live-activity`; this key belongs to the
+      // **app**, which is the side that starts the activity.
+      NSSupportsLiveActivities: true,
     },
     entitlements: {
       'com.apple.developer.healthkit': true,
       'com.apple.developer.healthkit.access': [],
+      /**
+       * One App Group for the whole family (WO L2.2n). Two separate jobs, same name:
+       *  - on the **phone**, `@bacons/apple-targets` copies this list into the Live Activity
+       *    widget's entitlements automatically (`appGroupsByDefault` is true for `type: 'widget'`),
+       *    which is what a later push-token flow will need;
+       *  - on the **watch**, `targets/watch` and `targets/watch-complication` declare it
+       *    themselves, and it is the only way the complication can read the streak the watch app
+       *    stores (`targets/watch/StreakStore.swift`).
+       * ⚠️ The phone's container and the watch's container are different places — App Groups do
+       * not sync across devices. Nothing is shared *between* iPhone and Watch by this key.
+       * ⚠️ The group must also exist on the Apple Developer portal before the first real build,
+       * or signing fails (reference_watch_target_entitlements).
+       */
+      'com.apple.security.application-groups': ['group.app.dreaming'],
+      /*
+       * Deliberately NOT here: `com.apple.developer.focus-status`.
+       * `modules/lucid-focus` can read Focus state, but the entitlement needs a capability enabled
+       * on the App ID (which does not exist yet — APP-RUN §0.3 item 2) and shipping an entitlement
+       * the provisioning profile lacks fails the build, sometimes silently. Without it the module
+       * reports `known: false` and `src/platform/dnd.ts` answers "audio is allowed", which is the
+       * documented fallback. See `ledger/wo-notes/L2.2n.md`.
+       */
     },
+    /**
+     * Privacy manifest (APP-RUN §0.5 S10 — the L1.3 note's debt D-5). Expo turns this into
+     * `ios/<project>/PrivacyInfo.xcprivacy` and adds it to the app target
+     * (`@expo/config-plugins`' `IOSConfig.PrivacyInfo.withPrivacyInfo`, applied by
+     * prebuild-config's default plugin list), merging with anything already there. Every pod
+     * ships its own manifest and Apple merges them all, so this file only has to cover **our**
+     * code: the app, the four local modules, the watch app and the two widgets.
+     *
+     * A checked-in copy of the generated file lives at `apps/mobile/PrivacyInfo.xcprivacy` for
+     * review; this object is the source of truth (see that file's own header).
+     */
+    privacyManifests: PRIVACY_MANIFEST,
   },
 
   android: {

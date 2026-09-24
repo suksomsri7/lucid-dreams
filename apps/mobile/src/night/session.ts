@@ -101,6 +101,15 @@ function resolveNightMode(): NightControllerMode {
   return 'CUE';
 }
 
+/**
+ * The theme title in tonight's language — the same choice `app/plan/index.tsx` and
+ * `PlanCardCompact.tsx` make. Needed by the lock-screen card, whose first line is
+ * "🐋 <theme title>" (mockup `05-night.png` frame b), not just the emoji (WO L2.2n).
+ */
+function themeTitle(plan: DreamPlan, locale: Locale): string {
+  return locale === 'th' ? plan.theme.titleTh : plan.theme.titleEn;
+}
+
 interface RuntimeContext {
   /** `null` in fixture mode — nothing is written to the database. */
   sessionId: string | null;
@@ -239,6 +248,7 @@ function createRuntime(ctx: RuntimeContext): Runtime {
           void ctx.platform.liveStatus
             .update({
               emoji: ctx.plan.theme.emoji,
+              title: themeTitle(ctx.plan, ctx.locale),
               headline: translate(ctx.locale, action.text as TranslationKey),
               cuesPlayed: ctx.controller.cues.filter((c) => c.played).length,
               cuesPlanned: ctx.controller.maxCuesTonight,
@@ -377,6 +387,7 @@ export async function startNightSession(state: NightStoreState): Promise<NightSe
     try {
       await platform.liveStatus.start({
         emoji: plan.theme.emoji,
+        title: themeTitle(plan, locale),
         headline: translate(locale, LIVE_TEXT_KEYS[controller.state] as TranslationKey),
         cuesPlayed: 0,
         cuesPlanned: controller.maxCuesTonight,
@@ -392,6 +403,12 @@ export async function startNightSession(state: NightStoreState): Promise<NightSe
   const unsubscribeEpoch = platform.watchSensorSource.onEpoch((epoch) => runtime.feed(epoch));
   const unsubscribeCommand = platform.watchSensorSource.onCommand((command) => {
     if (command === 'stop') void handle.stop();
+  });
+  // The other "stop from outside the app": the Live Activity's button on the lock screen, which
+  // arrives as a deep link (WO L2.2n). Same destination as the watch's button — one
+  // `NightController.userStop()`, whichever surface asked.
+  const unsubscribeLiveStop = platform.liveStatus.onStopRequested(() => {
+    void handle.stop();
   });
   try {
     await platform.watchSensorSource.start();
@@ -410,6 +427,7 @@ export async function startNightSession(state: NightStoreState): Promise<NightSe
       await runtime.stop();
       unsubscribeEpoch();
       unsubscribeCommand();
+      unsubscribeLiveStop();
       await platform.watchSensorSource.stop().catch(() => undefined);
       await platform.audioPlayer.stopBed().catch(() => undefined);
       await platform.audioPlayer.dispose().catch(() => undefined);

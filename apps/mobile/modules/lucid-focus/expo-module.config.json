@@ -1,0 +1,8 @@
+{
+  "$comment": "apps/mobile/modules/lucid-focus — local Expo module behind src/platform/dnd.ts: reports whether the OS is silencing this app (Focus/Do-Not-Disturb) plus the audio-route numbers the pre-night check cares about. Its own module rather than a function on lucid-live-activity because it is the only piece that needs the com.apple.developer.focus-status capability, which is deliberately NOT shipped yet (see ledger/wo-notes/L2.2n.md).",
+  "platforms": ["apple"],
+  "apple": {
+    "modules": ["LucidFocusModule"],
+    "podspecPath": "ios/LucidFocus.podspec"
+  }
+}
