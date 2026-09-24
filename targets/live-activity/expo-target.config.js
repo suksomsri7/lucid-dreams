@@ -12,9 +12,12 @@
  *
  * App group: `appGroupsByDefault` is true for `type: 'widget'`, so apple-targets copies
  * `com.apple.security.application-groups` from `apps/mobile/app.config.ts`'s `ios.entitlements`
- * (`group.app.dreaming`). Nothing here reads it today — every value the view draws arrives
- * inside the activity's own content state — but the entitlement keeps this target and the app
- * in the same group, which is what ActivityKit's push-token work (L3.x) will need.
+ * (`group.app.dreaming`) — but only when the target declares an `entitlements` object at all
+ * (`with-widget.ts` skips the whole defaults step otherwise; confirmed by a prebuild run that
+ * produced no `ios/.targets/DreamingLive/generated.entitlements`). Hence the empty object below.
+ * Nothing here reads the group today — every value the view draws arrives inside the activity's
+ * own content state — but it keeps this target and the app in the same group, which is what
+ * ActivityKit's push-token work (L3.x) will need.
  *
  * ESM and TypeScript are not supported in this file — plain CommonJS only.
  *
@@ -30,6 +33,10 @@ module.exports = {
   // the one place the ActivityKit requirement is written down. 18.0 is apple-targets' own
   // default for widgets and is well above 16.2, so nothing is lost by keeping it.
   deploymentTarget: '18.0',
+
+  // Empty on purpose: it is the switch that makes apple-targets sync the app group from the main
+  // app (see the note above). Anything written here would *replace* that sync, not add to it.
+  entitlements: {},
 
   colors: {
     $accent: { color: '#6C4CE0', darkColor: '#9C86F2' },

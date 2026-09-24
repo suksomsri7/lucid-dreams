@@ -7,26 +7,33 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { withDangerousMod, withEntitlementsPlist, type ConfigPlugin } from '@expo/config-plugins';
+import { IOSConfig, withEntitlementsPlist, withXcodeProject, type ConfigPlugin } from '@expo/config-plugins';
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 const INFO_PLIST_LOCALES = ['en', 'th'] as const;
 
 /**
- * Copies `locales/<lang>/InfoPlist.strings` into the generated Xcode project's
- * `<lang>.lproj/InfoPlist.strings` (APP-RUN §0.5 S10 · WO L1.3) so the system
- * permission prompts iOS shows are actually localised, not just the base
- * `ios.infoPlist` English text below.
+ * Copies `locales/<lang>/InfoPlist.strings` into the generated Xcode project and **registers it**
+ * (APP-RUN §0.5 S10 · WO L1.3, debt closed in L2.2n) so the system permission prompts iOS shows
+ * are actually localised, not just the base `ios.infoPlist` English text below.
  *
- * Deliberately scoped to *file placement* only — it does not register the files as a
- * `PBXVariantGroup` in the generated `.pbxproj` (the step that makes a real Xcode build
- * embed and use them). There is no Mac/Xcode on this VPS to test that against, and
- * getting pbxproj surgery wrong risks a broken project file that only surfaces the next
- * time someone attempts a real iOS build — worse than the current, honestly documented
- * gap. Verified instead by running `expo prebuild -p ios --no-install` and confirming
- * both `.strings` files land on disk (`ledger/wo-notes/L1.3.md` §"S10"); full Xcode
- * target wiring is left as a debt for whoever does the first real device build (R1) or
- * L3.6 (which already owns the rest of Store compliance, e.g. `PrivacyInfo.xcprivacy`).
+ * L1.3 stopped at placing the files and left the Xcode wiring as a debt, on the grounds that
+ * hand-rolled `.pbxproj` surgery without a Mac to test against was riskier than an honest gap.
+ * What changed: this now uses `IOSConfig.XcodeUtils.addResourceFileToGroup` — the *same* helper
+ * `@expo/config-plugins`' own `IOSConfig.Locales.withLocales` uses for exactly this file, on
+ * exactly this path shape (`<project>/Supporting/<lang>.lproj/InfoPlist.strings`). So it is no
+ * longer surgery, it is the supported call; the risk that argued for the debt is gone.
+ *
+ * Why not simply switch to Expo's `locales` config field, which would do all of this for free:
+ * it reads **JSON** files, and `scripts/qc-L1.3.sh` (O4.5) checks for
+ * `apps/mobile/locales/th/InfoPlist.strings`. Keeping the `.strings` files as the source of truth
+ * keeps that oracle honest and keeps the file in the format a translator recognises; the copy
+ * step below is the only difference from what Expo would have done.
+ *
+ * Note it is a resource file per locale rather than a `PBXVariantGroup`: a variant group is
+ * Xcode's way of *displaying* the set as one item, while what makes iOS use them is each
+ * `<lang>.lproj/InfoPlist.strings` being in the target's Resources build phase — which is what
+ * this does, and what Expo's own implementation does.
  *
  * Defined inline here rather than in its own `plugins/*.ts` file: `expo/config`'s loader
  * transpiles this single file on the fly but does not run a second require through the
@@ -35,24 +42,45 @@ const INFO_PLIST_LOCALES = ['en', 'th'] as const;
  * before moving the code here).
  */
 const withInfoPlistLocales: ConfigPlugin = (config) =>
-  withDangerousMod(config, [
-    'ios',
-    (modConfig) => {
-      const { platformProjectRoot, projectName, projectRoot } = modConfig.modRequest;
-      if (!projectName) return modConfig;
+  withXcodeProject(config, (modConfig) => {
+    const { platformProjectRoot, projectName, projectRoot } = modConfig.modRequest;
+    if (!projectName) return modConfig;
 
-      for (const locale of INFO_PLIST_LOCALES) {
-        const source = path.join(projectRoot, 'locales', locale, 'InfoPlist.strings');
-        if (!fs.existsSync(source)) continue;
+    // Same directory Expo's own `withLocales` writes into, so the two can never end up with two
+    // competing `en.lproj` folders in one project.
+    const supportingDirectory = path.join(platformProjectRoot, projectName, 'Supporting');
 
-        const targetDir = path.join(platformProjectRoot, projectName, `${locale}.lproj`);
-        fs.mkdirSync(targetDir, { recursive: true });
-        fs.copyFileSync(source, path.join(targetDir, 'InfoPlist.strings'));
-      }
+    for (const locale of INFO_PLIST_LOCALES) {
+      const source = path.join(projectRoot, 'locales', locale, 'InfoPlist.strings');
+      if (!fs.existsSync(source)) continue;
 
-      return modConfig;
-    },
-  ]);
+      const targetDir = path.join(supportingDirectory, `${locale}.lproj`);
+      fs.mkdirSync(targetDir, { recursive: true });
+      fs.copyFileSync(source, path.join(targetDir, 'InfoPlist.strings'));
+
+      const groupName = `${projectName}/Supporting/${locale}.lproj`;
+      const group = IOSConfig.XcodeUtils.ensureGroupRecursively(modConfig.modResults, groupName);
+      // Adding the same file twice would give Xcode two copies of one resource and a build
+      // warning, so re-running prebuild over an existing project has to be a no-op here.
+      // `PBXGroup['children']` is typed loosely by `xcode`'s own typings (the elements come back
+      // as `any`), so the parameter is annotated here rather than left to inference — `tsc`'s
+      // `noImplicitAny` would otherwise stop the build.
+      const alreadyThere = group?.children.some(
+        (child: { comment?: string }) => child.comment === 'InfoPlist.strings',
+      );
+      if (alreadyThere) continue;
+
+      modConfig.modResults = IOSConfig.XcodeUtils.addResourceFileToGroup({
+        filepath: path.join(`${locale}.lproj`, 'InfoPlist.strings'),
+        groupName,
+        project: modConfig.modResults,
+        isBuildFile: true,
+        verbose: true,
+      });
+    }
+
+    return modConfig;
+  });
 
 /**
  * Data Protection entitlement (WO L1.7ui, closes part of the debt `ExpoSqliteDriver.ts`'s

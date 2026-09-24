@@ -48,8 +48,8 @@ const NOT_WIRED = (what: string, wo: string): Error =>
 // ---------------------------------------------------------------------------
 
 /**
- * The night's status everywhere outside the app (DESIGN §3.4 "นอกแอป"): the lock-screen Live
- * Activity **and** the watch face.
+ * The night's status everywhere outside the app (DESIGN §3.4's "outside the app" section): the
+ * lock-screen Live Activity **and** the watch face.
  *
  * Both surfaces show the same three facts (theme · status · whispers n/8) and neither computes
  * anything, so they are updated from one place rather than from two callers that could drift
@@ -59,7 +59,7 @@ const NOT_WIRED = (what: string, wo: string): Error =>
  *
  * `pRem` is deliberately **not** sent to the lock screen (mockup `05-night.png` frame b does not
  * show a percentage there — a number on the lock screen invites reading it at 03:00), but it *is*
- * sent to the watch, where screen A shows "น่าจะฝัน 72%" (DESIGN §10).
+ * sent to the watch, where screen A shows the "likely dreaming 72%" line (DESIGN §10).
  */
 export class IosLiveStatus implements LiveStatus {
   private readonly stopListeners = new Set<() => void>();
@@ -143,7 +143,7 @@ export class IosLiveStatus implements LiveStatus {
   }
 }
 
-/** "🐋 ดำน้ำกับฉลามวาฬ" — line 1 of the lock-screen card (mockup `05-night.png` frame b). */
+/** "🐋 <theme title>" — line 1 of the lock-screen card (mockup `05-night.png` frame b). */
 function themeLine(content: LiveStatusContent): string {
   const title = content.title.trim();
   return title.length > 0 ? `${content.emoji} ${title}` : content.emoji;
