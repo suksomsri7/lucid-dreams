@@ -228,11 +228,19 @@ export function EarTestScreen({ side }: EarTestScreenProps) {
       <View style={styles.questionBlock}>
         <Text style={[typeScale.body, styles.questionLabel]}>{t('earTest.question')}</Text>
         <Scale min={1} max={5} value={selected} onChange={(n) => void handleAnswer(n)} disabled={status !== 'asking'} testID="ear-scale" />
-        {passed ? <Chip label={t('earTest.correct')} tone="rem" testID="ear-correct-chip" /> : null}
+        {passed ? (
+          <View style={styles.chipHug}>
+            <Chip label={t('earTest.correct')} tone="rem" testID="ear-correct-chip" />
+          </View>
+        ) : null}
         {wrongOnce && !passed && status === 'asking' ? <Sub>{t('earTest.wrong')}</Sub> : null}
       </View>
 
-      {bothReady ? <Chip label={t('earTest.summary.bothReady')} tone="rem" testID="ear-both-ready" /> : null}
+      {bothReady ? (
+        <View style={styles.chipHug}>
+          <Chip label={t('earTest.summary.bothReady')} tone="rem" testID="ear-both-ready" />
+        </View>
+      ) : null}
     </Screen>
   );
 }
@@ -342,6 +350,12 @@ const styles = StyleSheet.create({
   wave: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 20 },
   waveBar: { width: 3, borderRadius: 1.5 },
   questionBlock: { gap: spacing.sm },
+  // Column-flex containers default `alignItems: 'stretch'` — without this, the correct-
+  // answer chip and the "both ears ready" chip below stretch to the screen's full width
+  // instead of hugging their own label, unlike every pill in mockup `04-dream-plan.png`
+  // (fixed during WO L1.7ui parity QC; `AdvisorRoom.tsx`'s `chipsRow` already does the
+  // same `alignSelf: 'flex-start'` for the same reason).
+  chipHug: { alignSelf: 'flex-start' },
   questionLabel: { color: colors.ink, fontWeight: '600' },
   footerWrap: { gap: spacing.xs },
   footerHint: { textAlign: 'center' },
