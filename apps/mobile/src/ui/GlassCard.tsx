@@ -1,14 +1,12 @@
 /**
  * `.card` / `.card.soft` / `.card.acc` from `_base.part` (`.ch .h2` is the optional section title).
  *
- * `GlassSurface`'s platform layer (`src/platform/shared/BlurSurface.tsx` /
- * `src/platform/ios/GlassSurface.tsx`) always wraps its children in one extra `View`
- * (needed so `BlurView`/`GlassView` sizes correctly around flexible content) — so a
- * `flexDirection`/`gap` passed on the *outer* `style` never reaches the real children,
- * which still stack in RN's default column with no spacing. `style` on `GlassCard`
- * therefore means "how this card sits in its own parent" (`flexGrow`, `flexBasis`,
- * `marginTop`, …); anything that arranges the card's *own* children goes through the
- * separate `contentStyle` prop, applied to an inner `View` this component owns.
+ * `style` mirrors `GlassSurface`'s own split: it is how the card sits in *its own*
+ * parent (`flexGrow`, `flexBasis`, `marginTop`, self-alignment). `contentStyle`
+ * overrides how the card arranges *its own* children — the default is a column with
+ * `spacing.md` gap (`.card`'s padding), forwarded straight to `GlassSurface`'s
+ * `contentStyle` so it lands on a box that is actually sized that way (see the long
+ * comment in `GlassSurface.tsx` for why that distinction exists).
  */
 
 import type { ReactNode } from 'react';
@@ -46,15 +44,20 @@ export function GlassCard({
   testID,
 }: GlassCardProps) {
   return (
-    <GlassSurface tint={variant} night={night} radius={radius.card} testID={testID} style={style}>
-      <View style={[noPadding ? undefined : styles.padded, contentStyle]}>
-        {title === undefined ? null : (
-          <View style={styles.header}>
-            <SectionLabel night={night}>{title}</SectionLabel>
-          </View>
-        )}
-        {children}
-      </View>
+    <GlassSurface
+      tint={variant}
+      night={night}
+      radius={radius.card}
+      testID={testID}
+      style={style}
+      contentStyle={[noPadding ? undefined : styles.padded, contentStyle]}
+    >
+      {title === undefined ? null : (
+        <View style={styles.header}>
+          <SectionLabel night={night}>{title}</SectionLabel>
+        </View>
+      )}
+      {children}
     </GlassSurface>
   );
 }

@@ -28,6 +28,7 @@ export function Bubble({ role, text, voice = false, time, night: isNight = false
           night={isNight}
           radius={radius.bubble}
           style={styles.meSurface}
+          contentStyle={styles.meContent}
         >
           <View style={voice ? styles.voiceRow : undefined}>
             {voice ? <Icon name="mic" size={14} color={colors.white} /> : null}
@@ -41,7 +42,13 @@ export function Bubble({ role, text, voice = false, time, night: isNight = false
 
   return (
     <View style={styles.aiWrap} testID={testID}>
-      <GlassSurface tint="regular" night={isNight} radius={radius.bubble} style={styles.aiSurface}>
+      <GlassSurface
+        tint="regular"
+        night={isNight}
+        radius={radius.bubble}
+        style={styles.aiSurface}
+        contentStyle={styles.aiContent}
+      >
         <Text style={[typeScale.body, { color: isNight ? night.text : colors.ink }]}>{text}</Text>
       </GlassSurface>
       {time ? <Text style={[typeScale.sub, styles.time, { color: isNight ? night.mut : colors.mut }]}>{time}</Text> : null}
@@ -52,13 +59,12 @@ export function Bubble({ role, text, voice = false, time, night: isNight = false
 const styles = StyleSheet.create({
   aiWrap: { alignSelf: 'flex-start', maxWidth: 300 },
   meWrap: { alignSelf: 'flex-end', maxWidth: 300 },
-  aiSurface: { paddingHorizontal: 14, paddingVertical: 11, borderBottomLeftRadius: radius.bubbleTail },
-  meSurface: {
-    paddingHorizontal: 14,
-    paddingVertical: 11,
-    borderBottomRightRadius: radius.bubbleTail,
-    borderColor: 'rgba(255,255,255,0.4)',
-  },
+  // Shape only (outer — affects the real clip mask, see GlassSurface.tsx's note on style vs contentStyle).
+  aiSurface: { borderBottomLeftRadius: radius.bubbleTail },
+  meSurface: { borderBottomRightRadius: radius.bubbleTail, borderColor: 'rgba(255,255,255,0.4)' },
+  // Padding only (inner — insets the actual text/icon).
+  aiContent: { paddingHorizontal: 14, paddingVertical: 11 },
+  meContent: { paddingHorizontal: 14, paddingVertical: 11 },
   meText: { color: '#ffffff' },
   voiceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   time: { marginTop: 4 },

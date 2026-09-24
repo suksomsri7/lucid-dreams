@@ -89,14 +89,10 @@ export function Button({
           night={isNight}
           radius={SIZE_RADIUS[size]}
           style={[
-            styles.surface,
-            {
-              height: SIZE_HEIGHT[size],
-              paddingHorizontal: SIZE_PADDING[size],
-              borderColor: isFilled ? 'rgba(255,255,255,0.3)' : undefined,
-            },
+            { borderColor: isFilled ? 'rgba(255,255,255,0.3)' : undefined },
             pressed ? styles.pressed : undefined,
           ]}
+          contentStyle={[styles.surface, { height: SIZE_HEIGHT[size], paddingHorizontal: SIZE_PADDING[size] }]}
         >
           <View style={styles.row}>
             {loading ? (
