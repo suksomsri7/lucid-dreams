@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-24 รอบ 9 · ✍️ **แผน RUN เขียนแล้ว `ledger/APP-RUN.md`** (24 WO · Fable คุม/QC/ความปลอดภัย · Opus=engine/Swift/BLE/AI · Sonnet=UI · Haiku=งานกล · ผู้ตรวจอิสระ 8 ใบ · ทนต่อ session ตาย §0.6 · รอบเครื่องจริง R1–R3) · `RUN-STATE.json` = not-started · **สถานะ = รอเจ้าของตอบ APP-RUN §0.3 (repo/Apple/Claude key) + DESIGN §10**
 - 2026-09-24 รอบ 8 · เจ้าของแก้ UX 3 ข้อ: (04) ก่อนเริ่มเล่นเสียงสมอสุ่มรอบ ถาม "ได้ยินกี่รอบ" + ตรวจอุปกรณ์ครบก่อนกดเริ่ม · (06) เช้าเลือกพูด/พิมพ์ · เอกสารแก้แล้ว (3219427) · ✅ 04/06 วาดใหม่+ส่ง TG แล้ว · สถานะ = รอเจ้าของตอบ §10 (9 ข้อ)
 - 2026-09-24 รอบ 7 · ✅ **ภาพ v2 Liquid Glass 10 ใบตรวจแล้ว ส่ง Telegram แล้ว** พร้อมคำถามเคาะ 9 ข้อ (DESIGN-APP §10) · **สถานะ = รอเจ้าของตอบ §10 → เขียนใบงาน 24 WO (`ledger/APP-RUN.md`) → RUN**
 - 2026-09-24 รอบ 6 · เจ้าของสั่ง **UI สไตล์ Liquid Glass** → `_base.part` เป็นกระจกฝ้า+แท็บแคปซูลลอย (b581632) · วาดใหม่ 10 ใบ (Opus 2 ตัว) · สแต็ก: `expo-glass-effect` (iOS 26) ถอยเป็น `expo-blur`
@@ -24,7 +25,7 @@
 - **Sprint 1 — Night Session ขั้นต่ำ**: แอปนาฬิกา Swift เปิด workout session สตรีม HR/accel ทั้งคืน + บันทึกลงไฟล์ (วัดแบตคืนแรก) · แอปมือถือเล่น ambience + cue ตามเวลา + gate ไม่ยิงถ้าเพิ่งขยับ/HR พุ่ง · หยุดเมื่อตื่น · Morning Recall เสียง→ข้อความ
 - **Sprint 2**: REM probability จากข้อมูลจริงที่เก็บ เทียบสเตจ Apple · adaptive volume · คืนควบคุม · แดชบอร์ด
 
-## §2 ขั้นถัดไป (หลังเคาะ §10 ของ DESIGN-APP.md)
+## §2 ขั้นถัดไป (หลังเคาะ) — ทำตาม `APP-RUN.md §6`
 - เขียน `ledger/APP-RUN.md` (สัญญา+ข้อสอบต่อ WO · L1.1 spike ก่อน) แบบ KANBAN-RUN/MEMBER-RUN
 - ตั้งโปรเจกต์ Expo + watchOS target + expo-glass-effect · ทดสอบ L1.1 บนเครื่องเจ้าของ
 - ออกแบบหน้าจอ (ภาพ mockup) ตามหมวด: Onboarding/Training · Night Session · Morning Recall · Journal/Insights · Settings
