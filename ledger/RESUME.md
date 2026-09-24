@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-24 รอบ 7 · ✅ **ภาพ v2 Liquid Glass 10 ใบตรวจแล้ว ส่ง Telegram แล้ว** พร้อมคำถามเคาะ 9 ข้อ (DESIGN-APP §10) · **สถานะ = รอเจ้าของตอบ §10 → เขียนใบงาน 24 WO (`ledger/APP-RUN.md`) → RUN**
 - 2026-09-24 รอบ 6 · เจ้าของสั่ง **UI สไตล์ Liquid Glass** → `_base.part` เป็นกระจกฝ้า+แท็บแคปซูลลอย (b581632) · วาดใหม่ 10 ใบ (Opus 2 ตัว) · สแต็ก: `expo-glass-effect` (iOS 26) ถอยเป็น `expo-blur`
 - 2026-09-24 รอบ 5 · เจ้าของสั่ง **แก้แบบใหม่**: ธีมขาว สะอาด ใช้ง่ายที่สุด · หน้าแรก = ที่ปรึกษาความฝัน (บอก → สรุป → เริ่ม) · DESIGN-APP §2–§4 เขียนใหม่ (v2) · ภาพ v1 มืด 13 ใบ → `design-app-v1-dark/` · กำลังวาด v2 10 ใบ (Opus 2 ตัว) → Fable ตรวจ → Telegram
 - 2026-09-24 รอบ 4 · เจ้าของสั่ง **ออกแบบแอป iOS** → `DESIGN-APP.md` (22 WO · 3 ระยะ · คำถามเคาะ 8 ข้อ §10) + ภาพ 12 ใบ `design-app/` (Opus 2 ตัววาด · Fable ตรวจทุกภาพก่อนส่ง Telegram) · สถานะ = กำลังวาด/ตรวจภาพ
@@ -22,6 +23,8 @@
 - **Sprint 1 — Night Session ขั้นต่ำ**: แอปนาฬิกา Swift เปิด workout session สตรีม HR/accel ทั้งคืน + บันทึกลงไฟล์ (วัดแบตคืนแรก) · แอปมือถือเล่น ambience + cue ตามเวลา + gate ไม่ยิงถ้าเพิ่งขยับ/HR พุ่ง · หยุดเมื่อตื่น · Morning Recall เสียง→ข้อความ
 - **Sprint 2**: REM probability จากข้อมูลจริงที่เก็บ เทียบสเตจ Apple · adaptive volume · คืนควบคุม · แดชบอร์ด
 
-## §2 ขั้นถัดไป (หลังเคาะ)
+## §2 ขั้นถัดไป (หลังเคาะ §10 ของ DESIGN-APP.md)
+- เขียน `ledger/APP-RUN.md` (สัญญา+ข้อสอบต่อ WO · L1.1 spike ก่อน) แบบ KANBAN-RUN/MEMBER-RUN
+- ตั้งโปรเจกต์ Expo + watchOS target + expo-glass-effect · ทดสอบ L1.1 บนเครื่องเจ้าของ
 - ออกแบบหน้าจอ (ภาพ mockup) ตามหมวด: Onboarding/Training · Night Session · Morning Recall · Journal/Insights · Settings
 - ออกแบบ data model + ตัวประเมิน REM probability + ตัวควบคุม cue (state machine)
