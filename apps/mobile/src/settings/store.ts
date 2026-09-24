@@ -22,22 +22,22 @@ import { GUARD_MIN_HOURS, MAX_CUES_PER_NIGHT, VOLUME_MAX, VOLUME_MIN } from '@lu
 
 const STORAGE_KEY = 'lucid.settings.v1';
 
-/** DESIGN §5.3 "เงียบ 3 ชม.แรก" row — 2–4 h, UI floor `Math.max(2, …)` (mockup 09, WO L3.6 spec). */
+/** DESIGN §5.3 "quiet first 3 h" row — 2–4 h, UI floor `Math.max(2, …)` (mockup 09, WO L3.6 spec). */
 export const MIN_GUARD_HOURS = GUARD_MIN_HOURS;
 export const MAX_GUARD_HOURS = 4;
 export const DEFAULT_GUARD_HOURS = 3;
 
-/** "กระซิบสูงสุด 8 ครั้ง/คืน" — floor kept well above zero so a corrupt value cannot silence the whole night, ceiling is the engine's own hard cap. */
+/** "Whisper cap, up to 8 per night" — floor kept well above zero so a corrupt value cannot silence the whole night, ceiling is the engine's own hard cap. */
 export const MIN_CUES_PER_NIGHT = 4;
 export const MAX_CUES_PER_NIGHT_SETTING = MAX_CUES_PER_NIGHT;
 export const DEFAULT_MAX_CUES_PER_NIGHT = MAX_CUES_PER_NIGHT;
 
-/** "เตือนมองมือกลางวัน 3 ครั้ง" (DESIGN §3.4 / mockup 10's "reality check … 3 ครั้ง/วัน"). */
+/** "Daytime hand-check reminder, 3 times" (DESIGN §3.4 / mockup 10's "reality check … 3 times/day"). */
 export const MIN_REALITY_CHECKS_PER_DAY = 1;
 export const MAX_REALITY_CHECKS_PER_DAY = 5;
 export const DEFAULT_REALITY_CHECKS_PER_DAY = 3;
 
-/** "ระดับเสียงเริ่มต้น" slider rails — the same 8–35 % the engine will clamp to regardless. */
+/** "Starting volume level" slider rails — the same 8–35 % the engine will clamp to regardless. */
 export const MIN_VOLUME_START = VOLUME_MIN;
 export const MAX_VOLUME_START = VOLUME_MAX;
 export const DEFAULT_VOLUME_START = 0.15;
@@ -49,15 +49,15 @@ export interface SettingsState {
   maxCuesPerNight: number;
   /** Sleep Guard: two cue-caused wake-ups stop the night's whispers for good (§5.3). */
   stopAfterTwoWakes: boolean;
-  /** "คืนควบคุม 1 ใน 4" — on/off; the ratio itself is `controlNight.ts#CONTROL_NIGHT_RATIO`, fixed. */
+  /** "Control nights, 1 in 4" — on/off; the ratio itself is `controlNight.ts#CONTROL_NIGHT_RATIO`, fixed. */
   controlNightsEnabled: boolean;
   /** Daytime reality-check notifications per day (DESIGN §3.4). */
   realityChecksPerDay: number;
   /** Boost night / WBTB — off by default (§0.5 S6: a stronger technique, never assumed). */
   boostNight: boolean;
-  /** First night's / manual override starting volume, 0..1 — "ค่าเริ่มต้นเท่านั้น" after night 1. */
+  /** First night's / manual override starting volume, 0..1 — "starting value only" after night 1. */
   volumeStart: number;
-  /** "ปรับให้เองทุกคืน" — always on in normal mode (mockup 09: "เปิด · ปิดไม่ได้ในโหมดปกติ"); kept as a field for forward-compat, `settings.tsx` renders it as a disabled switch. */
+  /** "Auto-adjusts every night" — always on in normal mode (mockup 09: "On · cannot be turned off in normal mode"); kept as a field for forward-compat, `settings.tsx` renders it as a disabled switch. */
   autoAdjust: boolean;
 }
 
@@ -186,7 +186,7 @@ export function __resetSettingsForTests(): void {
   emit();
 }
 
-/** Real reset path — Settings › ลบทั้งหมด (WO L3.6). See `store/onboarding.ts#resetOnboardingAfterDeleteAll`'s doc comment; same shape, same reason no persist call is needed here. */
+/** Real reset path — Settings › "Delete all" (WO L3.6). See `store/onboarding.ts#resetOnboardingAfterDeleteAll`'s doc comment; same shape, same reason no persist call is needed here. */
 export function resetSettingsAfterDeleteAll(): void {
   state = DEFAULT_SETTINGS;
   hydrated = true;

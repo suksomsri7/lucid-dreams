@@ -470,6 +470,7 @@ export const th = {
   'settings.deleteAll.step2.placeholder': 'พิมพ์คำว่า "ลบ"',
   'settings.deleteAll.step2.cta': 'ลบทั้งหมด',
   'settings.deleteAll.step2.mismatch': 'พิมพ์คำว่า "ลบ" ให้ตรงก่อน',
+  'settings.deleteAll.confirmWord': 'ลบ',
   'settings.deleteAll.done': 'ลบข้อมูลทั้งหมดแล้ว',
   'settings.deleteAll.failed': 'ลบไม่สำเร็จ ลองใหม่อีกครั้ง',
   'settings.about.notMedical': 'ไม่ใช่เครื่องมือแพทย์',

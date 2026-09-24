@@ -474,6 +474,7 @@ export const en: Translations = {
   'settings.deleteAll.step2.placeholder': 'Type "delete"',
   'settings.deleteAll.step2.cta': 'Delete everything',
   'settings.deleteAll.step2.mismatch': 'Type "delete" exactly first',
+  'settings.deleteAll.confirmWord': 'delete',
   'settings.deleteAll.done': 'Everything has been deleted',
   'settings.deleteAll.failed': 'Delete failed — try again',
   'settings.about.notMedical': 'Not a medical device',

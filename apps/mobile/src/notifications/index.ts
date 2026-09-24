@@ -34,7 +34,7 @@ const IS_WEB = Platform.OS === 'web';
 
 /** Reality checks run only inside the day window 09:00–21:00 — by construction this can
  * never overlap a sleep window (which is, definitionally, at night), satisfying DESIGN
- * §3.4's "ไม่ชนช่วงนอน" without needing to know the user's actual bedtime. */
+ * §3.4's "never overlaps sleep" without needing to know the user's actual bedtime. */
 const DAY_WINDOW_START_HOUR = 9; // 09:00
 const DAY_WINDOW_END_HOUR = 21; // 21:00
 const MIN_GAP_MIN = 90;
@@ -46,7 +46,7 @@ const MORNING_REMINDER_ID = 'lucid-morning-reminder';
 
 /** DESIGN §3.4's default evening nudge, used until a real "average bedtime" exists (no bedtime history is tracked anywhere in this build — documented debt, `ledger/wo-notes/L3ui.md`). */
 const DEFAULT_EVENING_REMINDER = { hour: 22, minute: 30 };
-/** "เตือนเช้าถ้าไม่เปิดแอปใน 20 นาทีหลังตื่น" (APP-RUN §2 L3.3). */
+/** "Remind in the morning if the app is not opened within 20 min of waking" (APP-RUN §2 L3.3). */
 const MORNING_REMINDER_AFTER_MIN = 20;
 
 Notifications.setNotificationHandler({
@@ -129,7 +129,7 @@ async function ensureRealityCheckCategory(locale: Locale): Promise<void> {
 
 /**
  * (Re)schedules every one of this app's own local notifications: `count` daily reality
- * checks (mockup `10-outside.png`'s "มองมือของคุณ… นี่ฝันไหม" + ทำแล้ว/ไว้ก่อน) plus the
+ * checks (mockup `10-outside.png`'s "Look at your hands… are you dreaming?" + Done/Later) plus the
  * evening reminder. Cancels this app's own previously scheduled notifications first
  * (`cancelAllScheduledNotificationsAsync` — this app never schedules anything else), so
  * calling this again after a settings change is idempotent, not additive.
@@ -187,7 +187,7 @@ export async function cancelDailyReminders(): Promise<void> {
   }
 }
 
-/** Called once the night ends (`night/session.ts`) — "เตือนเช้าถ้าไม่เปิดแอปใน 20 นาทีหลังตื่น". */
+/** Called once the night ends (`night/session.ts`) — "remind in the morning if the app is not opened within 20 min of waking". */
 export async function scheduleMorningReminder(locale: Locale): Promise<void> {
   if (IS_WEB) {
     console.log('[notifications] stub scheduleMorningReminder (web)'); // eslint-disable-line no-console -- intentional web stub log (WO L3.3)
@@ -227,7 +227,7 @@ export async function cancelMorningReminder(): Promise<void> {
 
 /**
  * One listener for the whole app (`app/_layout.tsx`, mounted once) — records
- * ทำแล้ว/ไว้ก่อน (`DONE`/`LATER`) against `RealityCheck`, and the plain tap
+ * Done/Later (`DONE`/`LATER`) against `RealityCheck`, and the plain tap
  * (`Notifications.DEFAULT_ACTION_IDENTIFIER`, no button pressed) as `NONE`, same three
  * values `packages/data`'s `REALITY_CHECK_ANSWERS` already defines.
  */

@@ -9,7 +9,7 @@ import { explainLearning, type PersonalModel } from '@lucid/engine';
 
 import { THEME_CHIPS } from '../../src/advisor';
 import { fetchLastNights } from '../../src/data/history';
-import { fetchJournalStats } from '../../src/data/journalStats';
+import { fetchJournalStats } from '../../src/journal/stats';
 import { exportNightJson, fetchNightReport } from '../../src/data/report';
 import { retryPendingAppleImports } from '../../src/health/appleSleep';
 import { getPersonalModel } from '../../src/learning';
@@ -22,13 +22,13 @@ type Translate = (key: TranslationKey, params?: TranslateParams) => string;
  * nights to compare against — mockup 08's own header shows the real 16/27/8/6.4 numbers
  * precisely because there is enough of both; oracle M5.3's own name for the floor. */
 const MIN_CONTROL_NIGHTS_TO_COMPARE = 4;
-/** "30 คืนล่าสุด" (mockup 08's own chart title). */
+/** "Last 30 nights" (mockup 08's own chart title). */
 const CHART_NIGHTS = 30;
 /** DESIGN §5.5 gate for the histogram below, same floor `getPersonalModel`'s
- * `explainLearning` uses for "กำลังเรียนรู้ n/14" — cue-time-of-day needs fewer nights
+ * `explainLearning` uses for "Learning n/14" — cue-time-of-day needs fewer nights
  * than the bandit does to say something honest, but still more than one or two. */
 const MIN_NIGHTS_FOR_DREAM_TIME = 7;
-/** How many recent CUE nights' cue timestamps are inspected for "เวลาที่คุณมักฝัน" — full
+/** How many recent CUE nights' cue timestamps are inspected for "you tend to dream…" — full
  * epoch history would answer this more precisely but at the cost of reading every
  * `SensorEpoch` row of every recent night; cue timestamps are already a REM-likely
  * sample (a cue only ever fires in `REM_LIKELY`/`CUE`), so they are cheap and honest. */
@@ -41,7 +41,7 @@ const DREAM_TIME_BUCKETS = (24 * 60) / DREAM_TIME_BUCKET_MIN;
  * Tab 2 — every past night + the totals (mockup `08-journal.png`, WO L3.5). The row list
  * itself and the link into `/report/[id]` are L2.10; everything above the list (the two
  * headline percentages vs. control nights, the average theme match, the night count, the
- * 30-night bar chart, "เวลาที่คุณมักฝัน" and the learning card) is this WO.
+ * 30-night bar chart, "you tend to dream…" and the learning card) is this WO.
  */
 export default function JournalScreen() {
   const { t, locale } = useT();
@@ -309,7 +309,7 @@ function formatNightDate(dateIso: string, locale: Locale): string {
 
 // ---------------------------------------------------------------------------
 // `?fixture=journal` (WO L3.5 QC parity) — mockup `08-journal.png`'s own numbers exactly:
-// 27% vs 8%, 6.4, 16 nights, 30-night chart, "เวลาที่คุณมักฝัน 04:30–05:30".
+// 27% vs 8%, 6.4, 16 nights, 30-night chart, "you tend to dream 04:30–05:30".
 // ---------------------------------------------------------------------------
 
 function journalFixtureStats(): StatsResult {

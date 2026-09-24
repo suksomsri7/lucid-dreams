@@ -227,7 +227,7 @@ export async function recordNightOutcome(sessionId: string): Promise<void> {
   });
 }
 
-/** `null` before the first CUE night has ever been scored — `journal.tsx` shows "กำลังเรียนรู้ 0/14" itself in that case, same as any other `learning: true` model. */
+/** `null` before the first CUE night has ever been scored — `journal.tsx` shows "Learning 0/14" itself in that case, same as any other `learning: true` model. */
 export async function getPersonalModel(): Promise<PersonalModel | null> {
   const stored = await loadPersonalModel();
   if (stored === null || stored.nights === 0) return null;

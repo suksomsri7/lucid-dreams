@@ -1,11 +1,11 @@
 /**
- * Control nights (WO L3.3 · DESIGN §5.5 "คืนควบคุมสุ่ม 25% … บอกตอนเช้าเท่านั้น" ·
- * APP-RUN §2 "L3.3").
+ * Control nights (WO L3.3 · DESIGN §5.5 "control nights randomised at 25% … told only in
+ * the morning" · APP-RUN §2 "L3.3").
  *
  * One in four nights (by default) plays nothing: the engine still decides every
  * `CueEvent` it *would* have fired (`NightControllerMode: 'CONTROL'`, `packages/engine/
- * src/nightController.ts`) but never calls the player, so `journal.tsx`'s "รู้ตัว 27%
- * คืนกระซิบ vs 8% คืนควบคุม" has something honest to compare against. The pick has to be
+ * src/nightController.ts`) but never calls the player, so `journal.tsx`'s "27% lucid on
+ * whisper nights vs 8% on control nights" has something honest to compare against. The pick has to be
  * **deterministic per night** (APP-RUN §0.2 rule 6: no hidden state, no `Math.random()`)
  * so a night can be replayed and so the same "was tonight a control night" answer holds
  * if this function is called more than once before the session row is written
@@ -21,7 +21,7 @@
 
 import { mulberry32 } from '@lucid/engine';
 
-/** DESIGN §5.5 / mockup `09-settings.png` "คืนควบคุม 1 ใน 4". */
+/** DESIGN §5.5 / mockup `09-settings.png` "control nights, 1 in 4". */
 export const CONTROL_NIGHT_RATIO = 0.25;
 
 /**

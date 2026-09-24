@@ -1,5 +1,5 @@
 /**
- * `RealityCheck` (DESIGN §7 · WO L3.3 · mockup `10-outside.png`'s "ทำแล้ว/ไว้ก่อน" pair).
+ * `RealityCheck` (DESIGN §7 · WO L3.3 · mockup `10-outside.png`'s "Done/Later" pair).
  * Same situation as `personalModel.ts`: the table exists, the repo has no accessor group
  * for it, and `packages/data` is off-limits to this WO — so this is a small raw-driver
  * wrapper, not a repo change.

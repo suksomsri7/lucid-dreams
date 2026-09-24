@@ -178,7 +178,7 @@ function createRuntime(ctx: RuntimeContext): Runtime {
         if ((action.to === 'MORNING' || action.to === 'ENDED') && !finished) {
           finished = true;
           persist((sessionId) => finishNightSession(sessionId, systemClock.nowIso()));
-          // WO L3.3 "เตือนเช้าถ้าไม่เปิดแอปใน 20 นาทีหลังตื่น" — cancelled by
+          // WO L3.3 "remind in the morning if the app is not opened within 20 min of waking" — cancelled by
           // `useMorning.ts` the moment the morning room actually opens.
           if (ctx.platform) void scheduleMorningReminder(ctx.locale).catch(() => undefined);
         }

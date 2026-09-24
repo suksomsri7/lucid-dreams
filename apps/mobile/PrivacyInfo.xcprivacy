@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Apple's "required reason" API declaration (WO L3.6 · APP-RUN §0.5 S10 · H-5 debt from
+  L1.1's `ledger/wo-notes/L1.1.md` §6/§7). Covers the four required-reason API categories
+  this app's own dependency tree touches:
+
+    - File timestamp   — `expo-file-system` (journal/settings export+import, audio cue
+                          files) and `expo-sqlite` (the whole local database) both call
+                          `stat`/`fstat`/similar under the hood.
+    - User defaults     — `@react-native-async-storage/async-storage` (settings, onboarding,
+                          night plan, locale, anchor seed) and several Expo modules persist
+                          small values via `NSUserDefaults`.
+    - Disk space        — `expo-file-system` surfaces free/total disk space (not called by
+                          this app's own code today, but the module links the symbol).
+    - System boot time  — pulled in transitively by Expo's native modules for relative
+                          timing; this app does not call it directly.
+
+  This app does not do cross-app/cross-website tracking (`NSPrivacyTracking` = false,
+  no tracking domains) and the data it collects (dream/sleep entries, morning transcript
+  with explicit consent) stays on-device or goes to our own server for scoring, never to
+  a third party or an ad network, so `NSPrivacyCollectedDataTypes` is empty — the actual
+  App Store "app privacy" questionnaire (a separate, manual step in App Store Connect)
+  is where that is declared to Apple in prose; this manifest is only the required-reason
+  API attestation.
+-->
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>E174.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>35F9.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

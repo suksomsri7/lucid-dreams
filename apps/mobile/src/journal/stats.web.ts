@@ -1,5 +1,5 @@
 /**
- * Web counterpart of `journalStats.ts` — see that file's header. `journal.tsx` always
+ * Web counterpart of `stats.ts` — see that file's header. `journal.tsx` always
  * takes the `?fixture=journal` path on web.
  */
 

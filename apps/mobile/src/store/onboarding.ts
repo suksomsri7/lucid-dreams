@@ -125,7 +125,7 @@ export function __resetOnboardingStateForTests(): void {
 }
 
 /**
- * Real reset path — the last step of Settings › ลบทั้งหมด (WO L3.6, mockup 09's "ลบทั้งหมด"
+ * Real reset path — the last step of Settings › "Delete all" (WO L3.6, mockup 09's "Delete all"
  * button). Same effect as {@link __resetOnboardingStateForTests}; the caller
  * (`app/(tabs)/settings.tsx`) always clears `AsyncStorage` wholesale immediately before
  * or after this, so no persist call is needed here — only the in-memory state, so the

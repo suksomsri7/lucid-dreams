@@ -157,8 +157,8 @@ export async function postScore(request: ScoreRequest): Promise<unknown | null> 
 // ---------------------------------------------------------------------------
 
 /**
- * The last step of Settings › ลบทั้งหมด (mockup 09, DESIGN §7's own note: "ลบได้ทั้งหมด
- * ในตั้งค่า"). This WO cannot add the actual `DELETE /device` route (`apps/api` is
+ * The last step of Settings › "Delete all" (mockup 09, DESIGN §7's own note: "everything
+ * can be deleted in Settings"). This WO cannot add the actual `DELETE /device` route (`apps/api` is
  * off-limits) — it only has to exist on the server for this call to matter; until then
  * every response the server could plausibly give (404 the route isn't built yet, 401 the
  * token was already gone, network failure) all mean the same thing here: **the local

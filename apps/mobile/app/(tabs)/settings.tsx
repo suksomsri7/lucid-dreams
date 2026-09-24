@@ -10,7 +10,6 @@ import { AUDIO_HOURS_PER_FULL_CHARGE, summarizeDevices } from '@lucid/engine';
 import { applyDeviceFoundFixture } from '../../src/dev/fixtures';
 import { getAnchorSeed, playAnchorOnce, resetAnchorSeed, buildAnchorSignature } from '../../src/audio/player';
 import { deleteDevice } from '../../src/api/client';
-import { closeDatabase, getRepo } from '../../src/data/index';
 import { deviceRegistry, refreshDevicesFromPlatform } from '../../src/devices/registry';
 import { useLocale, useT, type TranslateParams, type TranslationKey } from '../../src/i18n';
 import { scheduleDailyReminders } from '../../src/notifications';
@@ -34,6 +33,7 @@ import {
   MIN_VOLUME_START,
 } from '../../src/settings/store';
 import { resetSettingsAfterDeleteAll } from '../../src/settings/store';
+import { deleteEverythingLocal, exportAllData } from '../../src/settings/data';
 import { resetOnboardingAfterDeleteAll, setConsentAi, useOnboardingState } from '../../src/store/onboarding';
 import { clearNightPlan } from '../../src/store/night';
 import { Button, GlassCard, Icon, Row, Screen, Seg, Sub, Switch, Title, colors, radius, spacing, typeScale } from '../../src/ui';
@@ -45,10 +45,10 @@ type Translate = (key: TranslationKey, params?: TranslateParams) => string;
 
 /**
  * Tab 3 — one page for everything (DESIGN §3.1 · mockup `09-settings.png`, WO L3.6).
- * Four groups exactly as drawn: อุปกรณ์ · เสียง · การนอน · ข้อมูล — `settings.sleep.boostNight`
+ * Four groups exactly as drawn: Devices · Sound · Sleep · Data — `settings.sleep.boostNight`
  * is the one row the mockup itself does not draw (it predates the WBTB decision,
- * APP-RUN §2 "L3.6"); it is placed at the end of "การนอน" rather than as a fifth group,
- * per DESIGN §4-09's own "ไม่มีกลุ่มอื่น" rule — see `ledger/wo-notes/L3ui.md` for the
+ * APP-RUN §2 "L3.6"); it is placed at the end of "Sleep" rather than as a fifth group,
+ * per DESIGN §4-09's own "no extra group" rule — see `ledger/wo-notes/L3ui.md` for the
  * parity note.
  */
 export default function SettingsScreen() {
@@ -119,8 +119,7 @@ export default function SettingsScreen() {
   async function handleExportAll(): Promise<void> {
     if (Platform.OS === 'web') return;
     try {
-      const repo = await getRepo();
-      const bundle = await repo.exportJson();
+      const bundle = await exportAllData();
       const directory = new Directory(Paths.cache, 'settings-export');
       if (!directory.exists) directory.create({ intermediates: true });
       const target = new File(directory, `dreaming-export-${Date.now()}.json`);
@@ -140,17 +139,7 @@ export default function SettingsScreen() {
     setDeleteWord('');
     if (Platform.OS === 'web') return;
     try {
-      const repo = await getRepo();
-      const result = await repo.deleteAll();
-      for (const path of result.audioPaths) {
-        try {
-          const file = new File(path);
-          if (file.exists) file.delete();
-        } catch {
-          // Best-effort per file — one bad path must not stop the rest of the wipe.
-        }
-      }
-      await closeDatabase();
+      await deleteEverythingLocal();
       // §0.5 S4: local storage (Keychain-equivalent device token + every AsyncStorage key
       // this app writes — onboarding, night plan, settings, locale, anchor seed) and the
       // server record, in that order; the server call is itself best-effort
@@ -170,7 +159,7 @@ export default function SettingsScreen() {
       <Title>{t('settings.title')}</Title>
       <Sub>{t('settings.subtitle')}</Sub>
 
-      {/* อุปกรณ์ */}
+      {/* Devices */}
       <GlassCard title={t('settings.section.devices')} noPadding testID="settings-devices-card">
         <DeviceRow
           icon="heart"
@@ -205,7 +194,7 @@ export default function SettingsScreen() {
         </Pressable>
       </GlassCard>
 
-      {/* เสียง */}
+      {/* Sound */}
       <GlassCard title={t('settings.section.sound')} noPadding testID="settings-sound-card">
         <Row label={t('settings.sound.anchor')} value={t('settings.sound.anchor.listen')} onPress={() => void handlePlayAnchor()} testID="settings-anchor-listen" />
         <Row label={t('settings.sound.reset')} value={t('settings.sound.reset.sub')} onPress={() => setSheet('resetAnchor')} testID="settings-anchor-reset" />
@@ -225,7 +214,7 @@ export default function SettingsScreen() {
         </View>
       </GlassCard>
 
-      {/* การนอน */}
+      {/* Sleep */}
       <GlassCard title={t('settings.section.sleep')} noPadding testID="settings-sleep-card">
         <Row
           label={t('settings.sleep.guard', { hours: settings.guardHours })}
@@ -256,7 +245,7 @@ export default function SettingsScreen() {
         </View>
       </GlassCard>
 
-      {/* ข้อมูล */}
+      {/* Data */}
       <GlassCard title={t('settings.section.data')} noPadding testID="settings-data-card">
         <View style={styles.switchRow}>
           <Text style={[typeScale.body, styles.rowLabel, { flex: 1 }]}>{t('settings.data.consentAi')}</Text>
@@ -371,7 +360,7 @@ export default function SettingsScreen() {
         placeholder={t('settings.deleteAll.step2.placeholder')}
         cta={t('settings.deleteAll.step2.cta')}
         mismatchLabel={t('settings.deleteAll.step2.mismatch')}
-        confirmWord={t('settings.deleteAll.confirmWord' as TranslationKey) === 'settings.deleteAll.confirmWord' ? (locale === 'th' ? 'ลบ' : 'delete') : ''}
+        confirmWord={t('settings.deleteAll.confirmWord')}
         value={deleteWord}
         onChangeText={setDeleteWord}
         onCancel={() => {

@@ -33,7 +33,7 @@ export default function RootLayout() {
   const segments = useSegments();
   const inOnboarding = segments[0] === 'onboarding';
 
-  // One listener for the app's whole lifetime (WO L3.3) — records ทำแล้ว/ไว้ก่อน against
+  // One listener for the app's whole lifetime (WO L3.3) — records Done/Later against
   // `RealityCheck` no matter which screen is on top when the notification is tapped.
   useEffect(() => registerNotificationResponseHandler(), []);
 
