@@ -243,6 +243,31 @@ export {
 } from './remEstimator';
 
 export {
+  WAKE_MOTION_HIGH,
+  WAKE_MOTION_LEVEL,
+  WAKE_MOTION_EPOCHS,
+  WAKE_HR_JUMP,
+  WAKE_HR_EPOCHS,
+  WAKE_HR_BASELINE_EPOCHS,
+  WAKE_HR_MIN_BASELINE_EPOCHS,
+  WAKE_QUIET_EPOCHS,
+  CUE_WOKE_WINDOW_SEC,
+  TIMER_MAX_CUES_PER_NIGHT,
+  TIMER_WINDOW_SEC,
+  TIMER_SCAN_STEP_SEC,
+  type WakeDetectorOptions,
+  type WakeReading,
+  type WakeDetector,
+  createWakeDetector,
+  type WakeBout,
+  detectWakeBouts,
+  type TimerNightParams,
+  timerModeParams,
+  type TimerCueWindow,
+  timerCueWindows,
+} from './wakeDetector';
+
+export {
   type RemMetrics,
   remMetrics,
   type StageFractions,
