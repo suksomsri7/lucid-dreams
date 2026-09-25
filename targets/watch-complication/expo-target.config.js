@@ -14,9 +14,9 @@
  * compiled the complication's sources into the watch app as well.
  *
  * `bundleIdentifier` starts with a dot, which `with-widget.ts` appends to the **main app's**
- * id, giving `app.dreaming.ios.watch.complication`. That prefix matters: an embedded binary
+ * id, giving `cloud.suksomsri.dreaming.watch.complication`. That prefix matters: an embedded binary
  * must sit under its host's identifier, and the host here is the watch app
- * (`app.dreaming.ios.watch`, the default for `type: 'watch'`).
+ * (`cloud.suksomsri.dreaming.watch`, the default for `type: 'watch'`).
  *
  * ESM and TypeScript are not supported in this file — plain CommonJS only.
  *
@@ -39,7 +39,7 @@ module.exports = {
     // apple-targets' "sync app groups from the main app" default, because the group that
     // matters here is the **watch's** container, and being explicit means a reviewer can see
     // the three copies (phone config, watch config, this file) line up.
-    'com.apple.security.application-groups': ['group.app.dreaming'],
+    'com.apple.security.application-groups': ['group.cloud.suksomsri.dreaming'],
   },
 
   colors: {

@@ -117,8 +117,8 @@ const withDataProtection: ConfigPlugin = (config) =>
  * generated project by `withInfoPlistLocales` below (WO L1.3).
  */
 
-const IOS_BUNDLE_ID = 'app.dreaming.ios'; // placeholder until the new Apple account exists (APP-RUN §0.3)
-const ANDROID_PACKAGE = 'app.dreaming.android'; // Phase 2 — no Android build in Phase 1
+const IOS_BUNDLE_ID = 'cloud.suksomsri.dreaming'; // ใต้โดเมนของเจ้าของ — 'app.dreaming.ios' ถูกคนอื่นจดแล้ว (developer portal 25 ก.ย.)
+const ANDROID_PACKAGE = 'cloud.suksomsri.dreaming'; // Phase 2 — no Android build in Phase 1
 
 /**
  * What Apple calls "required reason APIs" and "collected data types" (S10).
@@ -259,7 +259,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
        * ⚠️ The group must also exist on the Apple Developer portal before the first real build,
        * or signing fails (reference_watch_target_entitlements).
        */
-      'com.apple.security.application-groups': ['group.app.dreaming'],
+      'com.apple.security.application-groups': ['group.cloud.suksomsri.dreaming'],
       /*
        * Deliberately NOT here: `com.apple.developer.focus-status`.
        * `modules/lucid-focus` can read Focus state, but the entitlement needs a capability enabled

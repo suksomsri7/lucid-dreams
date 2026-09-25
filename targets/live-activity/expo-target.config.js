@@ -12,7 +12,7 @@
  *
  * App group: `appGroupsByDefault` is true for `type: 'widget'`, so apple-targets copies
  * `com.apple.security.application-groups` from `apps/mobile/app.config.ts`'s `ios.entitlements`
- * (`group.app.dreaming`) — but only when the target declares an `entitlements` object at all
+ * (`group.cloud.suksomsri.dreaming`) — but only when the target declares an `entitlements` object at all
  * (`with-widget.ts` skips the whole defaults step otherwise; confirmed by a prebuild run that
  * produced no `ios/.targets/DreamingLive/generated.entitlements`). Hence the empty object below.
  * Nothing here reads the group today — every value the view draws arrives inside the activity's

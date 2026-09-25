@@ -21,7 +21,7 @@ import WidgetKit
 /// Must match `SharedStore.appGroup` in `targets/watch/StreakStore.swift` and the
 /// `com.apple.security.application-groups` entitlement in both target configs.
 private enum Shared {
-    static let appGroup = "group.app.dreaming"
+    static let appGroup = "group.cloud.suksomsri.dreaming"
     static let streakKey = "streak.nights"
 
     /// `nil` = the phone has never sent a streak to this watch.
@@ -112,7 +112,7 @@ struct StreakComplicationView: View {
 struct StreakComplication: Widget {
     /// Stable across releases: WidgetKit keys the user's placed complications by this string,
     /// so renaming it would silently empty their watch face.
-    static let kind = "app.dreaming.complication.streak"
+    static let kind = "cloud.suksomsri.dreaming.complication.streak"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: StreakComplication.kind, provider: StreakProvider()) { entry in

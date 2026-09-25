@@ -57,7 +57,7 @@ module.exports = {
     // devices — which is why the number travels over WatchConnectivity first.
     // ⚠️ `type: 'watch'` is not in apple-targets' app-groups-by-default list, so this has to
     // be written out here; the complication target inherits it from the main app instead.
-    'com.apple.security.application-groups': ['group.app.dreaming'],
+    'com.apple.security.application-groups': ['group.cloud.suksomsri.dreaming'],
   },
 
   colors: {

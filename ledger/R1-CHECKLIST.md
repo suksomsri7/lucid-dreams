@@ -2,13 +2,13 @@
 
 ## ก่อน build (Fable)
 - [ ] L3.F ปิด: vitest engine/data/api ทั้งชุด · fitness · เรนเดอร์ทุกจอ TH/EN เทียบ mockup 10 ใบ · pnpm audit
-- [ ] `apps/mobile/eas.json` โปรไฟล์ `r1-internal` · `EXPO_TOKEN` จาก `/root/.lucid/expo.env` · `ios.appleTeamId` จากเจ้าของ (ทีมเดิม SiamDive/SHARK/GoodFood) · bundle id `app.dreaming.ios` จองใน ASC
+- [ ] `apps/mobile/eas.json` โปรไฟล์ `r1-internal` · `EXPO_TOKEN` จาก `/root/.lucid/expo.env` · `ios.appleTeamId` จากเจ้าของ (ทีมเดิม SiamDive/SHARK/GoodFood) · bundle id `cloud.suksomsri.dreaming` จองใน ASC
 - [ ] แจ้งเจ้าของ "พร้อม build R1" พร้อมรายการที่รวม · **ไม่ยิง eas build เอง**
 
 ## เจ้าของ (ก่อนสั่ง build)
 - [x] Team ID = `3DD2VCN6JQ` (SIAM DIVE CENTER COMPANY LIMITED · 25 ก.ย.) ใส่ `eas.json` env + `/root/.lucid/apple.env` แล้ว
-- [ ] App ID ใน developer portal: Explicit `app.dreaming.ios` · Description "Dreaming" · เปิด HealthKit + App Groups (`group.app.dreaming`) + Push Notifications (expo-notifications ใส่ aps-environment ให้เอง) · ตัวลูก `app.dreaming.ios.watch` / `.watch.complication` / `.widget` ให้ EAS สร้างเอง (ถ้า EAS ทำไม่ได้ค่อยสร้างมือ)
-- [ ] App Store Connect (ทีมเดิม): สร้างแอป **Dreaming** · bundle id `app.dreaming.ios` (+ `app.dreaming.ios.watch` · `app.dreaming.ios.live-activity` ให้ EAS สร้าง provisioning เอง) · ส่ง Team ID + ASC API key (.p8 · Key ID · Issuer ID) ให้ Fable
+- [ ] App ID ใน developer portal: Explicit `cloud.suksomsri.dreaming` · Description "Dreaming" · เปิด HealthKit + App Groups (`group.cloud.suksomsri.dreaming`) + Push Notifications (expo-notifications ใส่ aps-environment ให้เอง) · ตัวลูก `cloud.suksomsri.dreaming.watch` / `.watch.complication` / `.widget` ให้ EAS สร้างเอง (ถ้า EAS ทำไม่ได้ค่อยสร้างมือ)
+- [ ] App Store Connect (ทีมเดิม): สร้างแอป **Dreaming** · bundle id `cloud.suksomsri.dreaming` (+ `cloud.suksomsri.dreaming.watch` · `cloud.suksomsri.dreaming.widget` ให้ EAS สร้าง provisioning เอง) · ส่ง Team ID + ASC API key (.p8 · Key ID · Issuer ID) ให้ Fable
 - [ ] ยืนยันรุ่นเครื่อง: iPhone (iOS 26 เพื่อเห็น glass) · Apple Watch · หูฟังที่จะใส่นอน
 
 ## สิ่งที่ต้องยืนยันบนเครื่องจริง (Linux ตรวจไม่ได้) — ผลส่งกลับเป็น diagnostics.json + ภาพหน้าจอ

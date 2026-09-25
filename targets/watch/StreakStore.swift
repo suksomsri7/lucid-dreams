@@ -18,7 +18,7 @@ import WidgetKit
 /// shared storage, which is why this goes through an App Group and not a plain
 /// `UserDefaults.standard`.
 ///
-/// ⚠️ App Group containers are per-device: the iPhone's `group.app.dreaming` container and
+/// ⚠️ App Group containers are per-device: the iPhone's `group.cloud.suksomsri.dreaming` container and
 /// the Watch's are two different places that never sync. That is the whole reason the value
 /// has to travel over WatchConnectivity first.
 enum SharedStore {
@@ -28,7 +28,7 @@ enum SharedStore {
     /// complication target too, because Xcode targets do not share Swift code here — keep
     /// the three in sync by hand; a typo shows up as a complication stuck on "—", never as a
     /// crash.
-    static let appGroup = "group.app.dreaming"
+    static let appGroup = "group.cloud.suksomsri.dreaming"
 
     enum Key {
         static let streakNights = "streak.nights"

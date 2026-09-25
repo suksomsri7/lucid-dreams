@@ -21,7 +21,7 @@
 	<key>WKApplication</key>
 	<true/>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>app.dreaming.ios</string>
+	<string>cloud.suksomsri.dreaming</string>
 	<key>WKRunsIndependentlyOfCompanionApp</key>
 	<false/>
 	<key>UIBackgroundModes</key>

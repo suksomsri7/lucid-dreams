@@ -30,7 +30,7 @@ final class MotionManager {
     private let lock = NSLock()
 
     init() {
-        queue.name = "app.dreaming.motion"
+        queue.name = "cloud.suksomsri.dreaming.motion"
         queue.maxConcurrentOperationCount = 1
         // 20 Hz → one sample every 0.05 s. Written as `1.0 / ACCEL_HZ` so the two numbers
         // can never drift apart.

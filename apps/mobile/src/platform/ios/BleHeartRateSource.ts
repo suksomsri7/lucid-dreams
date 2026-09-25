@@ -198,7 +198,7 @@ export class BleHeartRateSource implements BleSensorSource {
         // can relaunch the app after it was evicted and hand the connection back under this key.
         // Declared so the connection survives that; the night itself is kept alive by the audio
         // background mode, so nothing here depends on a restore happening.
-        restoreStateIdentifier: 'app.dreaming.ble',
+        restoreStateIdentifier: 'cloud.suksomsri.dreaming.ble',
         restoreStateFunction: () => undefined,
       });
     } catch {

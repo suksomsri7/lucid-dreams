@@ -20,7 +20,7 @@
 ## 3. กุญแจ/บริการ (ไม่อยู่ใน repo)
 - `apps/api/.env` (600): OPENROUTER_API_KEY · FAL_KEY · AI_MODEL · TTS_VOICE=Sarah · API_DB_PATH=/var/lib/lucid-api/…
 - `/root/.lucid/expo.env` (EXPO_TOKEN บัญชี luciddreams-team) · `/root/.lucid/hostinger.env` · `/root/.lucid/fal.env`
-- Apple Developer = ทีมเดิม (SiamDive/SHARK/GoodFood) · bundle id `app.dreaming.ios` (+ .watch · .live-activity · .watch-complication) · App Group `group.app.dreaming`
+- Apple Developer = ทีมเดิม (SiamDive/SHARK/GoodFood) · bundle id `cloud.suksomsri.dreaming` (+ .watch · .live-activity · .watch-complication) · App Group `group.cloud.suksomsri.dreaming`
 
 ## 4. หนี้/ข้อจำกัดที่รู้ (เรียงตามความเสี่ยง)
 1. Swift ทั้ง 3 target + 4 pod ยังไม่ผ่าน compiler · App Group/HealthKit capability ต้องสร้างใน developer portal ก่อน build
