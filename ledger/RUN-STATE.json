@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "build #5 FINISHED (4673aae5 · 0.1.0 (1) with WKBackgroundModes fix) · uploaded to ASC (submission 8ab5015e) · waiting Apple processingState=VALID → notify owner → R1 night tests",
+  "step": "🎉 R1 build LIVE on TestFlight: 0.1.0 (1) VALID · IN_BETA_TESTING · group Team (Expo) · owner INVITED → owner installs iPhone+Watch → first night → send diagnostics.json + screenshots → Fable R1 review (calibration → R2)",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "Apple processing build #5"
+    "owner: accept TestFlight invite + install + first-night test (ledger/R1-CHECKLIST.md)"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -54,7 +54,9 @@
     "submission1": "b03506c2-04b3-4fa5-aaf3-49fe8b4a7e35",
     "submission2": "42f64f7b-0fec-4d41-9d26-29d32401c1e1 (uploaded OK)",
     "build5": "4673aae5-b932-4a21-9246-2b54d9ce8a3c",
-    "build5_result": "FINISHED · ipa https://expo.dev/artifacts/eas/wg6VMigXzA-jmaVX5W9M1ZM_TsJYYJzrJ23bfO5132s.ipa · submission 8ab5015e uploaded OK"
+    "build5_result": "FINISHED · ipa https://expo.dev/artifacts/eas/wg6VMigXzA-jmaVX5W9M1ZM_TsJYYJzrJ23bfO5132s.ipa · submission 8ab5015e uploaded OK",
+    "ascBuildId": "54926033-7d9c-4380-b65a-1a93f21f383c",
+    "status": "LIVE_TESTFLIGHT 2026-09-25 15:30 UTC"
   },
   "voice": {
     "name": "George",
