@@ -29,6 +29,13 @@ chk H3.4 "$(grep -qsE "'onboarding\.devices\.search\.audio\.(speakerOn|speakerHi
 # 4 นาฬิกา: paired แต่ยังไม่ติดตั้งแอป → บอกวิธี
 chk H4.1 "$(grep -qsE "appInstalled" $app/onboarding/devices.tsx $src/devices/registry.ts $app/plan/devices.tsx && echo 1 || echo 0)" "แยกกรณี paired แต่ appInstalled=false"
 chk H4.2 "$(grep -qsE "'devices\.watch\.installHint'" $src/i18n/th.ts && grep -qsE "'devices\.watch\.installHint'" $src/i18n/en.ts && echo 1 || echo 0)" "ข้อความ 'ติดตั้ง Dreaming บนนาฬิกาผ่านแอป Watch' th/en"
+# 6 Settings → Find a device (เจ้าของเจอ "Coming soon" ทั้ง 5 แถว 25 ก.ย. 15:20)
+chk H6.1 "$(grep -qsE "onboarding\.devices\.search\.comingSoon|comingSoon" $app/\(tabs\)/settings.tsx && echo 0 || echo 1)" "settings.tsx ไม่มี Coming soon แล้ว"
+chk H6.2 "$([ -f $src/devices/DeviceSearchSheet.tsx ] && grep -qsE "DeviceSearchSheet" $app/\(tabs\)/settings.tsx && grep -qsE "DeviceSearchSheet" $app/onboarding/devices.tsx && echo 1 || echo 0)" "ชีตค้นหาอุปกรณ์ตัวเดียว ใช้ทั้ง Settings และ onboarding"
+chk H6.3 "$(grep -qsE "find-devices" $src/devices/DeviceSearchSheet.tsx && echo 1 || echo 0)" "สายคาดอก/ปลอกแขน → จอสแกน BLE"
+chk H6.4 "$(grep -qsE "setPhoneOnMattress|phoneOnMattress" $src/devices/DeviceSearchSheet.tsx && echo 1 || echo 0)" "มือถือบนที่นอน = สวิตช์เปิด/ปิดจริง"
+chk H6.5 "$(grep -qsE "'devices\.search\.(strap|armband|mattress|bluetooth|speaker)'" $src/i18n/th.ts && grep -qsE "'devices\.search\.(strap|armband|mattress|bluetooth|speaker)'" $src/i18n/en.ts && echo 1 || echo 0)" "i18n ชีตกลาง devices.search.* th/en"
+chk H6.6 "$(grep -rqsE "comingSoon" $src/devices/DeviceSearchSheet.tsx && echo 0 || echo 1)" "ไม่มี Coming soon ในชีตกลาง"
 # 5 สุขภาพ
 chk H5.1 "$(cd $m && pnpm -s typecheck >/dev/null 2>&1 && echo 1 || echo 0)" "pnpm typecheck"
 chk H5.2 "$(pnpm -s fitness >/dev/null 2>&1 && echo 1 || echo 0)" "pnpm fitness"
