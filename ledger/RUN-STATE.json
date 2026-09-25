@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "build #7 = 0.1.0 (2) uploaded to ASC (waiting processing VALID) · OTA fb214693 published to channel testflight (runtime 0.1.0: L3.11 Settings v2 + L3.9/L3.10 JS · safe on build 1 via requireOptionalNativeModule) · L3.11 merged 9d67226 · then: owner tests build 2 → R1 night",
+  "step": "🎉 TestFlight 0.1.0 (2) VALID · OTA #1 live · waiting owner R1 tests (sound at launch · headphones detection · watch install on watchOS 10 · ▶ · Settings v2 · Diagnostics sound test · first night)",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,8 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "Apple processing build 2",
-    "owner: install build 2 + first-night test"
+    "owner: install build 2 + first-night test (ledger/R1-CHECKLIST.md)"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -58,7 +57,7 @@
     "build5": "4673aae5-b932-4a21-9246-2b54d9ce8a3c",
     "build5_result": "FINISHED · ipa https://expo.dev/artifacts/eas/wg6VMigXzA-jmaVX5W9M1ZM_TsJYYJzrJ23bfO5132s.ipa · submission 8ab5015e uploaded OK",
     "ascBuildId": "54926033-7d9c-4380-b65a-1a93f21f383c",
-    "status": "LIVE_TESTFLIGHT 2026-09-25 15:30 UTC",
+    "status": "LIVE_TESTFLIGHT build 2 · 2026-09-25 20:20 UTC",
     "ownerReports": [
       "15:17 onboarding pulse Find→redirect",
       "15:17 Sound sheet dead",
