@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "R1 PAUSED by owner (\"อย่าเพิ่งบิ้ว\") — build #2 751f8a56 CANCELED · owner wants to re-hear anchor + hear soft deep MALE whisper ×3 before build · fal.ai account LOCKED (TOP_UP) → cannot generate TTS; prod tts_cache is EMPTY so /ai/anchor will fail until top-up",
+  "step": "R1 PAUSED — fal.ai topped up · male whisper samples sent (Brian/George/Daniel ×3 + bell mix, TG 3533–3539) · waiting owner: pick voice (or keep Sarah) → set TTS_VOICE on server + prewarm cache → owner orders build",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,8 +9,8 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "owner: top up fal.ai credit (or give ElevenLabs key) → run /root/.lucid/tts/make-male-whisper.sh → owner picks voice",
-    "owner: order build again"
+    "owner: pick whisper voice Brian/George/Daniel/Sarah",
+    "owner: order build"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
