@@ -99,6 +99,8 @@ function RootNavigator() {
             headerShown: true,
             headerTransparent: true,
             headerTintColor: colors.ink,
+            // R1 (2026-09-25): the native back button showed the route group name "(tabs)" — hide the title.
+            headerBackButtonDisplayMode: 'minimal',
             title: t('history.title'),
           }}
         />
@@ -118,6 +120,8 @@ function RootNavigator() {
             headerShown: true,
             headerTransparent: true,
             headerTintColor: colors.ink,
+            // R1 (2026-09-25): the native back button showed the route group name "(tabs)" — hide the title.
+            headerBackButtonDisplayMode: 'minimal',
             title: t('diagnostics.title'),
           }}
         />

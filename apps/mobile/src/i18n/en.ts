@@ -83,7 +83,7 @@ export const en: Translations = {
   // History (WO L1.4) — reached from the "History" link in the advisor room, not the Journal tab (journal.* above)
   'history.title': 'History',
   'history.subtitle': 'Every past night',
-  'history.empty': 'No nights recorded yet',
+  'history.empty': 'No nights recorded yet — history starts after your first night: tap “Start tonight”, sleep, then tell your dream in the morning.',
   'history.row.themeMatch': 'Theme match {n}',
   'history.row.lucidYes': 'Lucid ✓',
   'history.row.lucidNo': 'Lucid –',
