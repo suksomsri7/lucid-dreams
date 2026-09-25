@@ -1,7 +1,8 @@
 {
   "cli": {
     "version": ">= 16.0.0",
-    "appVersionSource": "remote"
+    "appVersionSource": "remote",
+    "promptToConfigurePushNotifications": false
   },
   "build": {
     "r1-internal": {
@@ -32,7 +33,10 @@
     "testflight": {
       "ios": {
         "ascAppId": "6815932557",
-        "appleTeamId": "3DD2VCN6JQ"
+        "appleTeamId": "3DD2VCN6JQ",
+        "ascApiKeyPath": "/root/.lucid/asc/AuthKey_4MW5TQGCZ7.p8",
+        "ascApiKeyId": "4MW5TQGCZ7",
+        "ascApiKeyIssuerId": "40d5244e-97b6-47a8-9487-0ffa8db07dc4"
       }
     }
   }

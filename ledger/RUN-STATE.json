@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "READY TO BUILD R1 — owner must say \"build\" → bash scripts/build-r1.sh (Fable runs only on order)",
+  "step": "R1 build #1 RUNNING on EAS (id 8411e9c1-3875-4210-8690-25ee4a6f0705 · profile testflight) → when FINISHED: eas submit --profile testflight --id <id> --non-interactive → TestFlight → owner installs",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "owner: order R1 build (TestFlight/internal) · confirm device models (iPhone iOS 26? Watch? headphones)"
+    "EAS build 8411e9c1 finishing"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -29,5 +29,17 @@
     "ascKeyPath": "/root/.lucid/asc/AuthKey_4MW5TQGCZ7.p8 (600, outside repo)",
     "appGroup": "group.cloud.suksomsri.dreaming",
     "easProject": "@luciddreams-team/dreaming 2e4f819e-0f38-4481-be29-87093567bacf"
+  },
+  "r1": {
+    "build1": "8411e9c1-3875-4210-8690-25ee4a6f0705",
+    "logs": "https://expo.dev/accounts/luciddreams-team/projects/dreaming/builds/8411e9c1-3875-4210-8690-25ee4a6f0705",
+    "credentials": "dist cert + 4 provisioning profiles created 25 ก.ย. 04:17 UTC (expire 2027-09-25)",
+    "pushKey": "none (local notifications only; promptToConfigurePushNotifications=false)",
+    "lessons": [
+      "eas non-interactive ต้องมี credentials ก่อน → รอบแรกใช้ pexpect ตอบ prompt",
+      "capability sync DATA_PROTECTION ล้ม → เปิดผ่าน ASC API เอง",
+      ".watch.complication ถูก Apple ปฏิเสธ → .watch.streak",
+      "--auto-submit non-interactive ตั้ง ASC key ไม่ได้ → ใช้ eas submit แยกพร้อม ascApiKeyPath ใน eas.json"
+    ]
   }
 }
