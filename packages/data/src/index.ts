@@ -93,9 +93,12 @@ export type {
   WakeRecord,
 } from './repo';
 
-/** Dev/test driver (sql.js · wasm). Never used by the app — see the file header. */
-export { createSqlJsDriver } from './drivers/sqljs';
-export type { SqlJsDriverOptions } from './drivers/sqljs';
 
 /** Package version, reported inside JSON exports by the app. */
 export const DATA_VERSION = '0.1.0';
+
+/**
+ * Dev/test driver (sql.js · wasm) is **not** exported from here any more: Metro follows the
+ * `import('sql.js')` inside `drivers/sqljs.ts` and then fails on `node:fs` when bundling the
+ * iOS app (R1 build #1, 25 ก.ย. 2026). Tests import it from `@lucid/data/sqljs` instead.
+ */

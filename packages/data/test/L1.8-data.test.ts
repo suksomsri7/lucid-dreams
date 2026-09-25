@@ -16,7 +16,9 @@
  *   Repo.diagnosticsDraft({includeText:boolean}) → object (ไม่มี transcript/audioPath เมื่อ false)
  */
 import { describe, it, expect, beforeEach } from 'vitest';
-import * as data from '../src/index';
+import * as dataIndex from '../src/index';
+import * as sqljs from '../src/sqljs';
+const data = { ...dataIndex, ...sqljs };
 
 const { createSqlJsDriver, migrate, SCHEMA_VERSION, TABLES, createRepo, SENSITIVE_FIELDS } = data as any;
 const clock = { now: () => new Date('2026-09-24T22:00:00.000Z'), nowIso: () => '2026-09-24T22:00:00.000Z' };
