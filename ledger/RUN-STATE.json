@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "owner ordered build (22:40 UTC) → build #8 RUNNING abd96f3f-23dd-4bcb-bddf-c4235be9aa7e = 0.1.0 (3) (L3.13 speech + all hotfixes) → submit --wait → VALID → notify",
+  "step": "build #8 FINISHED · uploaded to ASC as 0.1.0 (3) · waiting Apple processing VALID → notify owner (speech-to-text test)",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -84,7 +84,8 @@
     "ota1": "fb214693-4a8d-4d22-806a-9ec39328c9e2 (ios 01a0d7dc-d766-744a-99e9-3da1de44bc56) · L3.11 + hotfix JS · eas update needs --environment production in non-interactive",
     "ota2": "69cee45a-663c-4e9f-a94a-f8bdd9898ca3 (ios 01a0d7fa-57c5-7a32-b97d-8b8e532dfff0)",
     "ota3": "236b59f2-49ff-4bcc-b7bd-d1e7be075705 (back title minimal · history.empty text)",
-    "build8": "abd96f3f-23dd-4bcb-bddf-c4235be9aa7e (buildNumber 3 · L3.13)"
+    "build8": "abd96f3f-23dd-4bcb-bddf-c4235be9aa7e (buildNumber 3 · L3.13)",
+    "build8_result": "FINISHED · ipa https://expo.dev/artifacts/eas/VAjscTAp41a5yuc7vSKjyTYwIOy-MLH0qJQEZMhv0cE.ipa · submitted OK"
   },
   "voice": {
     "name": "George",
