@@ -272,3 +272,84 @@ export async function fetchAnchorAudio(
     clearTimeout(timer);
   }
 }
+
+// ---------------------------------------------------------------------------
+// WO L3.14 — one spoken seed line (`POST /ai/tts`: George whispering a sentence)
+// ---------------------------------------------------------------------------
+
+/**
+ * Same budget as {@link ANCHOR_AUDIO_TIMEOUT_MS} and for the same reason: a cold MISS costs the
+ * server one vendor render (~4 s measured on 25 Sep 2026); a HIT answers in well under a second.
+ */
+export const TTS_AUDIO_TIMEOUT_MS = 15000;
+
+export interface TtsAudioRequest {
+  /** One sentence. `apps/api`'s `TtsBodySchema` caps it at 120 characters (`TTS_MAX_TEXT`). */
+  text: string;
+  lang: 'th' | 'en';
+}
+
+export type TtsAudioResult =
+  | {
+      ok: true;
+      bytes: Uint8Array;
+      contentType: string | null;
+      /** `HIT`/`MISS` — the R1 note's "was the sentence already warm?" number. */
+      cache: string | null;
+      elapsedMs: number;
+    }
+  | { ok: false; status: number | null; detail: string };
+
+async function requestTts(
+  request: TtsAudioRequest,
+  token: string,
+  signal: AbortSignal,
+): Promise<Response> {
+  return fetch(`${apiBaseUrl()}/ai/tts`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+    // `voice` is a `z.literal('whisper')` on the server — there is no voice picker in the app
+    // (DESIGN §2 principle 3), so it is hard-coded here rather than passed in by the caller.
+    body: JSON.stringify({ text: request.text, lang: request.lang, voice: 'whisper' }),
+    signal,
+  });
+}
+
+/**
+ * Download the whispered mp3 of one sentence.
+ *
+ * Same policy as {@link fetchAnchorAudio}: **never throws**, hard `AbortController` timeout, one
+ * fresh-token retry on 401. The only caller is `src/audio/seedRemote.ts`, whose whole contract is
+ * "a sentence the phone could not fetch simply does not get spoken tonight" — so every failure
+ * (429 rate limit, 501 no TTS provider configured, 400 too long, no signal) reads the same way.
+ */
+export async function fetchTtsAudio(
+  request: TtsAudioRequest,
+  timeoutMs: number = TTS_AUDIO_TIMEOUT_MS,
+): Promise<TtsAudioResult> {
+  const started = Date.now();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const token = await getDeviceToken();
+    let response = await requestTts(request, token, controller.signal);
+    if (response.status === 401) {
+      const fresh = await getDeviceToken(true);
+      response = await requestTts(request, fresh, controller.signal);
+    }
+    if (!response.ok) return { ok: false, status: response.status, detail: `HTTP ${response.status}` };
+    const buffer = await response.arrayBuffer();
+    return {
+      ok: true,
+      bytes: new Uint8Array(buffer),
+      contentType: response.headers.get('content-type'),
+      cache: response.headers.get('x-cache'),
+      elapsedMs: Date.now() - started,
+    };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    return { ok: false, status: null, detail };
+  } finally {
+    clearTimeout(timer);
+  }
+}
