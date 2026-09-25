@@ -53,6 +53,7 @@ import { isoFromEpochSeconds } from '@lucid/data';
 
 import type { DreamPlan } from '../advisor/types';
 import { ambienceSource, buildAnchorSignature, getAnchorSeed, playAnchorOnce, prefetchFullAnchor } from '../audio/player';
+import { ensureSeedLineUri, prefetchSeedLines } from '../audio/seedRemote';
 import {
   attachArmKeyToSession,
   ensureNightSession,
@@ -79,6 +80,46 @@ const DEFAULT_VOLUME_START = 0.15;
 const NIGHT_BRIGHTNESS = 0.05;
 /** A reasonable "not dark anymore" level for the rare case the phone stays unlocked into the report screen. */
 const DAY_BRIGHTNESS = 0.6;
+
+// ---------------------------------------------------------------------------
+// WO L3.14 — the night's mix: how loud each sound is, and how far the bed gets out of its way
+// ---------------------------------------------------------------------------
+
+/**
+ * The spoken seed lines at minute 3 and minute 8 (`SEED_VOLUME`) are heard by someone who is
+ * still **awake**, on headphones, in a quiet room — they have to be understood, not merely
+ * noticed, which is why they are louder than anything else the night plays (the REM cue sits at
+ * `volumeStart`, ~0.15, and must *not* wake anybody). Owner's release table, WO L3.14.
+ */
+const SEED_VOLUME = 0.35;
+
+/**
+ * Ambience level while a seed line is speaking. Not silence: the bed is what makes the room feel
+ * continuous, and a hard gap is itself a thing that wakes people. 0.06 against a 0.35 voice is
+ * about -15 dB of separation — enough for every word.
+ */
+const BED_DUCK_SEED = 0.06;
+
+/**
+ * Ambience level while a REM cue plays (~9.8 s). Lower than the seed duck because the cue itself
+ * is far quieter than a seed line (0.15 or less), so it needs more room, and because at 3 a.m.
+ * the sleeper must hear the bell without the ambience adding to the total loudness.
+ */
+const BED_DUCK_CUE = 0.03;
+
+/** Fade-in before a seed line, so the duck is a movement in the room rather than a click. */
+const SEED_DUCK_LEAD_MS = 500;
+/** And a beat of quiet after the sentence before the bed comes back (owner's table: "+1 s"). */
+const SEED_RESTORE_DELAY_MS = 1000;
+/**
+ * How long a seed line may wait for its file. The clip is prefetched three times before
+ * lights-out, so this only ever bites when the prefetch failed — and in that case a sentence
+ * arriving late is worse than no sentence at all (the sleeper may already be under).
+ */
+const SEED_URI_WAIT_MS = 3000;
+/** The cue's restore is stepped over ~3 s (3 × 1 s) so the ambience does not jump back. */
+const CUE_RESTORE_STEPS = 3;
+const CUE_RESTORE_STEP_MS = 1000;
 
 export interface NightLiveStats {
   state: NightState;
@@ -142,6 +183,19 @@ interface Runtime {
   dispose(): void;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * `promise`, or `null` if it has not settled within `ms` (WO L3.14). The promise itself is left
+ * running — `ensureSeedLineUri`'s download still finishes and still writes its cache file, it just
+ * no longer has a say in what the sleeper hears tonight.
+ */
+async function withDeadline<T>(promise: Promise<T | null>, ms: number): Promise<T | null> {
+  return Promise.race([promise, sleep(ms).then(() => null)]);
+}
+
 function createRuntime(ctx: RuntimeContext): Runtime {
   const listeners = new Set<() => void>();
   let lastEpoch: SensorEpoch | null = null;
@@ -160,9 +214,86 @@ function createRuntime(ctx: RuntimeContext): Runtime {
    */
   let cuesWithFullAnchor = 0;
   let cuesBellOnly = 0;
+  /**
+   * WO L3.14 — the level the bed *should* be playing at right now: `BED_VOLUME_FULL` while the
+   * user is awake (that is the level `startNightSession` calls `startBed` at), then whatever the
+   * engine's last `SET_BED_VOLUME` said (the 0.2 → 0.08 fade after sleep onset, §5.3). Every duck
+   * restores to this value rather than to the level it ducked from, so a fade that ran *during* a
+   * one-shot is not undone by the restore.
+   */
+  let currentBedVolume = BED_VOLUME_FULL;
+  /** True between a duck and the end of its restore — `SET_BED_VOLUME` defers to it. */
+  let bedDucked = false;
+  /** One one-shot at a time: a seed line must never be mixed on top of an anchor cue. */
+  let oneShotBusy = false;
 
   function emit(): void {
     for (const listener of listeners) listener();
+  }
+
+  /** Bed level, best-effort (audio is never allowed to break a night — DESIGN §2.1). */
+  function setBedVolume(volume: number): void {
+    if (!ctx.platform) return;
+    void ctx.platform.audioPlayer.setVolume(volume).catch(() => undefined);
+  }
+
+  /** Pull the ambience down under a one-shot (`BED_DUCK_SEED` / `BED_DUCK_CUE`). */
+  function duckBed(level: number): void {
+    bedDucked = true;
+    setBedVolume(level);
+  }
+
+  /**
+   * Bring the bed back to `currentBedVolume` in `steps` equal moves, `CUE_RESTORE_STEP_MS` apart
+   * (`steps = 1` ⇒ one move after that delay). The target is read inside each step, so a
+   * `SET_BED_VOLUME` that arrived while the one-shot was sounding wins.
+   */
+  function restoreBed(from: number, steps: number, firstDelayMs: number): void {
+    for (let step = 1; step <= steps; step += 1) {
+      const fraction = step / steps;
+      const last = step === steps;
+      setTimeout(
+        () => {
+          setBedVolume(from + (currentBedVolume - from) * fraction);
+          if (last) bedDucked = false;
+        },
+        firstDelayMs + (step - 1) * CUE_RESTORE_STEP_MS,
+      );
+    }
+  }
+
+  /**
+   * WO L3.14 — speak seed line `index` (1-based) over a ducked bed; resolves to what actually
+   * reached the sleeper, which is what the database row's `played` now records.
+   *
+   * `false` means the sentence stayed silent: no audio backend (fixture/web), an empty line, an
+   * anchor cue already sounding, or no cached clip within {@link SEED_URI_WAIT_MS} — a seed line
+   * that arrives late is worse than one that does not arrive (the sleeper may already be under),
+   * so the deadline is deliberately shorter than `fetchTtsAudio`'s own 15 s timeout; the download
+   * it started still finishes in the background and warms the file for the next night.
+   */
+  async function speakSeedLine(index: number): Promise<boolean> {
+    const platform = ctx.platform;
+    const line = ctx.plan.seedLines[index - 1] ?? '';
+    if (platform === null || line === '' || oneShotBusy) return false;
+    oneShotBusy = true;
+    let ducked = false;
+    try {
+      const uri = await withDeadline(ensureSeedLineUri(line, ctx.locale), SEED_URI_WAIT_MS);
+      if (uri === null) return false;
+      duckBed(BED_DUCK_SEED);
+      ducked = true;
+      await sleep(SEED_DUCK_LEAD_MS);
+      await platform.audioPlayer.playOneShot({ source: uri, volume: SEED_VOLUME, pan: 0 });
+      return true;
+    } catch (error) {
+      // eslint-disable-next-line no-console -- the only signal R1 gets for a silent minute 3
+      console.warn('[night] seed line did not play', error);
+      return false;
+    } finally {
+      if (ducked) restoreBed(BED_DUCK_SEED, 1, SEED_RESTORE_DELAY_MS);
+      oneShotBusy = false;
+    }
   }
 
   /** Best-effort: a failed write must never stop the night — the live stats already moved on. */
@@ -218,6 +349,14 @@ function createRuntime(ctx: RuntimeContext): Runtime {
         if (!cue) break;
         if (action.type === 'PLAY_CUE' && ctx.controller.state === 'CUE' && ctx.platform) {
           const cueIndex = cue.index;
+          // WO L3.14: the cue is the one sound that must never be masked — the bed goes down to
+          // `BED_DUCK_CUE` for the ~9.8 s of the anchor and comes back stepwise afterwards. The
+          // duck happens *before* `playAnchorOnce` resolves the file (a cached-only lookup, so
+          // microseconds) rather than after, so the bell never lands on a full-volume bed. Unlike
+          // a seed line the cue does not yield to `oneShotBusy`: by the time a cue can happen the
+          // guard hours are long over and no seed line exists to collide with.
+          oneShotBusy = true;
+          duckBed(BED_DUCK_CUE);
           void playAnchorOnce(ctx.signature, { volume: cue.volume, pan: 0, lang: ctx.signature.lang, cachedOnly: true })
             .then((playback) => {
               // WO L3.8: which of the two sounds the user just heard. Counted (not just logged)
@@ -231,7 +370,11 @@ function createRuntime(ctx: RuntimeContext): Runtime {
               }
               emit();
             })
-            .catch(() => undefined);
+            .catch(() => undefined)
+            .finally(() => {
+              restoreBed(BED_DUCK_CUE, CUE_RESTORE_STEPS, CUE_RESTORE_STEP_MS);
+              oneShotBusy = false;
+            });
         }
         persist((sessionId) =>
           recordNightCue(sessionId, {
@@ -248,33 +391,43 @@ function createRuntime(ctx: RuntimeContext): Runtime {
       }
 
       case 'SET_BED_VOLUME':
-        if (ctx.platform) void ctx.platform.audioPlayer.setVolume(action.volume).catch(() => undefined);
+        // WO L3.14: remembered even while a duck is in flight, and *not* applied then — the
+        // engine's post-onset fade emits one of these every epoch, and letting them through
+        // mid-sentence would undo the duck. `restoreBed` reads this value, so the fade still
+        // lands, a few seconds later, at the right level.
+        currentBedVolume = action.volume;
+        if (ctx.platform && !bedDucked) void ctx.platform.audioPlayer.setVolume(action.volume).catch(() => undefined);
         break;
 
-      case 'WHISPER_SEED':
-        // No rendered seed-line *audio* yet — the phrase is server-side TTS, still
-        // unbuilt (`src/audio/anchor.ts`'s header, carried as a debt since WO L1.7ui) —
-        // but the *event* is real and `repo.ts#buildEvents` already special-cases
-        // `type: 'SEED'` for exactly this row (mockup `07-night-report.png`'s
-        // "planting the image"), so it is still written to the database, `played: true` (a seed always
-        // "plays" — the melody tone does, via the signature; only the spoken phrase
-        // is the debt).
+      case 'WHISPER_SEED': {
+        // WO L3.14 pays the debt `src/audio/anchor.ts`'s header carried since L1.7ui: the sentence
+        // is now *spoken* (George, `/ai/tts`, cached per sentence by `src/audio/seedRemote.ts`)
+        // over a ducked bed. `repo.ts#buildEvents` already special-cases `type: 'SEED'` for this
+        // row (mockup `07-night-report.png`'s "planting the image"); the row is written after the
+        // attempt, because `played` is now a fact about the sleeper's ears rather than the
+        // hard-coded `true` it used to be — a night where the clip never downloaded shows up as
+        // `played: false` in the morning report instead of lying about it.
+        const { index, at } = action;
         if (__DEV__) {
           // eslint-disable-next-line no-console -- intentional dev-only trace (WO L2.8)
-          console.log('[night] seed whisper', ctx.plan.seedLines[action.index - 1] ?? '');
+          console.log('[night] seed whisper', ctx.plan.seedLines[index - 1] ?? '');
         }
-        persist((sessionId) =>
-          recordNightCue(sessionId, {
-            atIso: isoFromEpochSeconds(action.at),
-            index: action.index,
-            volume: ctx.controller.params.volumeStart,
-            type: 'SEED',
-            pRemAtCue: null,
-            played: true,
-            response: null,
-          }),
-        );
+        void speakSeedLine(index).then((seedPlayed) => {
+          persist((sessionId) =>
+            recordNightCue(sessionId, {
+              atIso: isoFromEpochSeconds(at),
+              index,
+              volume: SEED_VOLUME,
+              type: 'SEED',
+              pRemAtCue: null,
+              played: seedPlayed,
+              response: null,
+            }),
+          );
+          emit();
+        });
         break;
+      }
 
       case 'STOP_AUDIO':
         if (ctx.platform) void ctx.platform.audioPlayer.stopBed().catch(() => undefined);
@@ -435,6 +588,11 @@ export async function startNightSession(state: NightStoreState): Promise<NightSe
   // Best-effort platform start: none of these failing should stop the night from
   // running data-only (sleep-first default, DESIGN §2.1) — the controller and the
   // database writes above do not depend on any of it succeeding.
+  // WO L3.14, last chance #3: the two spoken seed lines have to be on disk before the phone goes
+  // on the nightstand — minute 3 waits 3 s for a file and no longer (`speakSeedLine`). Never
+  // awaited (a slow render must not delay lights-out) and never throws.
+  void prefetchSeedLines(plan, locale).catch(() => undefined);
+
   try {
     await platform.audioPlayer.configureSession();
     await platform.audioPlayer.startBed(BED_VOLUME_FULL, ambienceSource(plan.ambienceKey));

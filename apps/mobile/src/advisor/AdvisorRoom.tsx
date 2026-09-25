@@ -15,6 +15,7 @@ import type { AnchorSignature } from '@lucid/engine';
 
 import { prefetchFullAnchor } from '../audio/anchorRemote';
 import { playBrandAnchor } from '../audio/brand';
+import { prefetchSeedLines } from '../audio/seedRemote';
 import { buildAnchorSignature, getAnchorSeed, playAnchorPreview } from '../audio/player';
 import { getPlatform } from '../platform';
 import { useT, type Locale, type TranslateParams, type TranslationKey } from '../i18n';
@@ -303,6 +304,11 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
     // phone is in their hand and the network is probably up. Fire-and-forget: the plan screen
     // opens immediately either way (`prefetchFullAnchor` never throws and never blocks).
     void prefetchFullAnchor();
+    // WO L3.14: same moment, same reasoning, for the two *spoken* seed lines minute 3 and minute 8
+    // will need (`src/audio/seedRemote.ts`). `useAdvisor.start()` above already asked for them —
+    // this call joins that one in-flight promise rather than duplicating the requests, and exists
+    // because `start()` only fires the prefetch when the adapter has a plan.
+    if (advisor.plan) void prefetchSeedLines(advisor.plan, locale);
     router.push('/plan');
   }
 

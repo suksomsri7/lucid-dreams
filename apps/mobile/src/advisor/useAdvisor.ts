@@ -8,6 +8,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 
+import { prefetchSeedLines } from '../audio/seedRemote';
 import { advisorFixtureRequested, advisorThinkingFixtureRequested } from '../dev/fixtures';
 import type { Locale } from '../i18n';
 import { saveTonightPlan } from '../store/night';
@@ -152,7 +153,14 @@ export function useAdvisor(lang: Locale): UseAdvisorResult {
         // store rather than React state/props (`src/store/night.ts`'s header explains
         // why). Both adapters produce the same `DreamPlan` shape, so this line does not
         // care which one is active.
-        if (adapter.plan) saveTonightPlan(adapter.plan, lang);
+        if (adapter.plan) {
+          saveTonightPlan(adapter.plan, lang);
+          // WO L3.14: the first and cheapest moment to fetch the two spoken seed lines (~4 s per
+          // cold sentence on the server) — the plan is final here, the user is awake and the phone
+          // has signal. Fire-and-forget: `prefetchSeedLines` never throws and never blocks the
+          // hand-off to `app/plan/*`.
+          void prefetchSeedLines(adapter.plan, lang);
+        }
         setSnapshot(snapshotOf(adapter));
       },
     }),
