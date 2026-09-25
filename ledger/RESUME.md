@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 08:50 UTC · ⏸ เจ้าของสั่ง **อย่าเพิ่ง build** → ยกเลิก build #2 · ขอฟังเสียงสมออีกครั้ง (ส่ง msg 3531) + ขอ **เสียงชายนุ่มลึก พูด 3 ครั้ง** · 🔴 **fal.ai ล็อก TOP_UP (เครดิตหมด)** ทำ TTS ไม่ได้ · prod `tts_cache` ว่าง ⇒ /ai/anchor จะล้มจนกว่าจะเติมเงิน · สคริปต์พร้อม `/root/.lucid/tts/make-male-whisper.sh` (Brian/George/Daniel ×3 + ผสมระฆัง)
 - 2026-09-25 08:20 UTC · ❌ build #1 ล้ม (Bundle JS: node:fs จาก sql.js) → ✅ แก้ 2f17f44 (sql.js ออกจาก entry ของ @lucid/data → `@lucid/data/sqljs`) · iOS export ในเครื่องผ่าน · 🚀 **build #2** `751f8a56` กำลังรัน · ถัดไป = eas submit เมื่อ FINISHED
 - 2026-09-25 07:40 UTC · 🚀 **R1 build #1 กำลังรันบน EAS** (เจ้าของสั่ง "TestFlight") id `8411e9c1` · credentials ครบ 4 target · expo-updates ติดตั้ง (ช่อง testflight) · bundle complication → `.watch.streak` · เสร็จแล้วต้อง `eas submit --platform ios --profile testflight --id 8411e9c1-… --non-interactive` (auto-submit ใช้ไม่ได้ใน non-interactive) · บทเรียนใน RUN-STATE.r1.lessons
 - 2026-09-25 06:30 UTC · ✅ **พร้อม build R1** · เจ้าของสร้าง App ID `cloud.suksomsri.dreaming` (HealthKit/App Groups/Push) + แอป ASC **"Dreaming - Lucid"** (id 6815932557) + ASC API key (Key 4MW5TQGCZ7 · เก็บ `/root/.lucid/asc/` + `/root/.lucid/asc.env` 600) · ทดสอบ ASC API ผ่าน · EAS project `@luciddreams-team/dreaming` (projectId ใน app.config · owner ตั้งแล้ว) · `eas.json` มี Team ID + ascAppId · สั่ง build = `bash scripts/build-r1.sh` **เมื่อเจ้าของสั่งเท่านั้น** · App Group ยังไม่ผูกใน portal (EAS จะทำเอง ถ้าไม่ได้ให้เจ้าของทำมือ)
