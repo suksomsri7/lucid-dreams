@@ -8,4 +8,5 @@ set -a; . /root/.lucid/expo.env; . /root/.lucid/asc.env; set +a
 [ -r "$EXPO_ASC_API_KEY_PATH" ] || { echo "missing ASC key file" >&2; exit 2; }
 cd "$(dirname "$0")/../apps/mobile"
 # non-interactive: EAS ใช้ ASC API key (EXPO_ASC_*) สร้าง dist cert + provisioning + จด bundle id ลูก (.watch/.widget/.complication) เอง
-exec npx eas-cli@latest build --platform ios --profile "$prof" --non-interactive --no-wait
+extra=(); [ "$prof" = testflight ] && extra=(--auto-submit)
+exec npx eas-cli@latest build --platform ios --profile "$prof" --non-interactive --no-wait "${extra[@]}"
