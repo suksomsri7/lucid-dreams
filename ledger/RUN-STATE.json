@@ -65,7 +65,12 @@
       "15:21 Settings layout: inconsistent insets, stray \"Watermark reset\", Language segment overflow",
       "15:25 plan card ▶ silent",
       "15:25 chip tap no thinking indicator → 9 duplicate turns"
-    ]
+    ],
+    "ownerDevices": {
+      "iphone": "iOS 27",
+      "watch": "Apple Watch SE 2 44mm aluminum MU6D2J/A · watchOS 10.6.2 (< 11 → watch app not installable on build 1) · asked to update; watch deploymentTarget lowered to 10.0 in main 093da29 for build #6",
+      "headphones": "several BT models"
+    }
   },
   "voice": {
     "name": "George",
