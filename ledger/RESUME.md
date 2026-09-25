@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 22:30 UTC · ✅ **L3.13 merged** (20/20 · expo-speech-recognition · Fable เพิ่ม lazy `require` + guard เพราะ import แบบ static จะทำ **OTA พัง build 2** — บทเรียน: JS ที่อ้างโมดูล native ใหม่ต้อง optional เสมอเมื่อยังส่ง OTA ให้ binary เก่า) · ⛔ **build #8 รอเจ้าของสั่ง** · ยังไม่ส่ง OTA รอบนี้ (ไม่มีประโยชน์จนกว่ามี binary ใหม่)
 - 2026-09-25 21:50 UTC · 🔴 **เจ้าของ: ห้าม build จนกว่าจะสั่ง** (L3.13 เสร็จแล้วรอคำสั่ง #8) · History ว่าง = ยังไม่มีคืน (คาดหวังผิด) + ปุ่มย้อนกลับโชว์ "(tabs)" → แก้ `headerBackButtonDisplayMode: minimal` + ข้อความว่างใหม่ → **OTA #3** 236b59f2-49ff-4bcc-b7bd-d1e7be075705
 - 2026-09-25 21:30 UTC · 🐞 ไมค์ใช้ไม่ได้ = `IosSpeechToText` stub (หนี้ L1.6 ไม่เคยทำ) → **L3.13** (`wo-notes/L3.13-WO.md` · qc-L3.13 20 ข้อ · expo-speech-recognition · Opus) → build #8 · หน้าเช้าเล่าด้วยเสียงก็ใช้ตัวเดียวกัน
 - 2026-09-25 21:00 UTC · 🐞 รายงานเพิ่ม (build 2): Settings ยังเก่า (L3.11 ไม่ทัน build → OTA) · นาฬิกาไม่เจอ (**WatchSensorSource ไม่เคยถูก probe ก่อนคืน** → เพิ่ม probe()+subscribe status ใน registry) · เสียงไม่ตรงไฟล์ที่เลือก (ระฆังต่อ seed + George ต่าง take) → **server เสิร์ฟไฟล์อนุมัติเป๊ะ `ANCHOR_FIXED_FILE`** + george-2 · **OTA #2** `69cee45a` · ค้าง: ear test ยังใช้ระฆัง makeSignature (L3.12 · ต้องตัดสินเรื่อง watermark ต่อคน)
