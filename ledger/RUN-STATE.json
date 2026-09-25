@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "build 3 uploaded 25 ก.ย. ~11:15 UTC but NOT in ASC after 45 min → suspect Apple email rejection (asked owner TG 3594) · ipa plists look valid (main/watch/live) · still polling",
+  "step": "build 3 REJECTED by Apple (ITMS-90683 NSPhotoLibraryUsageDescription — expo-speech-recognition references Photo APIs) → added purpose string (98ec3b7) → build #9 RUNNING 1f4d3363-f7da-47f6-9b87-6f2529c8c18e = 0.1.0 (4) → auto submit + ASC poll in one background job",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "Apple processing build 3 / owner email screenshot",
+    "EAS build 1f4d3363 + Apple processing",
     "owner: decide L3.12 bell"
   ],
   "icons": {
@@ -45,7 +45,8 @@
       "App Group assignment ต้องทำมือในพอร์ทัล (ASC API ไม่มี /appGroups) · หลังผูก profile เดิม INVALID → DELETE /v1/profiles/{id} แล้วรัน eas build แบบ interactive (pexpect) ให้สร้างใหม่",
       "eas submit --no-wait รอบแรกไม่ถึง Apple โดยไม่แจ้ง → ใช้ --wait --verbose เสมอ แล้วยืนยันด้วย GET /v1/builds",
       "watchOS Info.plist ใช้ WKBackgroundModes (ไม่ใช่ UIBackgroundModes) — EAS build ผ่านแต่ Apple processing ปฏิเสธทางอีเมล ต้องเช็คอีเมล ASC หลังอัปโหลด",
-      "appVersionSource remote ไม่เพิ่ม buildNumber เองถ้าไม่ตั้ง autoIncrement:true → อัปโหลดซ้ำเลขเดิม Apple ปฏิเสธ (Something went wrong) · ตั้งแล้ว"
+      "appVersionSource remote ไม่เพิ่ม buildNumber เองถ้าไม่ตั้ง autoIncrement:true → อัปโหลดซ้ำเลขเดิม Apple ปฏิเสธ (Something went wrong) · ตั้งแล้ว",
+      "เพิ่มไลบรารี native ใหม่ → เช็ค purpose strings ที่มันอ้าง (expo-speech-recognition ⇒ NSPhotoLibraryUsageDescription) ก่อนอัปโหลด ไม่งั้น Apple ปฏิเสธเงียบทางอีเมล"
     ],
     "build1_result": "ERRORED: Bundle JavaScript — Unable to resolve node:fs from sql.js (fixed 2f17f44)",
     "build2": "751f8a56-ebed-4960-add6-64ba4ad948a0",
@@ -85,7 +86,8 @@
     "ota2": "69cee45a-663c-4e9f-a94a-f8bdd9898ca3 (ios 01a0d7fa-57c5-7a32-b97d-8b8e532dfff0)",
     "ota3": "236b59f2-49ff-4bcc-b7bd-d1e7be075705 (back title minimal · history.empty text)",
     "build8": "abd96f3f-23dd-4bcb-bddf-c4235be9aa7e (buildNumber 3 · L3.13)",
-    "build8_result": "FINISHED · ipa https://expo.dev/artifacts/eas/VAjscTAp41a5yuc7vSKjyTYwIOy-MLH0qJQEZMhv0cE.ipa · submitted OK"
+    "build8_result": "FINISHED · ipa https://expo.dev/artifacts/eas/VAjscTAp41a5yuc7vSKjyTYwIOy-MLH0qJQEZMhv0cE.ipa · submitted OK · Apple processing REJECTED ITMS-90683 (missing NSPhotoLibraryUsageDescription)",
+    "build9": "1f4d3363-f7da-47f6-9b87-6f2529c8c18e (buildNumber 4)"
   },
   "voice": {
     "name": "George",

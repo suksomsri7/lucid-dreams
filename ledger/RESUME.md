@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-26 00:20 UTC · ❌ build 3 ถูก Apple ปฏิเสธ ITMS-90683 (ขาด NSPhotoLibraryUsageDescription จาก expo-speech-recognition) → เติมแล้ว (98ec3b7 + InfoPlist.strings th/en) · 🚀 **build #9** `1f4d3363` = 0.1.0 (4) · job พื้นหลังเดียว: รอ FINISHED → submit --wait → poll ASC จนเห็น build 4
 - 2026-09-25 22:40 UTC · 🚀 เจ้าของสั่ง "Build" → **build #8** `abd96f3f` = 0.1.0 (3) (L3.13 speech) กำลังรัน → submit --wait → VALID → แจ้ง
 - 2026-09-25 22:30 UTC · ✅ **L3.13 merged** (20/20 · expo-speech-recognition · Fable เพิ่ม lazy `require` + guard เพราะ import แบบ static จะทำ **OTA พัง build 2** — บทเรียน: JS ที่อ้างโมดูล native ใหม่ต้อง optional เสมอเมื่อยังส่ง OTA ให้ binary เก่า) · ⛔ **build #8 รอเจ้าของสั่ง** · ยังไม่ส่ง OTA รอบนี้ (ไม่มีประโยชน์จนกว่ามี binary ใหม่)
 - 2026-09-25 21:50 UTC · 🔴 **เจ้าของ: ห้าม build จนกว่าจะสั่ง** (L3.13 เสร็จแล้วรอคำสั่ง #8) · History ว่าง = ยังไม่มีคืน (คาดหวังผิด) + ปุ่มย้อนกลับโชว์ "(tabs)" → แก้ `headerBackButtonDisplayMode: minimal` + ข้อความว่างใหม่ → **OTA #3** 236b59f2-49ff-4bcc-b7bd-d1e7be075705
