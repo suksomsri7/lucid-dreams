@@ -55,7 +55,7 @@ export interface TtsAudio {
 export type TtsProvider = (req: TtsRequest) => Promise<Buffer | TtsAudio>;
 
 /** Longest sentence we will ever render — the anchor phrase plus room for a future variant. */
-export const TTS_MAX_TEXT = 120;
+export const TTS_MAX_TEXT = 200; // 200 = DreamPlanSchema seedLines max (26 ก.ย.: เดิม 120 ทำให้ประโยค AI ยาวไม่ถูกพูด)
 
 /**
  * Sniff the container instead of trusting the vendor's `content-type`.
