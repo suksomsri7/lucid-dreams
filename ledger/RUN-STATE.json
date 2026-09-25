@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "R1 build #1 RUNNING on EAS (id 8411e9c1-3875-4210-8690-25ee4a6f0705 · profile testflight) → when FINISHED: eas submit --profile testflight --id <id> --non-interactive → TestFlight → owner installs",
+  "step": "R1 build #2 RUNNING (751f8a56-ebed-4960-add6-64ba4ad948a0) after fix #1 (sql.js out of @lucid/data entry) → when FINISHED: eas submit --platform ios --profile testflight --id 751f8a56-… --non-interactive",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "EAS build 8411e9c1 finishing"
+    "EAS build 751f8a56 finishing"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -39,7 +39,10 @@
       "eas non-interactive ต้องมี credentials ก่อน → รอบแรกใช้ pexpect ตอบ prompt",
       "capability sync DATA_PROTECTION ล้ม → เปิดผ่าน ASC API เอง",
       ".watch.complication ถูก Apple ปฏิเสธ → .watch.streak",
-      "--auto-submit non-interactive ตั้ง ASC key ไม่ได้ → ใช้ eas submit แยกพร้อม ascApiKeyPath ใน eas.json"
-    ]
+      "--auto-submit non-interactive ตั้ง ASC key ไม่ได้ → ใช้ eas submit แยกพร้อม ascApiKeyPath ใน eas.json",
+      "@lucid/data entry ห้าม export driver ที่ import sql.js — Metro ตาม dynamic import แล้วพัง node:fs · ใช้ subpath @lucid/data/sqljs ในเทสต์เท่านั้น"
+    ],
+    "build1_result": "ERRORED: Bundle JavaScript — Unable to resolve node:fs from sql.js (fixed 2f17f44)",
+    "build2": "751f8a56-ebed-4960-add6-64ba4ad948a0"
   }
 }
