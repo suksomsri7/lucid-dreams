@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
-  "wo": "L3.14",
-  "step": "owner wants to test theme Flying tonight with full audio → L3.14 (seed-line speech via /ai/tts George · bed ducking · real ambience loops) builder Opus wo/L3.14 → OTA #4 (no build) · Fable: ambience synthesized (wind/rain/underwater 57 s) + seed TTS prewarmed th/en",
+  "wo": "R1",
+  "step": "OTA #4 f096ab35 live (L3.14 seed speech + ducking + real ambience) · api TTS_MAX_TEXT 200 · owner sleep-tests theme Flying tonight 26 ก.ย. · morning: expect diagnostics + report (2 SEED rows played=true) → R1 review → calibration (R2)",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,8 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "L3.14 builder"
+    "owner: first night (Flying) + morning diagnostics",
+    "owner: decide L3.12 bell"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -87,7 +88,8 @@
     "build8": "abd96f3f-23dd-4bcb-bddf-c4235be9aa7e (buildNumber 3 · L3.13)",
     "build8_result": "FINISHED · ipa https://expo.dev/artifacts/eas/VAjscTAp41a5yuc7vSKjyTYwIOy-MLH0qJQEZMhv0cE.ipa · submitted OK · Apple processing REJECTED ITMS-90683 (missing NSPhotoLibraryUsageDescription)",
     "build9": "1f4d3363-f7da-47f6-9b87-6f2529c8c18e (buildNumber 4)",
-    "build9_result": "FINISHED · uploaded · Apple VALID 2026-09-26 12:21 UTC-server"
+    "build9_result": "FINISHED · uploaded · Apple VALID 2026-09-26 12:21 UTC-server",
+    "ota4": "f096ab35-ee36-4de1-afee-dacad9edd43d (ios 01a0d8a9-3b46-721e-827e-23d8af6d0764) · L3.14"
   },
   "voice": {
     "name": "George",
