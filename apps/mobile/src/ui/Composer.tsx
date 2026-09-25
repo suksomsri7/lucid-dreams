@@ -1,7 +1,7 @@
 /** `.composer` — the text input capsule shared by the advisor room and the morning room. */
 
-import type { RefObject } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useRef, type RefObject } from 'react';
+import { Animated, Easing, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { GlassSurface } from './GlassSurface';
 import { Icon } from './icons';
@@ -13,7 +13,11 @@ export interface ComposerProps {
   placeholder: string;
   onMicPress?: () => void;
   onSend?: () => void;
-  /** The mic button turns accent-filled while recording (DESIGN §3.3). */
+  /**
+   * The mic button turns accent-filled **and pulses** while recording (DESIGN §3.3 · WO L3.13):
+   * the fill alone was not enough of a signal that the phone is listening right now, and the
+   * heartbeat is what tells the user the session is alive and that a second tap ends it.
+   */
   micActive?: boolean;
   disabled?: boolean;
   night?: boolean;
@@ -35,6 +39,7 @@ export function Composer({
   testID,
 }: ComposerProps) {
   const canSend = value.trim().length > 0;
+  const micPulse = useMicPulse(micActive);
 
   return (
     <GlassSurface tint="regular" night={isNight} radius={radius.composer} testID={testID}>
@@ -58,15 +63,18 @@ export function Composer({
           testID={testID ? `${testID}-input` : undefined}
         />
         {onMicPress ? (
-          <Pressable
-            accessibilityRole="button"
-            onPress={onMicPress}
-            disabled={disabled}
-            testID={testID ? `${testID}-mic` : undefined}
-            style={[styles.iconButton, micActive ? styles.iconButtonAcc : styles.iconButtonNeutral]}
-          >
-            <Icon name="mic" size={18} color={micActive ? colors.white : isNight ? night.text : colors.ink} />
-          </Pressable>
+          <Animated.View style={{ transform: [{ scale: micPulse }] }}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: micActive }}
+              onPress={onMicPress}
+              disabled={disabled}
+              testID={testID ? `${testID}-mic` : undefined}
+              style={[styles.iconButton, micActive ? styles.iconButtonAcc : styles.iconButtonNeutral]}
+            >
+              <Icon name="mic" size={18} color={micActive ? colors.white : isNight ? night.text : colors.ink} />
+            </Pressable>
+          </Animated.View>
         ) : null}
         {onSend ? (
           <Pressable
@@ -82,6 +90,46 @@ export function Composer({
       </View>
     </GlassSurface>
   );
+}
+
+/**
+ * The listening heartbeat (WO L3.13): 1 → 1.12 → 1 while `micActive`, and exactly `1` — the
+ * unanimated resting value — at every other moment, so a screenshot of an idle composer is
+ * pixel-identical to the mockup and the visual QC run is unaffected.
+ */
+function useMicPulse(micActive: boolean): Animated.AnimatedInterpolation<number> {
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!micActive) {
+      progress.setValue(0);
+      return;
+    }
+    const breathe = Animated.loop(
+      Animated.sequence([
+        Animated.timing(progress, {
+          toValue: 1,
+          duration: 620,
+          easing: Easing.inOut(Easing.quad),
+          // react-native-web has no native driver; asking for one only prints a warning into the QC console.
+          useNativeDriver: Platform.OS !== 'web',
+        }),
+        Animated.timing(progress, {
+          toValue: 0,
+          duration: 620,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: Platform.OS !== 'web',
+        }),
+      ]),
+    );
+    breathe.start();
+    return () => {
+      breathe.stop();
+      progress.setValue(0);
+    };
+  }, [micActive, progress]);
+
+  return progress.interpolate({ inputRange: [0, 1], outputRange: [1, 1.12] });
 }
 
 const styles = StyleSheet.create({

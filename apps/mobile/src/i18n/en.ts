@@ -80,6 +80,12 @@ export const en: Translations = {
   // WO L3.10 (R1 hotfix #2) — a11y label for the "thinking" bubble (3 bouncing dots) while waiting on the AI.
   'advisor.thinking': 'Thinking…',
 
+  // WO L3.13 (R1 hotfix #4) — the microphone button's states in the advisor room (speak instead of type)
+  'advisor.mic.listening': 'Listening… tap again to stop',
+  'advisor.mic.denied': 'Microphone or speech recognition was not allowed',
+  'advisor.mic.openSettings': 'Open Settings',
+  'advisor.mic.unavailable': 'This device cannot turn speech into text yet — please type instead',
+
   // History (WO L1.4) — reached from the "History" link in the advisor room, not the Journal tab (journal.* above)
   'history.title': 'History',
   'history.subtitle': 'Every past night',
