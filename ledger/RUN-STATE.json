@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "build #8 FINISHED · uploaded to ASC as 0.1.0 (3) · waiting Apple processing VALID → notify owner (speech-to-text test)",
+  "step": "build 3 uploaded 25 ก.ย. ~11:15 UTC but NOT in ASC after 45 min → suspect Apple email rejection (asked owner TG 3594) · ipa plists look valid (main/watch/live) · still polling",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "EAS build abd96f3f",
+    "Apple processing build 3 / owner email screenshot",
     "owner: decide L3.12 bell"
   ],
   "icons": {
