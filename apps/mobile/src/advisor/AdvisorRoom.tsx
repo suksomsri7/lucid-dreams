@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import { FlatList, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -62,6 +63,28 @@ function tabBarTopClearance(safeAreaBottom: number): number {
  */
 const BUBBLE_MAX_WIDTH = Math.round((390 - spacing.xl * 2) * 0.92);
 
+/**
+ * Why the microphone is not listening (WO L3.13) — `null` while nothing is wrong.
+ *
+ * `denied` and `unavailable` are deliberately different states: the first is one tap in Settings
+ * away from working, the second is a fact about the phone, and telling a user to open Settings
+ * for a problem Settings cannot fix is worse than saying nothing.
+ */
+type MicNotice = 'denied' | 'unavailable' | null;
+
+/**
+ * `SpeechToText.onError` codes (`platform/ios/IosSpeechToText.ts`) → what the user is told.
+ *
+ * Silence is not a broken device: a session that ended without hearing anything (`NO_SPEECH`,
+ * `SPEECH_TIMEOUT`) or that this screen itself cancelled (`ABORTED`) just puts the microphone
+ * back to idle with no message at all, so the user can simply try again.
+ */
+function micNoticeForError(error: string): MicNotice {
+  if (error === 'NOT_ALLOWED') return 'denied';
+  if (error === 'NO_SPEECH' || error === 'SPEECH_TIMEOUT' || error === 'ABORTED') return null;
+  return 'unavailable';
+}
+
 export interface AdvisorRoomProps {
   night?: boolean;
   testID?: string;
@@ -76,7 +99,9 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
 
   const [draft, setDraft] = useState('');
   const [micActive, setMicActive] = useState(false);
-  const [micUnavailable, setMicUnavailable] = useState(false);
+  // WO L3.13: why the microphone is not listening — the two cases have different ways out
+  // (`denied` can be fixed in Settings, `unavailable` cannot), so they are not one boolean.
+  const [micNotice, setMicNotice] = useState<MicNotice>(null);
   const inputRef = useRef<TextInput>(null);
   const listRef = useRef<FlatList<Message>>(null);
   const unsubscribers = useRef<Array<() => void>>([]);
@@ -165,6 +190,18 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
     return () => subscription.remove();
   }, []);
 
+  // WO L3.13: leaving the room must switch the microphone off. Without this, walking away mid
+  // sentence leaves a live recognition session running behind a screen that no longer shows it
+  // (APP-RUN §0.5 S4 — the audio is the most private thing this app touches).
+  useEffect(
+    () => () => {
+      for (const unsubscribe of unsubscribers.current) unsubscribe();
+      unsubscribers.current = [];
+      void platform.speechToText.stop().catch(() => undefined);
+    },
+    [platform],
+  );
+
   const editing = advisor.state === 'PLAN' || advisor.state === 'STARTED';
   const composerPlaceholder = editing ? t('advisor.composer.editPlaceholder') : t('advisor.composer.placeholder');
 
@@ -174,6 +211,7 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
   }
 
   async function handleMicPress(): Promise<void> {
+    // Second tap = stop, which is what `advisor.mic.listening` promises in words.
     if (micActive) {
       stopListeners();
       setMicActive(false);
@@ -181,13 +219,25 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
       return;
     }
 
-    setMicUnavailable(false);
-    try {
-      const available = await platform.speechToText.isAvailable();
-      if (!available) throw new Error('speech-to-text not available on this device');
-      const granted = await platform.speechToText.requestPermissions();
-      if (!granted) throw new Error('speech-to-text permission denied');
+    setMicNotice(null);
 
+    // WO L3.13: the three failure modes are kept apart on purpose — "this phone cannot" and
+    // "you said no" used to collapse into the same "This device cannot do that yet" line, which
+    // was the wrong sentence in both cases and offered no way forward.
+    const available = await platform.speechToText.isAvailable().catch(() => false);
+    if (!available) {
+      setMicNotice('unavailable');
+      return;
+    }
+
+    // First tap is also the permission prompt (microphone + speech recognition, one dialog).
+    const granted = await platform.speechToText.requestPermissions().catch(() => false);
+    if (!granted) {
+      setMicNotice('denied');
+      return;
+    }
+
+    try {
       const unsubscribeResult = platform.speechToText.onResult((result) => {
         // Live partial text lands straight in the composer (DESIGN §2.6 · mockup 06 frame a).
         setDraft(result.text);
@@ -202,34 +252,38 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
           }
         }
       });
-      const unsubscribeError = platform.speechToText.onError(() => {
+      const unsubscribeError = platform.speechToText.onError((error) => {
         stopListeners();
         setMicActive(false);
-        setMicUnavailable(true);
+        setMicNotice(micNoticeForError(error));
       });
       unsubscribers.current = [unsubscribeResult, unsubscribeError];
 
       await platform.speechToText.start({ locale: locale === 'th' ? 'th-TH' : 'en-US' });
       setMicActive(true);
     } catch {
-      // Web's stub (and any device without speech recognition) throws here — the WO's
-      // required fallback: show `common.notAvailableOnThisDevice`, never a native crash.
+      // Web's stub (and any build whose native module is missing) throws here — never a crash.
       stopListeners();
       setMicActive(false);
-      setMicUnavailable(true);
+      setMicNotice('unavailable');
     }
+  }
+
+  /** Settings is the only route back from a refused microphone (iOS never asks twice). */
+  function handleOpenSettings(): void {
+    void Linking.openSettings().catch(() => undefined);
   }
 
   function handleSend(): void {
     const text = draft.trim();
     if (text.length === 0) return;
     setDraft('');
-    setMicUnavailable(false);
+    setMicNotice(null);
     void advisor.say(text);
   }
 
   function handleChipPress(key: string): void {
-    setMicUnavailable(false);
+    setMicNotice(null);
     if (key === 'other') {
       // DESIGN §4-02: the "other" (✍️) theme chip never sends a message — it just opens the keyboard.
       inputRef.current?.focus();
@@ -321,10 +375,22 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
       </View>
 
       <View style={[styles.footer, { paddingBottom: tabBarTopClearance(insets.bottom) }]}>
-        {micUnavailable ? (
-          <Text style={[typeScale.sub, styles.micWarning, { color: isNight ? night.mut : colors.mut }]}>
-            {t('common.notAvailableOnThisDevice')}
+        {micActive ? (
+          <Text style={[typeScale.sub, styles.micWarning, styles.micListening]} testID="advisor-mic-listening">
+            {t('advisor.mic.listening')}
           </Text>
+        ) : null}
+        {micNotice !== null ? (
+          <View style={styles.micNotice} testID="advisor-mic-notice">
+            <Text style={[typeScale.sub, styles.micWarning, { color: isNight ? night.mut : colors.mut }]}>
+              {t(micNotice === 'denied' ? 'advisor.mic.denied' : 'advisor.mic.unavailable')}
+            </Text>
+            {micNotice === 'denied' ? (
+              <Pressable accessibilityRole="button" onPress={handleOpenSettings} testID="advisor-mic-settings">
+                <Text style={[typeScale.sub, styles.micSettingsLink]}>{t('advisor.mic.openSettings')}</Text>
+              </Pressable>
+            ) : null}
+          </View>
         ) : null}
         <Composer
           value={draft}
@@ -440,4 +506,8 @@ const styles = StyleSheet.create({
   planBlock: { gap: spacing.sm, alignSelf: 'stretch' },
   footer: { paddingHorizontal: spacing.xl, paddingTop: spacing.sm, gap: spacing.xs },
   micWarning: { textAlign: 'center' },
+  // WO L3.13: the live "listening…" line, in the accent colour the pulsing mic button uses.
+  micListening: { color: colors.acc },
+  micNotice: { gap: spacing.xs / 2, alignItems: 'center' },
+  micSettingsLink: { color: colors.acc, fontWeight: '500' },
 });

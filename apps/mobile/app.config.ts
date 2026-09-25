@@ -179,6 +179,16 @@ const PRIVACY_MANIFEST = {
 const MICROPHONE_PERMISSION =
   'Dreaming records your dream in the morning so it can be written down. The recording stays on this iPhone.';
 
+/**
+ * Word for word the `NSSpeechRecognitionUsageDescription` this app has always shipped — WO L1.3
+ * already translated it in each `locales/<lang>/InfoPlist.strings`, so the English master must
+ * not drift.
+ * It is a constant now only because WO L3.13's `expo-speech-recognition` plugin needs the same
+ * sentence a second time.
+ */
+const SPEECH_RECOGNITION_PERMISSION =
+  'Dreaming turns your morning recording into text on this iPhone, so you do not have to type your dream.';
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Dreaming',
@@ -231,8 +241,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       NSHealthUpdateUsageDescription:
         'Dreaming saves the mindfulness session your Apple Watch runs while you sleep.',
       NSMicrophoneUsageDescription: MICROPHONE_PERMISSION,
-      NSSpeechRecognitionUsageDescription:
-        'Dreaming turns your morning recording into text on this iPhone, so you do not have to type your dream.',
+      NSSpeechRecognitionUsageDescription: SPEECH_RECOGNITION_PERMISSION,
       NSBluetoothAlwaysUsageDescription:
         'Dreaming connects to your heart rate strap or armband, and to your headphones, while you sleep.',
       NSUserNotificationsUsageDescription:
@@ -334,6 +343,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     // ขอสิทธิ์ไมค์ผ่าน config plugin ของ expo-audio (ข้อความจริงอยู่ใน infoPlist ด้านบน)
     ['expo-audio', { microphonePermission: MICROPHONE_PERMISSION }],
+    /**
+     * Speech → text for the microphone button in the advisor room and the morning room
+     * (WO L3.13 · DESIGN §2.6/§8.2). Both usage strings are handed to the plugin explicitly so
+     * it cannot fall back to its own English defaults ("Allow $(PRODUCT_NAME) to …"), and they
+     * are the exact sentences already sitting in `infoPlist` above and translated in
+     * `locales/<lang>/InfoPlist.strings`.
+     */
+    [
+      'expo-speech-recognition',
+      {
+        microphonePermission: MICROPHONE_PERMISSION,
+        speechRecognitionPermission: SPEECH_RECOGNITION_PERMISSION,
+      },
+    ],
     /**
      * BLE heart-rate strap / armband (WO L2.3 · DESIGN §8.1).
      *
