@@ -183,6 +183,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Dreaming',
   slug: 'dreaming',
+  // บัญชี Expo ของโปรเจกต์นี้ (token ใน /root/.lucid/expo.env) — EAS ใช้จับคู่ slug กับโปรเจกต์ @luciddreams-team/dreaming
+  owner: 'luciddreams-team',
   version: '0.1.0',
   orientation: 'portrait',
   scheme: 'dreaming',
@@ -377,5 +379,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
      */
     iosOnlyModules: ['expo-glass-effect', 'react-native-ble-plx'],
     router: {},
+    // โปรเจกต์ EAS @luciddreams-team/dreaming (สร้าง 25 ก.ย. 2026 ด้วย `eas init`)
+    eas: { projectId: '2e4f819e-0f38-4481-be29-87093567bacf' },
   },
 });

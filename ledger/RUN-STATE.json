@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "waiting-owner: ASC app + Team ID + ASC API key → eas build r1-internal (owner orders) · L3.7 merged (icon M + intro + brand tone)",
+  "step": "READY TO BUILD R1 — owner must say \"build\" → bash scripts/build-r1.sh (Fable runs only on order)",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,11 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "เจ้าของ: สร้างแอป Dreaming ใน ASC (ทีมเดิม · cloud.suksomsri.dreaming)",
-    "เจ้าของ: Team ID + ASC API key (.p8 · Key ID · Issuer ID)",
-    "เจ้าของ: รุ่น iPhone/Watch/หูฟัง",
-    "เจ้าของ: สั่ง build",
-    "owner: confirm anchor sound v2-C (TG 3478)"
+    "owner: order R1 build (TestFlight/internal) · confirm device models (iPhone iOS 26? Watch? headphones)"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -23,5 +19,15 @@
       "apps/mobile/assets/adaptive-icon.png",
       "targets/watch/Assets.xcassets/AppIcon.appiconset/icon-1024.png"
     ]
+  },
+  "apple": {
+    "teamId": "3DD2VCN6JQ",
+    "bundleId": "cloud.suksomsri.dreaming",
+    "ascAppId": "6815932557",
+    "ascAppName": "Dreaming - Lucid",
+    "ascKeyId": "4MW5TQGCZ7",
+    "ascKeyPath": "/root/.lucid/asc/AuthKey_4MW5TQGCZ7.p8 (600, outside repo)",
+    "appGroup": "group.cloud.suksomsri.dreaming",
+    "easProject": "@luciddreams-team/dreaming 2e4f819e-0f38-4481-be29-87093567bacf"
   }
 }
