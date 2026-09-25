@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 18:30 UTC · ✅ **L3.9 merged** (36/36 · โมดูล native lucid-audio-route · playOneShot ตั้ง session · DeviceSearchSheet · Diagnostics ทดสอบเสียง · watch installHint) · 🚀 **build #6** `e772e81c` (รวม watch min 10.0 + L3.10) · ▶ L3.11 Settings v2 (Sonnet · wo/L3.11) คู่ขนาน · ถ้า Swift ของโมดูลใหม่/watchOS 10 ล้ม ดู log แล้วแก้
 - 2026-09-25 17:50 UTC · ✅ **L3.10 merged** (18/18 · ▶ ต่อสาย + พรีวิว 0.5 · busy+TypingBubble · ชิปล็อกทันที) · บทเรียน: คอมเมนต์ไทยใน src/ ทำ fitness ล้ม (Fable เอง) · รอ L3.9 → build #6
 - 2026-09-25 17:20 UTC · 🎨 เจ้าของ: แบบ 09 เดิมแถวแคบ/อัดแน่น → วาด **09 v2** (แถว 52 · inset 16 · 2 กรอบ บน/เลื่อนลง · v1 เก็บ `.v1-dense.body.html.bak`) ส่ง TG · ใบงาน **L3.11** + qc-L3.11 (12) พร้อม รันหลัง L3.9 merge (settings.tsx ชนกัน) · ส่ง OTA
 - 2026-09-25 16:40 UTC · 🐞 รายงานเพิ่ม: Settings ชีต Coming soon (เข้า L3.9 §F) · Settings เลย์เอาต์ไม่เป็นระเบียบ (→ **L3.11** หลัง L3.9 merge · OTA ได้) · การ์ดแผน ▶ ไม่มีเสียง (ไม่ส่ง onPlayAnchor) + กดชิปไม่มีสัญญาณคิด → ซ้อน 9 รอบ → **L3.10** (`wo-notes/L3.10-WO.md` · qc-L3.10 18 ข้อ · Sonnet คู่ขนาน)

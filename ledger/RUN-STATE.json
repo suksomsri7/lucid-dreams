@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
-  "wo": "L3.9",
-  "step": "L3.10 merged (b71d6c3) · waiting L3.9 (37 checks) → merge → build #6 (watch min 10.0) → TestFlight → then L3.11 Settings v2 via OTA",
+  "wo": "R1",
+  "step": "L3.9 + L3.10 merged (0ccfea7) · build #6 RUNNING e772e81c-8065-40c3-9833-f4995410af3c (watch min 10.0 · lucid-audio-route native · Swift untested) → submit --wait → VALID → notify · L3.11 Settings v2 builder in parallel (OTA after)",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,8 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "L3.9 builder"
+    "EAS build e772e81c",
+    "L3.11 builder"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -69,7 +70,8 @@
       "iphone": "iOS 27",
       "watch": "Apple Watch SE 2 44mm aluminum MU6D2J/A · watchOS 10.6.2 (< 11 → watch app not installable on build 1) · asked to update; watch deploymentTarget lowered to 10.0 in main 093da29 for build #6",
       "headphones": "several BT models"
-    }
+    },
+    "build6": "e772e81c-8065-40c3-9833-f4995410af3c"
   },
   "voice": {
     "name": "George",
