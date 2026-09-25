@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "build #4 FINISHED (ipa) · submitted to TestFlight (submission b03506c2) · waiting Apple processing → owner installs via TestFlight → R1 night tests per ledger/R1-CHECKLIST.md",
+  "step": "build #4 uploaded to ASC on 2nd submit (42f64f7b · 1st submit b03506c2 never reached Apple — use --wait to confirm) · waiting Apple processing",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -42,7 +42,8 @@
       ".watch.complication ถูก Apple ปฏิเสธ → .watch.streak",
       "--auto-submit non-interactive ตั้ง ASC key ไม่ได้ → ใช้ eas submit แยกพร้อม ascApiKeyPath ใน eas.json",
       "@lucid/data entry ห้าม export driver ที่ import sql.js — Metro ตาม dynamic import แล้วพัง node:fs · ใช้ subpath @lucid/data/sqljs ในเทสต์เท่านั้น",
-      "App Group assignment ต้องทำมือในพอร์ทัล (ASC API ไม่มี /appGroups) · หลังผูก profile เดิม INVALID → DELETE /v1/profiles/{id} แล้วรัน eas build แบบ interactive (pexpect) ให้สร้างใหม่"
+      "App Group assignment ต้องทำมือในพอร์ทัล (ASC API ไม่มี /appGroups) · หลังผูก profile เดิม INVALID → DELETE /v1/profiles/{id} แล้วรัน eas build แบบ interactive (pexpect) ให้สร้างใหม่",
+      "eas submit --no-wait รอบแรกไม่ถึง Apple โดยไม่แจ้ง → ใช้ --wait --verbose เสมอ แล้วยืนยันด้วย GET /v1/builds"
     ],
     "build1_result": "ERRORED: Bundle JavaScript — Unable to resolve node:fs from sql.js (fixed 2f17f44)",
     "build2": "751f8a56-ebed-4960-add6-64ba4ad948a0",
@@ -50,7 +51,8 @@
     "build3": "098b3cb1-bc3c-4189-b05a-c40e015eee6c ERRORED signing (App Group on child targets)",
     "build4": "d38f43d9-5682-4f62-aa01-82772a0a7d65",
     "build4_result": "FINISHED · ipa https://expo.dev/artifacts/eas/f3GIaunYhziho1NMPR7ZbzDXHB3XXTUig9sXSeU3jEk.ipa · version 0.1.0 (1)",
-    "submission1": "b03506c2-04b3-4fa5-aaf3-49fe8b4a7e35"
+    "submission1": "b03506c2-04b3-4fa5-aaf3-49fe8b4a7e35",
+    "submission2": "42f64f7b-0fec-4d41-9d26-29d32401c1e1 (uploaded OK)"
   },
   "voice": {
     "name": "George",
