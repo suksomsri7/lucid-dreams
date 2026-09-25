@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "build #4 REJECTED by Apple processing (ITMS-90362 watch UIBackgroundModes) → fixed WKBackgroundModes (8ea2979) → build #5 RUNNING 4673aae5-b932-4a21-9246-2b54d9ce8a3c → eas submit --wait --verbose → verify GET /v1/builds VALID",
+  "step": "build #5 FINISHED (4673aae5 · 0.1.0 (1) with WKBackgroundModes fix) · uploaded to ASC (submission 8ab5015e) · waiting Apple processingState=VALID → notify owner → R1 night tests",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "EAS build 4673aae5 finishing"
+    "Apple processing build #5"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -53,7 +53,8 @@
     "build4_result": "FINISHED · ipa https://expo.dev/artifacts/eas/f3GIaunYhziho1NMPR7ZbzDXHB3XXTUig9sXSeU3jEk.ipa · version 0.1.0 (1) · Apple processing REJECTED ITMS-90362 (watch Info.plist UIBackgroundModes → WKBackgroundModes)",
     "submission1": "b03506c2-04b3-4fa5-aaf3-49fe8b4a7e35",
     "submission2": "42f64f7b-0fec-4d41-9d26-29d32401c1e1 (uploaded OK)",
-    "build5": "4673aae5-b932-4a21-9246-2b54d9ce8a3c"
+    "build5": "4673aae5-b932-4a21-9246-2b54d9ce8a3c",
+    "build5_result": "FINISHED · ipa https://expo.dev/artifacts/eas/wg6VMigXzA-jmaVX5W9M1ZM_TsJYYJzrJ23bfO5132s.ipa · submission 8ab5015e uploaded OK"
   },
   "voice": {
     "name": "George",
