@@ -226,6 +226,7 @@ export const en: Translations = {
   'settings.language.en': 'English',
   'settings.openDiagnostics': 'Diagnostics',
   'settings.openDiagnostics.hint': 'For on-device test rounds',
+  'settings.diagnostics.sub': "Last night's data · sound test · share with the team",
 
   'diagnostics.title': 'Diagnostics',
   'diagnostics.subtitle': 'This screen is for on-device testing, not for everyday use',
@@ -482,11 +483,12 @@ export const en: Translations = {
   'journal.chart.dreamTime.unknown': 'Not enough nights yet to tell when you tend to dream',
   'journal.learning.title': 'What the app has learned',
 
-  // Settings (WO L3.6) — mockup 09-settings.png (4 groups)
-  'settings.section.devices': 'Devices',
-  'settings.section.sound': 'Sound',
-  'settings.section.sleep': 'Sleep',
-  'settings.section.data': 'Data',
+  // Settings (WO L3.6 · v2 roomy L3.11) — mockup 09-settings.png (5 groups)
+  'settings.group.devices': 'Devices',
+  'settings.group.sound': 'Sound',
+  'settings.group.sleep': 'Sleep',
+  'settings.group.data': 'Data',
+  'settings.group.test': 'For on-device test rounds',
   'settings.devices.searchOther': 'Find a device',
   'settings.devices.row.value': '{name} · {battery}%',
   'settings.devices.eye.value': 'None yet · optional',
@@ -502,7 +504,7 @@ export const en: Translations = {
   'settings.sound.volume': 'Starting volume',
   'settings.sound.volume.sub': 'Starting level only · the app adjusts it itself overnight',
   'settings.sound.autoAdjust': 'Adjust automatically every night',
-  'settings.sound.autoAdjust.sub': 'Always on in normal mode',
+  'settings.sound.auto.sub': 'Always on in normal mode',
   'settings.sleep.guard': 'Quiet for the first {hours} h',
   'settings.sleep.guard.value': 'Up to {maxCues} whispers/night',
   'settings.sleep.guard.sheet.title': 'Quiet window + whisper cap',

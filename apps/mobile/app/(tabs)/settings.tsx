@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Directory, File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Animated, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { DeviceCategory, DeviceEntry } from '@lucid/engine';
 import { AUDIO_HOURS_PER_FULL_CHARGE, summarizeDevices } from '@lucid/engine';
@@ -37,18 +37,28 @@ import { resetSettingsAfterDeleteAll } from '../../src/settings/store';
 import { deleteEverythingLocal, exportAllData } from '../../src/settings/data';
 import { resetOnboardingAfterDeleteAll, setConsentAi, useOnboardingState } from '../../src/store/onboarding';
 import { clearNightPlan } from '../../src/store/night';
-import { Button, GlassCard, Icon, Row, Screen, SectionLabel, Seg, Sub, Switch, Title, colors, radius, spacing, typeScale } from '../../src/ui';
+import { Button, GlassCard, Icon, Screen, SectionLabel, Seg, Sub, Switch, Title, colors, radius, spacing, typeScale } from '../../src/ui';
 
 /** Re-checked whenever the screen mounts — cheap, side-effect-free reads (same policy `plan/devices.tsx` uses). */
 const REFRESH_MS = 4000;
 
+/** WO L3.11 — every row's shared geometry (mockup `09-settings.png` v2: "row height 52 ·
+ * 16px inset on both edges, the same on every row"). */
+const SETTINGS_ROW_MIN_HEIGHT = 52;
+const SETTINGS_INSET = 16;
+
+/** How long the reset/export/delete toast holds at full opacity before it starts fading. */
+const TOAST_VISIBLE_MS = 2500;
+const TOAST_FADE_MS = 320;
+
 /**
- * Tab 3 — one page for everything (DESIGN §3.1 · mockup `09-settings.png`, WO L3.6).
- * Four groups exactly as drawn: Devices · Sound · Sleep · Data — `settings.sleep.boostNight`
- * is the one row the mockup itself does not draw (it predates the WBTB decision,
- * APP-RUN §2 "L3.6"); it is placed at the end of "Sleep" rather than as a fifth group,
- * per DESIGN §4-09's own "no extra group" rule — see `ledger/wo-notes/L3ui.md` for the
- * parity note.
+ * Tab 3 — one page for everything (DESIGN §3.1 · mockup `09-settings.png` v2, WO L3.11).
+ * Five groups exactly as drawn: Devices · Sound · Sleep · Data · Test — every row goes
+ * through the local `SettingRow` below so height/inset/right-edge alignment stay a single
+ * source of truth (WO L3.11 point 1), replacing the mixed hand-rolled rows the v1 layout
+ * had (WO L3.6/L3.9). `settings.sleep.boostNight` is still the one row mockup `09` itself
+ * does not draw (predates the WBTB decision, APP-RUN §2 "L3.6"); kept at the end of
+ * "Sleep" per the v1 parity note in `ledger/wo-notes/L3ui.md`.
  */
 export default function SettingsScreen() {
   const { t } = useT();
@@ -56,12 +66,43 @@ export default function SettingsScreen() {
   const router = useRouter();
   const settings = useSettings();
   const { consentAi } = useOnboardingState();
+  /** `?scrolled=1` (visual-all.js `settings-scrolled` route, WO L3.11 point 7) renders the
+   * page starting from "Sleep" instead of "Devices" so a fixed-height screenshot lands on
+   * the same content mockup frame B ("scrolled to the bottom") shows — a real scroll
+   * gesture needs a ref the shared `Screen` scaffold does not expose, and `Screen.tsx` is
+   * outside this WO's file list, so this is the in-scope way to get that second frame. */
+  const { scrolled } = useLocalSearchParams<{ scrolled?: string }>();
+  const showTop = scrolled !== '1';
 
   const [devices, setDevices] = useState<DeviceEntry[]>(() => deviceRegistry.list());
   const [sheet, setSheet] = useState<'guard' | 'realityChecks' | 'resetAnchor' | 'deleteAll1' | 'deleteAll2' | 'deviceSearch' | null>(null);
   const [deleteWord, setDeleteWord] = useState('');
-  const [busyMessage, setBusyMessage] = useState<string | null>(null);
   const [anchorPlaying, setAnchorPlaying] = useState(false);
+
+  // WO L3.11 point 5: "Watermark reset" (and the other best-effort local messages this
+  // screen used to leave sitting on the page forever via `busyMessage`) is now a real
+  // toast — appears, holds ~2.5s, fades via `Animated` opacity, then unmounts.
+  const [resetToastMessage, setResetToastMessage] = useState<string | null>(null);
+  const resetToastOpacity = useRef(new Animated.Value(0)).current;
+  const resetToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetToastTimer.current) clearTimeout(resetToastTimer.current);
+    };
+  }, []);
+
+  function showResetToast(message: string): void {
+    if (resetToastTimer.current) clearTimeout(resetToastTimer.current);
+    resetToastOpacity.stopAnimation();
+    resetToastOpacity.setValue(1);
+    setResetToastMessage(message);
+    resetToastTimer.current = setTimeout(() => {
+      Animated.timing(resetToastOpacity, { toValue: 0, duration: TOAST_FADE_MS, useNativeDriver: false }).start(({ finished }) => {
+        if (finished) setResetToastMessage(null);
+      });
+    }, TOAST_VISIBLE_MS);
+  }
 
   useEffect(() => {
     function tick(): void {
@@ -113,7 +154,7 @@ export default function SettingsScreen() {
     setSheet(null);
     try {
       await resetAnchorSeed();
-      setBusyMessage(t('settings.sound.reset.done'));
+      showResetToast(t('settings.sound.reset.done'));
     } catch {
       // Nothing more to do — the seed helper already best-effort persists.
     }
@@ -131,9 +172,9 @@ export default function SettingsScreen() {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(target.uri, { mimeType: 'application/json', dialogTitle: t('settings.data.export'), UTI: 'public.json' });
       }
-      setBusyMessage(t('settings.data.export.done'));
+      showResetToast(t('settings.data.export.done'));
     } catch {
-      setBusyMessage(t('settings.data.export.failed'));
+      showResetToast(t('settings.data.export.failed'));
     }
   }
 
@@ -153,7 +194,7 @@ export default function SettingsScreen() {
       resetOnboardingAfterDeleteAll();
       router.replace('/onboarding');
     } catch {
-      setBusyMessage(t('settings.deleteAll.failed'));
+      showResetToast(t('settings.deleteAll.failed'));
     }
   }
 
@@ -162,143 +203,201 @@ export default function SettingsScreen() {
       <Title>{t('settings.title')}</Title>
       <Sub>{t('settings.subtitle')}</Sub>
 
-      {/* Devices */}
-      <SectionLabel style={styles.sectionLabel}>{t('settings.section.devices')}</SectionLabel>
-      <GlassCard style={styles.cardTight} noPadding testID="settings-devices-card">
-        <DeviceRow
-          icon="heart"
-          label={t('onboarding.devices.heart.title')}
-          value={
-            heartDevice
-              ? t('settings.devices.row.value', { name: heartDevice.name, battery: Math.round((heartDevice.battery ?? 0) * 100) })
-              : t('settings.devices.notConnected')
-          }
-          testID="settings-device-heart"
-        />
-        <DeviceRow
-          icon="phones"
-          label={t('onboarding.devices.audio.title')}
-          value={
-            audioDevice
-              ? t('settings.devices.row.value', {
-                  name: audioDevice.name,
-                  battery: Math.round((audioDevice.battery ?? AUDIO_HOURS_PER_FULL_CHARGE) * 100),
-                })
-              : t('settings.devices.notConnected')
-          }
-          testID="settings-device-audio"
-        />
-        <DeviceRow icon="eye" label={t('onboarding.devices.eye.title')} value={t('settings.devices.eye.value')} dimmed testID="settings-device-eye" />
-        <Pressable accessibilityRole="button" onPress={() => setSheet('deviceSearch')} testID="settings-device-search">
-          <View style={styles.searchRow}>
-            <Icon name="plus" size={15} color={colors.acc} strokeWidth={2.2} />
-            <Text style={[typeScale.body, styles.searchLabel]}>{t('settings.devices.searchOther')}</Text>
-            <Icon name="chevronRight" size={14} color={colors.mut} />
-          </View>
-        </Pressable>
-      </GlassCard>
-
-      {/* Sound */}
-      <SectionLabel style={styles.sectionLabel}>{t('settings.section.sound')}</SectionLabel>
-      <GlassCard style={styles.cardTight} noPadding testID="settings-sound-card">
-        <Row label={t('settings.sound.anchor')} value={t('settings.sound.anchor.listen')} onPress={() => void handlePlayAnchor()} testID="settings-anchor-listen" />
-        <Row label={t('settings.sound.reset')} value={t('settings.sound.reset.sub')} onPress={() => setSheet('resetAnchor')} testID="settings-anchor-reset" />
-        <View style={styles.volumeRow} testID="settings-volume-row">
-          <View style={{ flex: 1 }}>
-            <Text style={[typeScale.body, styles.rowLabel]}>{t('settings.sound.volume')}</Text>
-            <Sub>{t('settings.sound.volume.sub')}</Sub>
-          </View>
-          <VolumeStepper value={settings.volumeStart} onChange={setVolumeStart} />
-        </View>
-        <View style={[styles.switchRow, styles.lastRow]}>
-          <View style={{ flex: 1 }}>
-            <Text style={[typeScale.body, styles.rowLabel]}>{t('settings.sound.autoAdjust')}</Text>
-            <Sub>{t('settings.sound.autoAdjust.sub')}</Sub>
-          </View>
-          {/* Always on in normal mode (mockup `09-settings.png`: full-brightness green, not
-              faded) — the lock is conveyed by the sub line above, not by a disabled-looking
-              control (Fable parity review); `onValueChange` stays a no-op. */}
-          <Switch value onValueChange={() => undefined} testID="settings-auto-adjust" />
-        </View>
-      </GlassCard>
-
-      {/* Sleep */}
-      <SectionLabel style={styles.sectionLabel}>{t('settings.section.sleep')}</SectionLabel>
-      <GlassCard style={styles.cardTight} noPadding testID="settings-sleep-card">
-        <Row
-          label={t('settings.sleep.guard', { hours: settings.guardHours })}
-          value={t('settings.sleep.guard.value', { maxCues: settings.maxCuesPerNight })}
-          onPress={() => setSheet('guard')}
-          testID="settings-guard-row"
-        />
-        <View style={styles.switchRow}>
-          <Text style={[typeScale.body, styles.rowLabel, { flex: 1 }]}>{t('settings.sleep.stopAfterTwoWakes')}</Text>
-          <Switch value={settings.stopAfterTwoWakes} onValueChange={setStopAfterTwoWakes} testID="settings-stop-two-wakes" />
-        </View>
-        <View style={styles.switchRow}>
-          <Text style={[typeScale.body, styles.rowLabel, { flex: 1 }]}>{t('settings.sleep.controlNights')}</Text>
-          <Switch value={settings.controlNightsEnabled} onValueChange={setControlNightsEnabled} testID="settings-control-nights" />
-        </View>
-        <Row
-          label={t('settings.sleep.realityChecks')}
-          value={t('settings.sleep.realityChecks.value', { n: settings.realityChecksPerDay })}
-          onPress={() => setSheet('realityChecks')}
-          testID="settings-reality-checks-row"
-        />
-        <View style={[styles.switchRow, styles.lastRow]}>
-          <View style={{ flex: 1 }}>
-            <Text style={[typeScale.body, styles.rowLabel]}>{t('settings.sleep.boostNight')}</Text>
-            <Sub>{t('settings.sleep.boostNight.sub')}</Sub>
-          </View>
-          <Switch value={settings.boostNight} onValueChange={setBoostNight} testID="settings-boost-night" />
-        </View>
-      </GlassCard>
-
-      {/* Data */}
-      <SectionLabel style={styles.sectionLabel}>{t('settings.section.data')}</SectionLabel>
-      <GlassCard style={styles.cardTight} noPadding testID="settings-data-card">
-        <View style={styles.switchRow}>
-          <Text style={[typeScale.body, styles.rowLabel, { flex: 1 }]}>{t('settings.data.consentAi')}</Text>
-          <Switch value={consentAi} onValueChange={setConsentAi} testID="settings-consent-ai" />
-        </View>
-        <Row
-          label={t('settings.data.local')}
-          right={
-            <View style={styles.dataButtons}>
-              <Button label={t('settings.data.export')} tone="gh" size="sm" onPress={() => void handleExportAll()} testID="settings-export" />
-              <Button label={t('settings.data.deleteAll')} tone="dg" size="sm" onPress={() => setSheet('deleteAll1')} testID="settings-delete-all" />
+      <View style={styles.groups}>
+        {showTop ? (
+          <>
+            {/* Devices */}
+            <View style={styles.group}>
+              <SectionLabel style={styles.groupHeader}>{t('settings.group.devices')}</SectionLabel>
+              <GlassCard noPadding testID="settings-devices-card">
+                <SettingRow
+                  icon="💓"
+                  label={t('onboarding.devices.heart.title')}
+                  value={
+                    heartDevice
+                      ? t('settings.devices.row.value', { name: heartDevice.name, battery: Math.round((heartDevice.battery ?? 0) * 100) })
+                      : t('settings.devices.notConnected')
+                  }
+                  chevron
+                  testID="settings-device-heart"
+                />
+                <SettingRow
+                  icon="🎧"
+                  label={t('onboarding.devices.audio.title')}
+                  value={
+                    audioDevice
+                      ? t('settings.devices.row.value', {
+                          name: audioDevice.name,
+                          battery: Math.round((audioDevice.battery ?? AUDIO_HOURS_PER_FULL_CHARGE) * 100),
+                        })
+                      : t('settings.devices.notConnected')
+                  }
+                  chevron
+                  testID="settings-device-audio"
+                />
+                <SettingRow
+                  icon="👁"
+                  label={t('onboarding.devices.eye.title')}
+                  value={t('settings.devices.eye.value')}
+                  chevron
+                  dimmed
+                  testID="settings-device-eye"
+                />
+                <SettingRow
+                  icon={<Icon name="plus" size={15} color={colors.acc} strokeWidth={2.2} />}
+                  label={t('settings.devices.searchOther')}
+                  accent
+                  chevron
+                  last
+                  onPress={() => setSheet('deviceSearch')}
+                  testID="settings-device-search"
+                />
+              </GlassCard>
             </View>
-          }
-          testID="settings-data-local-row"
-        />
-        <Row
-          label={t('settings.language')}
-          right={
-            <View style={{ minWidth: 160 }}>
-              <Seg
-                testID="locale-seg"
-                options={[
-                  { value: 'th', label: t('settings.language.th') },
-                  { value: 'en', label: t('settings.language.en') },
-                ]}
-                value={locale}
-                onChange={(next) => setLocale(next === 'th' ? 'th' : 'en')}
-              />
-            </View>
-          }
-          testID="settings-language-row"
-        />
-        <View style={styles.aboutBlock}>
-          <Sub>{t('settings.about.notMedical')}</Sub>
-          <Sub>{t('settings.about.research')}</Sub>
-        </View>
-        <View style={styles.diagnosticsBlock}>
-          <Sub>{t('settings.openDiagnostics.hint')}</Sub>
-          <Button testID="open-diagnostics" tone="gh" block label={t('settings.openDiagnostics')} onPress={() => router.push('/diagnostics')} />
-        </View>
-      </GlassCard>
 
-      {busyMessage ? <Sub testID="settings-busy-message">{busyMessage}</Sub> : null}
+            {/* Sound */}
+            <View style={styles.group}>
+              <SectionLabel style={styles.groupHeader}>{t('settings.group.sound')}</SectionLabel>
+              <GlassCard noPadding testID="settings-sound-card">
+                <SettingRow
+                  label={t('settings.sound.anchor')}
+                  value={t('settings.sound.anchor.listen')}
+                  onPress={() => void handlePlayAnchor()}
+                  chevron
+                  testID="settings-anchor-listen"
+                />
+                <SettingRow
+                  label={t('settings.sound.reset')}
+                  sub={t('settings.sound.reset.sub')}
+                  onPress={() => setSheet('resetAnchor')}
+                  chevron
+                  testID="settings-anchor-reset"
+                />
+                <SettingRow
+                  label={t('settings.sound.volume')}
+                  sub={t('settings.sound.volume.sub')}
+                  right={<VolumeStepper value={settings.volumeStart} onChange={setVolumeStart} />}
+                  testID="settings-volume-row"
+                />
+                <SettingRow
+                  label={t('settings.sound.autoAdjust')}
+                  sub={t('settings.sound.auto.sub')}
+                  right={
+                    // Always on in normal mode (mockup `09-settings.png`: full-brightness green,
+                    // not faded) — the lock is conveyed by the sub line, not a disabled-looking
+                    // control (Fable parity review); `onValueChange` stays a no-op.
+                    <Switch value onValueChange={() => undefined} testID="settings-auto-adjust" />
+                  }
+                  last
+                  testID="settings-auto-adjust-row"
+                />
+              </GlassCard>
+            </View>
+          </>
+        ) : null}
+
+        {/* Sleep */}
+        <View style={styles.group}>
+          <SectionLabel style={styles.groupHeader}>{t('settings.group.sleep')}</SectionLabel>
+          <GlassCard noPadding testID="settings-sleep-card">
+            <SettingRow
+              label={t('settings.sleep.guard', { hours: settings.guardHours })}
+              value={t('settings.sleep.guard.value', { maxCues: settings.maxCuesPerNight })}
+              onPress={() => setSheet('guard')}
+              chevron
+              testID="settings-guard-row"
+            />
+            <SettingRow
+              label={t('settings.sleep.stopAfterTwoWakes')}
+              right={<Switch value={settings.stopAfterTwoWakes} onValueChange={setStopAfterTwoWakes} testID="settings-stop-two-wakes" />}
+              testID="settings-stop-two-wakes-row"
+            />
+            <SettingRow
+              label={t('settings.sleep.controlNights')}
+              right={<Switch value={settings.controlNightsEnabled} onValueChange={setControlNightsEnabled} testID="settings-control-nights" />}
+              testID="settings-control-nights-row"
+            />
+            <SettingRow
+              label={t('settings.sleep.realityChecks')}
+              value={t('settings.sleep.realityChecks.value', { n: settings.realityChecksPerDay })}
+              onPress={() => setSheet('realityChecks')}
+              chevron
+              testID="settings-reality-checks-row"
+            />
+            <SettingRow
+              label={t('settings.sleep.boostNight')}
+              sub={t('settings.sleep.boostNight.sub')}
+              right={<Switch value={settings.boostNight} onValueChange={setBoostNight} testID="settings-boost-night" />}
+              last
+              testID="settings-boost-night-row"
+            />
+          </GlassCard>
+        </View>
+
+        {/* Data */}
+        <View style={styles.group}>
+          <SectionLabel style={styles.groupHeader}>{t('settings.group.data')}</SectionLabel>
+          <GlassCard noPadding testID="settings-data-card">
+            <SettingRow
+              label={t('settings.data.consentAi')}
+              right={<Switch value={consentAi} onValueChange={setConsentAi} testID="settings-consent-ai" />}
+              testID="settings-consent-ai-row"
+            />
+            <SettingRow
+              label={t('settings.data.local')}
+              right={
+                <View style={styles.dataButtons}>
+                  <Button label={t('settings.data.export')} tone="gh" size="sm" onPress={() => void handleExportAll()} testID="settings-export" />
+                  <Button label={t('settings.data.deleteAll')} tone="dg" size="sm" onPress={() => setSheet('deleteAll1')} testID="settings-delete-all" />
+                </View>
+              }
+              testID="settings-data-local-row"
+            />
+            <SettingRow
+              label={t('settings.language')}
+              right={
+                <View style={styles.languageSeg}>
+                  <Seg
+                    testID="locale-seg"
+                    options={[
+                      { value: 'th', label: t('settings.language.th') },
+                      { value: 'en', label: t('settings.language.en') },
+                    ]}
+                    value={locale}
+                    onChange={(next) => setLocale(next === 'th' ? 'th' : 'en')}
+                  />
+                </View>
+              }
+              last
+              testID="settings-language-row"
+            />
+          </GlassCard>
+        </View>
+
+        {/* Test */}
+        <View style={styles.group}>
+          <SectionLabel style={styles.groupHeader}>{t('settings.group.test')}</SectionLabel>
+          <GlassCard noPadding testID="settings-test-card">
+            <SettingRow
+              label={t('settings.openDiagnostics')}
+              sub={t('settings.diagnostics.sub')}
+              onPress={() => router.push('/diagnostics')}
+              chevron
+              last
+              testID="open-diagnostics"
+            />
+          </GlassCard>
+          <Sub style={styles.legalNote} testID="settings-legal-note">
+            {t('settings.about.notMedical')} · {t('settings.about.research')}
+          </Sub>
+        </View>
+      </View>
+
+      {resetToastMessage ? (
+        <Animated.View style={[styles.toast, { opacity: resetToastOpacity }]} testID="settings-toast">
+          <Sub style={styles.toastText}>{resetToastMessage}</Sub>
+        </Animated.View>
+      ) : null}
 
       <PickerSheet
         visible={sheet === 'guard'}
@@ -396,24 +495,60 @@ export default function SettingsScreen() {
 // `app/plan/devices.tsx`'s own `CategoryCard`/`DeviceRow`/`SearchOtherRow` are.
 // ---------------------------------------------------------------------------
 
-interface DeviceRowProps {
-  icon: 'heart' | 'phones' | 'eye';
+interface SettingRowProps {
+  /** Leading glyph — a category emoji (matches `plan/devices.tsx`'s own `CategoryCard`
+   * convention) or an `Icon` element (the accent "+" on the search row). */
+  icon?: ReactNode;
   label: string;
-  value: string;
+  sub?: string;
+  value?: string;
+  /** Switch | Seg | buttons | stepper — whatever sits right of `value`, still inside the
+   * same right-aligned edge as `value` and the chevron (WO L3.11 point 1). */
+  right?: ReactNode;
+  onPress?: () => void;
+  /** Decorative — drawn independently of `onPress` so rows that mirror the mockup's
+   * chevron (mockup `09-settings.png`: every device row) can show one without this WO
+   * inventing new navigation behaviour for them (hard rule: layout only). */
+  chevron?: boolean;
+  accent?: boolean;
   dimmed?: boolean;
+  /** No bottom hairline — the last row in a card. */
+  last?: boolean;
   testID?: string;
 }
 
-function DeviceRow({ icon, label, value, dimmed = false, testID }: DeviceRowProps) {
-  return (
-    <View style={dimmed ? { opacity: 0.5 } : undefined}>
-      <Row
-        label={label}
-        value={value}
-        right={<Icon name={icon} size={16} color={colors.mut} />}
-        testID={testID}
-      />
+/** `.li` (mockup `09-settings.png` v2) — the one row shape every group on this screen uses:
+ * `SETTINGS_ROW_MIN_HEIGHT` tall, `SETTINGS_INSET` on both edges, label+sub on the left,
+ * value/switch/seg/buttons/stepper/chevron right-aligned on the same edge. */
+function SettingRow({ icon, label, sub, value, right, onPress, chevron = false, accent = false, dimmed = false, last = false, testID }: SettingRowProps) {
+  const content = (
+    <View style={[styles.settingRow, !last && styles.settingRowDivider, dimmed && styles.settingRowDimmed]} testID={testID}>
+      {icon ? (
+        <View style={styles.settingRowIcon}>{typeof icon === 'string' ? <Text style={styles.settingRowEmoji}>{icon}</Text> : icon}</View>
+      ) : null}
+      <View style={styles.settingRowText}>
+        <Text numberOfLines={2} style={[styles.settingRowLabel, accent && styles.settingRowLabelAccent]}>
+          {label}
+        </Text>
+        {sub ? <Sub style={styles.settingRowSub}>{sub}</Sub> : null}
+      </View>
+      <View style={styles.settingRowRight}>
+        {value ? (
+          <Text numberOfLines={1} style={styles.settingRowValue}>
+            {value}
+          </Text>
+        ) : null}
+        {right}
+        {chevron ? <Icon name="chevronRight" size={16} color={colors.mut} /> : null}
+      </View>
     </View>
+  );
+
+  if (!onPress) return content;
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress}>
+      {content}
+    </Pressable>
   );
 }
 
@@ -592,60 +727,52 @@ function TypeConfirmSheet({
 }
 
 const styles = StyleSheet.create({
-  // Section captions sit OUTSIDE/above their card (mockup `09-settings.png`: Devices /
-  // Sound / Sleep / Data are plain muted text in the page background, not drawn
-  // inside the white/tinted card) — `GlassCard`'s own `title` prop draws the label
-  // *inside* the surface instead, which is right for every other screen that uses it but
-  // wrong here, so these 4 sections render `SectionLabel` as a normal sibling and pull
-  // the card up underneath it with `cardTight` instead of passing `title`.
-  sectionLabel: { marginLeft: spacing.xs },
-  cardTight: { marginTop: -(spacing.lg - spacing.xs) },
-  searchRow: {
+  // WO L3.11: groups (header + card [+ note]) sit in their own wrapper so the 18px gap
+  // between groups and the 8px gap between a header and its card are each set once here,
+  // independent of `Screen`'s own top-level gap (Title/Subtitle keep that default).
+  groups: { gap: 18 },
+  group: { gap: 8 },
+  groupHeader: { fontSize: 12, letterSpacing: 0.48, paddingLeft: SETTINGS_INSET },
+  settingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    minHeight: 48,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.hairline,
+    minHeight: SETTINGS_ROW_MIN_HEIGHT,
+    paddingHorizontal: SETTINGS_INSET,
+    paddingVertical: spacing.sm,
+    gap: spacing.md,
   },
-  searchLabel: { flex: 1, fontWeight: '600', color: colors.acc },
+  settingRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.hairline },
+  settingRowDimmed: { opacity: 0.55 },
+  settingRowIcon: { width: 24, alignItems: 'center', justifyContent: 'center' },
+  settingRowEmoji: { fontSize: 18, lineHeight: 21 },
+  settingRowText: { flex: 1, minWidth: 0, gap: 2 },
+  settingRowLabel: { fontSize: 15, fontWeight: '600', color: colors.ink, lineHeight: 19 },
+  settingRowLabelAccent: { color: colors.acc },
+  settingRowSub: { fontSize: 12.5 },
+  settingRowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexShrink: 0 },
+  settingRowValue: { fontSize: 14, color: colors.ink2, textAlign: 'right' },
+  // WO L3.11 point 4: the language Seg stays inside the card's right inset instead of
+  // overflowing it — `flexShrink` lets it give way to the label first, `maxWidth` caps it
+  // at the mockup's 150px track width.
+  languageSeg: { maxWidth: 150, flexShrink: 1 },
+  dataButtons: { flexDirection: 'row', gap: spacing.sm, flexShrink: 0 },
+  legalNote: { paddingHorizontal: SETTINGS_INSET, paddingTop: 6 },
+  // WO L3.11 point 5 — the fade-out toast itself.
+  toast: {
+    alignSelf: 'center',
+    maxWidth: '86%',
+    backgroundColor: 'rgba(17,19,24,0.88)',
+    borderRadius: radius.chip,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  toastText: { color: colors.white, textAlign: 'center' },
   rowLabel: { fontWeight: '600', color: colors.ink },
-  volumeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.hairline,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.hairline,
-  },
-  lastRow: { paddingBottom: spacing.md },
-  dataButtons: { flexDirection: 'row', gap: spacing.sm },
-  aboutBlock: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.xs,
-    gap: 2,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.hairline,
-  },
-  diagnosticsBlock: { paddingHorizontal: spacing.lg, paddingBottom: spacing.md, paddingTop: spacing.sm, gap: spacing.sm },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   stepperButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(17,19,24,0.06)',
@@ -653,7 +780,6 @@ const styles = StyleSheet.create({
   stepperValue: { minWidth: 48, textAlign: 'center', color: colors.ink },
   numberField: { gap: spacing.sm, paddingVertical: spacing.sm },
   sheetBackdrop: { flex: 1, backgroundColor: 'rgba(17,19,24,0.35)', justifyContent: 'flex-end' },
-  sheetRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.sm },
   sheetButtons: { marginTop: spacing.sm },
   typeInput: {
     borderWidth: StyleSheet.hairlineWidth,
