@@ -11,3 +11,4 @@
 "NSSpeechRecognitionUsageDescription" = "Dreaming turns your morning recording into text on this iPhone, so you do not have to type your dream.";
 "NSBluetoothAlwaysUsageDescription" = "Dreaming connects to your heart rate strap or armband, and to your headphones, while you sleep.";
 "NSUserNotificationsUsageDescription" = "Dreaming sends a short reality check during the day and a reminder in the evening.";
+"NSPhotoLibraryUsageDescription" = "Dreaming does not use your photos. This text is required because a library inside the app can access the photo library; the app never asks for it.";

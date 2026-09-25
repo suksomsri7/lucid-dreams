@@ -10,3 +10,4 @@
 "NSSpeechRecognitionUsageDescription" = "Dreaming แปลงเสียงที่บันทึกตอนเช้าเป็นข้อความบน iPhone เครื่องนี้ ไม่ต้องพิมพ์เอง";
 "NSBluetoothAlwaysUsageDescription" = "Dreaming เชื่อมต่อกับสายวัดชีพจรหรือปลอกแขน และหูฟังของคุณ ขณะคุณหลับ";
 "NSUserNotificationsUsageDescription" = "Dreaming ส่งการเช็กความจริงสั้น ๆ ระหว่างวัน และเตือนตอนเย็นก่อนเข้านอน";
+"NSPhotoLibraryUsageDescription" = "Dreaming ไม่ใช้รูปภาพของคุณ ข้อความนี้จำเป็นเพราะไลบรารีในแอปสามารถเข้าถึงคลังรูปภาพได้ แต่แอปจะไม่ขอสิทธิ์นี้";

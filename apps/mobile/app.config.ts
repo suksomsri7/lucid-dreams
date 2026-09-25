@@ -241,6 +241,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       NSHealthUpdateUsageDescription:
         'Dreaming saves the mindfulness session your Apple Watch runs while you sleep.',
       NSMicrophoneUsageDescription: MICROPHONE_PERMISSION,
+      // ITMS-90683 (build 3, 2026-09-25): a bundled library references Photo Library APIs, so Apple
+      // requires the purpose string even though Dreaming never opens the photo library. Honest text.
+      NSPhotoLibraryUsageDescription:
+        'Dreaming does not use your photos. This text is required because a library inside the app can access the photo library; the app never asks for it.',
       NSSpeechRecognitionUsageDescription: SPEECH_RECOGNITION_PERMISSION,
       NSBluetoothAlwaysUsageDescription:
         'Dreaming connects to your heart rate strap or armband, and to your headphones, while you sleep.',
