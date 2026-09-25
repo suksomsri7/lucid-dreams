@@ -19,6 +19,26 @@ module.exports = {
   // mindAndBody workout session overnight without dying (DESIGN §8.1).
   deploymentTarget: '11.0',
 
+  /**
+   * The watch app's icon (WO L3.7 §B1). Path is resolved relative to *this folder*
+   * (`with-widget.js`: `props.icon = path.join(props.directory, props.icon)`), and the file it
+   * points at is the same 1024² M icon `apps/mobile/assets/icon.png` is — byte for byte, same
+   * md5 — so phone and watch cannot drift apart.
+   *
+   * ⚠️ This key is **required**, dropping the `AppIcon.appiconset` into this folder by hand is
+   * not enough: `@bacons/apple-targets` only writes
+   * `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon` into the target's build settings when
+   * `props.icon` is set (`build/configuration-list.js`, `...(icon && { … })` in
+   * `createWatchAppConfigurationList`). Without it Xcode compiles the catalog but never marks
+   * the set as the app icon, and the watch app ships with the generic placeholder.
+   *
+   * What the plugin then does with it (`build/icon/with-ios-icon.js`, `type: 'watch'` branch):
+   * it regenerates a 1024×1024 `App-Icon-1024x1024@1x.png` next to this file and rewrites that
+   * folder's `Contents.json` to point at it. So `icon-1024.png` stays as the checked-in source
+   * and the generated twin appears beside it after the first `expo prebuild`.
+   */
+  icon: './Assets.xcassets/AppIcon.appiconset/icon-1024.png',
+
   // WidgetKit is here for `StreakStore.swift`'s `WidgetCenter.shared.reloadAllTimelines()`
   // — the watch app itself draws no widget, it only tells WidgetKit that the number behind
   // the complication in `targets/watch-complication` changed (WO L2.2).

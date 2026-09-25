@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
-  "wo": "L3.7",
-  "step": "builder (Opus) working in worktree ../lucid-dreams-L3.7 branch wo/L3.7 · oracle scripts/qc-L3.7.sh 27 · parity mockup 11-splash frame 1 · then Fable QC → merge → R1",
+  "wo": "R1",
+  "step": "waiting-owner: ASC app + Team ID + ASC API key → eas build r1-internal (owner orders) · L3.7 merged (icon M + intro + brand tone)",
   "branch": null,
   "worktree": null,
   "builder": null,

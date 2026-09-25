@@ -8,6 +8,9 @@ import type { Translations } from './th';
 export const en: Translations = {
   'app.name': 'Dreaming',
 
+  // WO L3.7 — the launch screen's wordmark (mockup 11). Same word in both languages.
+  'intro.wordmark': 'DREAMING',
+
   'tabs.tonight': 'Tonight',
   'tabs.journal': 'Journal',
   'tabs.settings': 'Settings',

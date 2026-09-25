@@ -225,6 +225,16 @@ export function reportFixtureRequested(): boolean {
   return readFixtureParam() === 'report';
 }
 
+/**
+ * `?fixture=intro` (WO L3.7) — the only way `src/intro/IntroOverlay.tsx` ever draws itself on
+ * web. Every other route's screenshot must stay uncovered, and there is no "cold launch" on a
+ * page that is reloaded per route anyway, so the overlay treats this as "freeze at the peak
+ * frame of mockup 11" rather than "run the launch sequence".
+ */
+export function introFixtureRequested(): boolean {
+  return readFixtureParam() === 'intro';
+}
+
 /** `?fixture=journal` (WO L3.5) — `app/(tabs)/journal.tsx`'s own totals/chart/rows, matching mockup `08-journal.png`'s exact numbers (27%/8%/6.4/16). */
 export function journalFixtureRequested(): boolean {
   return readFixtureParam() === 'journal';

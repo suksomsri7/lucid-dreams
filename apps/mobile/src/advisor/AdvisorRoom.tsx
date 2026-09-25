@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import { FlatList, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { playBrandAnchor } from '../audio/brand';
 import { getPlatform } from '../platform';
 import { useT, type Locale, type TranslateParams, type TranslationKey } from '../i18n';
 import {
@@ -161,6 +162,11 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
 
   function handleStart(): void {
     advisor.start();
+    // WO L3.7: the anchor tone, once, the moment "Start tonight" is tapped — one more
+    // repetition of the melody tonight's whisper will use. Fired *before* the navigation and
+    // never awaited, so the sound starts under the screen transition instead of after it;
+    // `playBrandAnchor` swallows its own errors, so there is nothing here that can fail.
+    void playBrandAnchor();
     router.push('/plan');
   }
 

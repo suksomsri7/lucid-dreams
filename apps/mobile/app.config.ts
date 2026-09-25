@@ -192,6 +192,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   // `src/ui/tokens.ts` (L1.2) นี่คือค่าที่เห็นแวบเดียวตอนโหลด ก่อน `AppBackground` ขึ้นทับ
   backgroundColor: '#f6f5fb',
 
+  /**
+   * ไอคอนแอป (ใบ L3.7 §B1) — ตัว M กระจก 1024² RGB ไม่มี alpha (Apple ปฏิเสธไอคอนที่มีช่องโปร่งใส)
+   * ไฟล์นี้คือไฟล์เดียวกับที่ `targets/watch/Assets.xcassets/AppIcon.appiconset/icon-1024.png`
+   * ใช้ (md5 ตรงกัน) — โทรศัพท์กับนาฬิกาจึงเป็นไอคอนเดียวกันจริง ๆ
+   */
+  icon: './assets/icon.png',
+
   ios: {
     bundleIdentifier: IOS_BUNDLE_ID,
     buildNumber: '1',
@@ -280,6 +287,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // เฟส 2 เท่านั้น — ไม่มี Android build ใน Phase 1
     // (`edgeToEdgeEnabled` หายไปจากสคีมาของ SDK 57 แล้ว เพราะ edge-to-edge เปิดตายตัว)
     package: ANDROID_PACKAGE,
+    /**
+     * ใบ L3.7 §B1 — โค้ดต้องรองรับ Android ไว้ล่วงหน้า (APP-RUN §0.2 ข้อ 8) แม้ยังไม่บิลด์
+     * `adaptive-icon.png` คือ foreground ที่ตัว M อยู่ในเขตปลอดภัย 66% แล้ว (Android ครอปเป็น
+     * วงกลม/สี่เหลี่ยมมนแล้วแต่เครื่อง) · พื้นหลัง `#f4f2ff` = ม่วงอ่อนโทนเดียวกับไอคอน iOS
+     * ⚠️ ค่านี้ไม่ใช่ `#f6f5fb` ของพื้นแอป เพราะเป็นพื้นของ *ไอคอน* ไม่ใช่ของหน้าจอ
+     */
+    adaptiveIcon: {
+      foregroundImage: './assets/adaptive-icon.png',
+      backgroundColor: '#f4f2ff',
+    },
   },
 
   web: {
@@ -290,6 +307,25 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   plugins: [
     'expo-router',
+    /**
+     * หน้าเปิดแอปของระบบ (ใบ L3.7 §B2) — ขึ้นตั้งแต่ก่อน JS โหลดเสร็จ แล้วส่งต่อให้
+     * `src/intro/IntroOverlay.tsx` แบบไม่มีรอยต่อ:
+     *  - `splash-icon.png` = ตัว Zzz บนพื้นโปร่งใส (ไฟล์เดียวกับที่ intro วาดด้วย vector)
+     *  - `imageWidth: 200` = ค่าเดียวกับ `LOGO_SIZE` ใน `src/intro/BrandMark.tsx` → ขนาดเท่ากัน
+     *  - `backgroundColor` = `#f6f5fb` เดียวกับ `backgroundColor` ข้างบนและ stop บนสุดของ
+     *    `appBackground` ใน `src/ui/tokens.ts` → โลโก้ไม่กระโดด พื้นไม่เปลี่ยนสี
+     * การซ่อนคุมเองทั้งหมด: `app/_layout.tsx` เรียก `preventAutoHideAsync()` ตอนโหลดโมดูล และ
+     * `IntroOverlay` เรียก `hideAsync()` ตอน `onLayout` ของตัวเอง
+     */
+    [
+      'expo-splash-screen',
+      {
+        image: './assets/splash-icon.png',
+        imageWidth: 200,
+        resizeMode: 'contain',
+        backgroundColor: '#f6f5fb',
+      },
+    ],
     // ขอสิทธิ์ไมค์ผ่าน config plugin ของ expo-audio (ข้อความจริงอยู่ใน infoPlist ด้านบน)
     ['expo-audio', { microphonePermission: MICROPHONE_PERMISSION }],
     /**

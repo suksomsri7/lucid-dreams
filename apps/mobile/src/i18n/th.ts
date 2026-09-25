@@ -8,6 +8,9 @@
 export const th = {
   'app.name': 'Dreaming',
 
+  // ใบ L3.7 — หน้าเปิดแอป (mockup 11): ชื่อแบรนด์ใต้โลโก้ อ่านเหมือนกันทั้งสองภาษา
+  'intro.wordmark': 'DREAMING',
+
   'tabs.tonight': 'คืนนี้',
   'tabs.journal': 'บันทึก',
   'tabs.settings': 'ตั้งค่า',

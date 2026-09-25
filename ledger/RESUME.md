@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 05:10 UTC · ✅ **L3.7 merged main** (oracle 29/29 · typecheck 0 · fitness OK · web export + 16 จอ · parity 11 ผ่านตา Fable · `expo prebuild -p ios` ผ่าน: AppIcon/SplashScreen/watch ASSETCATALOG ถูกเขียน) · หนี้ดู `wo-notes/L3.7.md` §5 · R1 ต้องเช็ค: เสียงเปิดแอปกับสวิตช์เงียบ/หูฟัง BT · รอยต่อ native splash→intro · ไอคอน watch หลัง build · **สถานะกลับไป = รอ R1 (เจ้าของ)**
 - 2026-09-25 04:00 UTC · ✅ **ไอคอน = M** (Zzz กระจกขาวบนม่วงอ่อน) ใส่ assets แล้ว · ▶ **L3.7** (เจ้าของสั่ง: โลโก้ตอนเปิดแอป+เอฟเฟกต์ · โหลดเสร็จเล่นเสียงสมอ 1 รอบก่อนเข้าหน้าหลัก · กด Start tonight เล่นอีก 1 รอบ) · ใบงาน `wo-notes/L3.7-WO.md` · ข้อสอบ `scripts/qc-L3.7.sh` 27 ข้อ · แบบ `design-app/11-splash.png` · builder Opus ใน worktree `../lucid-dreams-L3.7` (wo/L3.7) · session ตาย → เช็ค `git -C ../lucid-dreams-L3.7 status`/autosave แล้ว spawn ต่อ "ห้ามเริ่มใหม่"
 - 2026-09-25 03:30 UTC · 🎨 ไอคอนรอบ 5 เจ้าของส่งภาพโครง Zzz (Z ใหญ่บนซ้าย · z กลางขวา · z เล็กล่าง) ขอสี **minimal Liquid Glass clean** → M ขาว/ม่วงอ่อน · N ครามใส/ขาว · O ขาวโปร่ง/ค่ำ (`design-icon/icons-zzz-glass.html`) รอเลือก
 - 2026-09-25 03:00 UTC · 🎨 ไอคอนรอบ 4 เจ้าของขอไอเดีย **Zzz** → J สาม Z ไต่ขึ้น · K Z เดี่ยว · L พื้นค่ำ Z จาง (`design-icon/icons-zzz.html`) รอเลือก

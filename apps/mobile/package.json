@@ -31,6 +31,7 @@
     "expo-router": "~57.0.22",
     "expo-sensors": "~57.0.3",
     "expo-sharing": "~57.0.21",
+    "expo-splash-screen": "~57.0.9",
     "expo-sqlite": "~57.0.3",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
