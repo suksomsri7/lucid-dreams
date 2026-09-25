@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="th"><head><meta charset="utf-8">
-<title>Lucid Dream · ตั้งค่า</title>
+<title>09 · ตั้งค่า v2</title>
 <meta name="viewport" content="width=device-width">
 <style>
 /* ══ โทเคน Lucid Dreams v2 — Liquid Glass (สว่าง สะอาด กระจกฝ้าลอยบนพื้นสีอ่อน) ═══
@@ -262,128 +262,100 @@ h1.big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
 </svg>
 <body>
 <style>
-.mpg.set{gap:5px}
-.set .gl{display:flex;flex-direction:column;gap:3px}
-.set .gl>.lbl{padding-left:6px;font-size:10.5px;line-height:1.2}
-.set .li{min-height:34px;padding:0 14px;gap:10px}
-.set .li .ti .sub{line-height:1.35}
-.mpg.hastab.set{padding-bottom:98px}
-.set .li .ti b{font-size:13.5px;font-weight:600}
-.set .li .ti .sub{font-size:11.5px}
-.set .li .val{font-size:13px}
-.set .sw{width:44px;height:26px;border-radius:13px}
-.set .sw::after{width:20px;height:20px;top:3px;left:3px}
-.set .sw.on::after{left:21px}
-.set .seg{width:132px;padding:2px}
-.set .seg div{height:28px;line-height:28px;font-size:12.5px}
-.set .btn.sm{height:28px;font-size:12px;padding:0 11px;border-radius:14px}
-.set .li .em{font-size:15px;line-height:1;width:20px;text-align:center;flex:none}
-.set .li.off{opacity:.5}
+/* v2 (25 ก.ย.) — เจ้าของ: แถวแคบ/อัดแน่นเกิน → ใช้มาตรฐาน iOS: แถวสูง 52 · ระยะซ้าย/ขวา 16 เท่ากันทุกแถว · หน้ายาวเลื่อนได้ (2 กรอบ = บน/เลื่อนลง) */
+.mpg.set{gap:18px;overflow:hidden}
+.set .gl{display:flex;flex-direction:column;gap:8px}
+.set .gl>.lbl{padding-left:16px;font-size:12px;letter-spacing:.04em;color:var(--mut);text-transform:uppercase}
+.set .li{min-height:52px;padding:10px 16px;gap:12px}
+.set .li .ti b{font-size:15px;font-weight:600;line-height:1.3}
+.set .li .ti .sub{font-size:12.5px;line-height:1.4;margin-top:2px;color:var(--ink2)}
+.set .li .val{font-size:14px;color:var(--ink2);flex:none;max-width:46%;text-align:right}
+.set .li .cv{flex:none}
+.set .sw{width:50px;height:30px;border-radius:15px;flex:none}
+.set .sw::after{width:24px;height:24px;top:3px;left:3px}
+.set .sw.on::after{left:23px}
+.set .seg{width:150px;padding:3px;flex:none}
+.set .seg div{height:32px;line-height:32px;font-size:13.5px}
+.set .btn.sm{height:34px;font-size:13px;padding:0 14px;border-radius:17px;flex:none}
+.set .li .em{font-size:18px;line-height:1;width:24px;text-align:center;flex:none}
+.set .li.off{opacity:.55}
+.set .stp{display:flex;align-items:center;gap:10px;flex:none}
+.set .stp .rb{width:34px;height:34px;border-radius:17px;background:var(--sf3);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink)}
+.set .stp b{font-size:15px;min-width:38px;text-align:center}
+.set .note{padding:6px 16px 0;font-size:12.5px;line-height:1.5;color:var(--mut)}
+.set .btn.wide{height:46px;border-radius:23px;margin:4px 16px 14px;font-size:15px;display:flex;align-items:center;justify-content:center}
 </style>
 <div class="wrap">
-<p class="cap">09 · ตั้งค่า <span>— หน้าเดียวจบ 4 กลุ่ม: อุปกรณ์ 3 หมวด (ชีพจร · เสียง · ดวงตา) + ค้นหาอุปกรณ์ · เสียง (ลายน้ำ · รีเซ็ต · ระดับเริ่มต้น) · การนอน · ข้อมูล</span></p>
+<p class="cap">09 · ตั้งค่า (v2 โปร่ง) <span>— แถวสูง 52 · ระยะซ้าย/ขวา 16 เท่ากันทุกแถว · สวิตช์/ลูกศรชิดขวาแนวเดียว · หน้ายาวเลื่อนได้: กรอบซ้าย = บนสุด · กรอบขวา = เลื่อนลงสุด · ไม่มีข้อความค้างท้ายหน้า</span></p>
 <div class="rowf">
 
+<!-- ════ กรอบ A: บนสุด ════ -->
   <div class="frame m">
     <div class="sbar"><span>21:06</span><div class="isl"></div><span class="r">🔋 78%</span></div>
     <div class="nav"><div class="t">ตั้งค่า</div></div>
     <div class="mpg hastab set">
-
       <div class="gl">
         <div class="lbl">อุปกรณ์</div>
         <div class="card p0">
-          <div class="li">
-            <span class="em">💓</span>
-            <div class="ti"><b>ชีพจร / การขยับ</b></div>
-            <div class="val">Apple Watch · 84%</div><svg class="i sm cv"><use href="#i-cv"/></svg>
-          </div>
-          <div class="li">
-            <span class="em">🎧</span>
-            <div class="ti"><b>เสียง</b></div>
-            <div class="val">Sleep A20 · 92%</div><svg class="i sm cv"><use href="#i-cv"/></svg>
-          </div>
-          <div class="li off">
-            <span class="em">👁</span>
-            <div class="ti"><b>การเคลื่อนไหวดวงตา</b></div>
-            <div class="val mu">ยังไม่มี · ไม่บังคับ</div><svg class="i sm cv"><use href="#i-cv"/></svg>
-          </div>
-          <div class="li">
-            <svg class="i cv"><use href="#i-plus"/></svg>
-            <div class="ti"><b>ค้นหาอุปกรณ์</b></div>
-            <svg class="i sm cv"><use href="#i-cv"/></svg>
-          </div>
+          <div class="li"><span class="em">💓</span><div class="ti"><b>ชีพจร / การขยับ</b></div><div class="val">Apple Watch · 84%</div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><span class="em">🎧</span><div class="ti"><b>เสียง</b></div><div class="val">Sleep A20 · 92%</div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li off"><span class="em">👁</span><div class="ti"><b>การเคลื่อนไหวดวงตา</b></div><div class="val">ยังไม่มี · ไม่บังคับ</div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><svg class="i cv" style="color:var(--acc)"><use href="#i-plus"/></svg><div class="ti"><b style="color:var(--acc)">ค้นหาอุปกรณ์</b></div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
         </div>
       </div>
-
       <div class="gl">
         <div class="lbl">เสียง</div>
         <div class="card p0">
-          <div class="li">
-            <div class="ti"><b>เสียงสมอ (ลายน้ำของคุณ)</b></div>
-            <div class="val">ฟัง</div><svg class="i sm cv"><use href="#i-cv"/></svg>
-          </div>
-          <div class="li">
-            <div class="ti"><b>รีเซ็ตลายน้ำ</b><div class="sub">ต้องฝึกใหม่ตั้งแต่ต้น</div></div>
-            <svg class="i sm cv"><use href="#i-cv"/></svg>
-          </div>
-          <div class="li">
-            <div class="ti"><b>ระดับเสียงเริ่มต้น</b><div class="sub">ค่าเริ่มต้นเท่านั้น · กลางคืนแอปปรับเอง</div></div>
-            <div class="val">15%</div><svg class="i sm cv"><use href="#i-cv"/></svg>
-          </div>
-          <div class="li">
-            <div class="ti"><b>ปรับระดับให้เองทุกคืน</b></div>
-            <div class="sw on"></div>
-          </div>
+          <div class="li"><div class="ti"><b>เสียงสมอ (ลายน้ำของคุณ)</b></div><div class="val">ฟัง</div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><div class="ti"><b>รีเซ็ตลายน้ำ</b><div class="sub">ต้องฝึกใหม่ตั้งแต่ต้น</div></div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><div class="ti"><b>ระดับเสียงเริ่มต้น</b><div class="sub">ค่าเริ่มต้นเท่านั้น · กลางคืนแอปปรับเอง</div></div><div class="stp"><div class="rb">−</div><b>15%</b><div class="rb">+</div></div></div>
+          <div class="li"><div class="ti"><b>ปรับระดับให้เองทุกคืน</b><div class="sub">เปิดตลอดในโหมดปกติ</div></div><div class="sw on"></div></div>
         </div>
       </div>
-
       <div class="gl">
         <div class="lbl">การนอน</div>
         <div class="card p0">
-          <div class="li">
-            <div class="ti"><b>เงียบ 3 ชม.แรก</b></div>
-            <div class="val">สูงสุด 8 ครั้ง/คืน</div><svg class="i sm cv"><use href="#i-cv"/></svg>
-          </div>
-          <div class="li">
-            <div class="ti"><b>หยุดทั้งคืนถ้าปลุก 2 ครั้ง</b></div>
-            <div class="sw on"></div>
-          </div>
-          <div class="li">
-            <div class="ti"><b>คืนควบคุม 1 ใน 4 คืน</b></div>
-            <div class="sw on"></div>
-          </div>
-          <div class="li">
-            <div class="ti"><b>เตือนมองมือกลางวัน</b></div>
-            <div class="val">3 ครั้ง</div><svg class="i sm cv"><use href="#i-cv"/></svg>
-          </div>
+          <div class="li"><div class="ti"><b>เงียบ 3 ชม.แรก</b></div><div class="val">สูงสุด 8 ครั้ง/คืน</div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><div class="ti"><b>หยุดทั้งคืนถ้าปลุก 2 ครั้ง</b></div><div class="sw on"></div></div>
         </div>
       </div>
+    </div>
+    <div class="tabbar"><div class="tb"><svg class="i"><use href="#i-moon"/></svg>คืนนี้</div><div class="tb"><svg class="i"><use href="#i-book"/></svg>บันทึก</div><div class="tb on"><svg class="i"><use href="#i-gear"/></svg>ตั้งค่า</div></div>
+    <div class="home"></div>
+  </div>
 
+<!-- ════ กรอบ B: เลื่อนลงสุด ════ -->
+  <div class="frame m scrolled">
+    <div class="sbar"><span>21:06</span><div class="isl"></div><span class="r">🔋 78%</span></div>
+    <div class="nav"><div class="t">ตั้งค่า</div></div>
+    <div class="mpg hastab set">
+      <div class="gl">
+        <div class="lbl">การนอน</div>
+        <div class="card p0">
+          <div class="li"><div class="ti"><b>เงียบ 3 ชม.แรก</b></div><div class="val">สูงสุด 8 ครั้ง/คืน</div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><div class="ti"><b>หยุดทั้งคืนถ้าปลุก 2 ครั้ง</b></div><div class="sw on"></div></div>
+          <div class="li"><div class="ti"><b>คืนควบคุม 1 ใน 4 คืน</b></div><div class="sw on"></div></div>
+          <div class="li"><div class="ti"><b>เตือนมองมือกลางวัน</b></div><div class="val">3 ครั้ง</div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+          <div class="li"><div class="ti"><b>คืนบูสต์ (WBTB)</b><div class="sub">ปลุกเบา ๆ ที่ 5 ชม. แล้วกลับไปเฝ้าต่อ · แรงกว่าปกติ ลองเมื่อพร้อม</div></div><div class="sw"></div></div>
+        </div>
+      </div>
       <div class="gl">
         <div class="lbl">ข้อมูล</div>
         <div class="card p0">
-          <div class="li">
-            <div class="ti"><b>ให้ AI อ่านข้อความฝัน</b></div>
-            <div class="sw on"></div>
-          </div>
-          <div class="li">
-            <div class="ti"><b>ข้อมูลในเครื่อง</b></div>
-            <div class="btn gh sm">ส่งออก</div>
-            <div class="btn gh sm" style="color:var(--dg)">ลบทั้งหมด</div>
-          </div>
-          <div class="li">
-            <div class="ti"><b>ภาษา</b></div>
-            <div class="seg"><div class="on">ไทย</div><div>EN</div></div>
-          </div>
+          <div class="li"><div class="ti"><b>ให้ AI อ่านข้อความฝัน</b></div><div class="sw"></div></div>
+          <div class="li"><div class="ti"><b>ข้อมูลในเครื่อง</b></div><div class="btn gh sm">ส่งออก</div><div class="btn gh sm" style="color:var(--dg)">ลบทั้งหมด</div></div>
+          <div class="li"><div class="ti"><b>ภาษา</b></div><div class="seg"><div class="on">ไทย</div><div>English</div></div></div>
         </div>
       </div>
-
+      <div class="gl">
+        <div class="lbl">สำหรับรอบทดสอบ</div>
+        <div class="card p0">
+          <div class="li"><div class="ti"><b>Diagnostics</b><div class="sub">ข้อมูลคืนที่ผ่านมา · ทดสอบเสียง · ส่งให้ทีม</div></div><svg class="i sm cv"><use href="#i-cv"/></svg></div>
+        </div>
+        <div class="note">ไม่ใช่อุปกรณ์ทางการแพทย์ · อ้างอิงงานวิจัยฝันรู้ตัวทั่วไป ไม่ใช่คำแนะนำทางการแพทย์</div>
+      </div>
     </div>
-    <div class="tabbar">
-      <div class="tb"><svg class="i"><use href="#i-moon"/></svg>คืนนี้</div>
-      <div class="tb"><svg class="i"><use href="#i-book"/></svg>บันทึก</div>
-      <div class="tb on"><svg class="i"><use href="#i-gear"/></svg>ตั้งค่า</div>
-    </div>
+    <div class="tabbar"><div class="tb"><svg class="i"><use href="#i-moon"/></svg>คืนนี้</div><div class="tb"><svg class="i"><use href="#i-book"/></svg>บันทึก</div><div class="tb on"><svg class="i"><use href="#i-gear"/></svg>ตั้งค่า</div></div>
     <div class="home"></div>
   </div>
 

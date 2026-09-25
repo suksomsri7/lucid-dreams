@@ -76,5 +76,8 @@
     "reference": "/root/.lucid/tts/anchor-fast-George.mp3",
     "prodSample": "/root/.lucid/tts/anchor-prod-George-2026-09-25.mp3",
     "samplesBackup": "gdrive-own:VPS-Archive/lucid-dreams/tts-samples/"
-  }
+  },
+  "queue": [
+    "L3.11 Settings v2 (after L3.9 merge · Sonnet · OTA)"
+  ]
 }
