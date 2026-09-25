@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 16:40 UTC · 🐞 รายงานเพิ่ม: Settings ชีต Coming soon (เข้า L3.9 §F) · Settings เลย์เอาต์ไม่เป็นระเบียบ (→ **L3.11** หลัง L3.9 merge · OTA ได้) · การ์ดแผน ▶ ไม่มีเสียง (ไม่ส่ง onPlayAnchor) + กดชิปไม่มีสัญญาณคิด → ซ้อน 9 รอบ → **L3.10** (`wo-notes/L3.10-WO.md` · qc-L3.10 18 ข้อ · Sonnet คู่ขนาน)
 - 2026-09-25 16:00 UTC · 🐞 **R1 รายงานแรก** (เจ้าของ iOS 27 · ภาพ 2 ใบ): ปุ่มค้นหาชีพจรตอน onboarding เด้งกลับ (ด่าน hasOnboarded) · ชีต Sound กดอะไรไม่ได้ · Fable พบเพิ่ม: **`IosAudioPlayer.status.route` ไม่เคยถูกตั้ง ⇒ ไม่มีทางผ่าน AUDIO readiness** (ต้องมีโมดูล native อ่าน AVAudioSession) · นาฬิกาต้องติดตั้งแอปผ่าน Watch app ก่อนถึงจะ connected → **L3.9** (`wo-notes/L3.9-WO.md` · qc-L3.9 26 ข้อ) → build #6
 - 2026-09-25 15:30 UTC · 🎉 **Dreaming 0.1.0 (1) อยู่บน TestFlight** (Apple VALID · IN_BETA_TESTING · เจ้าของ INVITED · ITSAppUsesNonExemptEncryption=false ไม่ต้องตอบ compliance) · แจ้งเจ้าของ TG 3570 · **สถานะ = รอผลคืนแรก R1** (diagnostics + ภาพ) → ปรับเทียบ R2 · แก้เล็กใช้ `eas update --channel testflight` (runtime 0.1.0) · build ใหม่ = `scripts/build-r1.sh testflight` + `eas submit --id --wait` (ต้องรอคำสั่งเจ้าของ)
 - 2026-09-25 15:10 UTC · ✅ **build #5 FINISHED** `4673aae5` → submit `--wait` อัปโหลดถึง Apple (8ab5015e) · รอ processing VALID (เช็คอีเมล ITMS ด้วย) → แจ้งเจ้าของติดตั้ง TestFlight → R1 คืนแรก

@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "L3.9",
-  "step": "R1 hotfix #1 (owner found: pulse Find→redirect · Sound sheet dead · Fable found: audio route never detected · watch install hint) → builder Opus wo/L3.9 → native change ⇒ build #6 + TestFlight",
+  "step": "R1 hotfixes in parallel: L3.9 (devices/audio route/native · Opus) ‖ L3.10 (advisor ▶ + thinking · Sonnet) → merge both → build #6 · then L3.11 Settings layout (after L3.9 merge; OTA-able)",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,8 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "L3.9 builder"
+    "L3.9 builder",
+    "L3.10 builder"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -56,7 +57,15 @@
     "build5": "4673aae5-b932-4a21-9246-2b54d9ce8a3c",
     "build5_result": "FINISHED · ipa https://expo.dev/artifacts/eas/wg6VMigXzA-jmaVX5W9M1ZM_TsJYYJzrJ23bfO5132s.ipa · submission 8ab5015e uploaded OK",
     "ascBuildId": "54926033-7d9c-4380-b65a-1a93f21f383c",
-    "status": "LIVE_TESTFLIGHT 2026-09-25 15:30 UTC"
+    "status": "LIVE_TESTFLIGHT 2026-09-25 15:30 UTC",
+    "ownerReports": [
+      "15:17 onboarding pulse Find→redirect",
+      "15:17 Sound sheet dead",
+      "15:20 Settings Find a device = Coming soon x5",
+      "15:21 Settings layout: inconsistent insets, stray \"Watermark reset\", Language segment overflow",
+      "15:25 plan card ▶ silent",
+      "15:25 chip tap no thinking indicator → 9 duplicate turns"
+    ]
   },
   "voice": {
     "name": "George",
