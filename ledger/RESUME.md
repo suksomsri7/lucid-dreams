@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 22:40 UTC · 🚀 เจ้าของสั่ง "Build" → **build #8** `abd96f3f` = 0.1.0 (3) (L3.13 speech) กำลังรัน → submit --wait → VALID → แจ้ง
 - 2026-09-25 22:30 UTC · ✅ **L3.13 merged** (20/20 · expo-speech-recognition · Fable เพิ่ม lazy `require` + guard เพราะ import แบบ static จะทำ **OTA พัง build 2** — บทเรียน: JS ที่อ้างโมดูล native ใหม่ต้อง optional เสมอเมื่อยังส่ง OTA ให้ binary เก่า) · ⛔ **build #8 รอเจ้าของสั่ง** · ยังไม่ส่ง OTA รอบนี้ (ไม่มีประโยชน์จนกว่ามี binary ใหม่)
 - 2026-09-25 21:50 UTC · 🔴 **เจ้าของ: ห้าม build จนกว่าจะสั่ง** (L3.13 เสร็จแล้วรอคำสั่ง #8) · History ว่าง = ยังไม่มีคืน (คาดหวังผิด) + ปุ่มย้อนกลับโชว์ "(tabs)" → แก้ `headerBackButtonDisplayMode: minimal` + ข้อความว่างใหม่ → **OTA #3** 236b59f2-49ff-4bcc-b7bd-d1e7be075705
 - 2026-09-25 21:30 UTC · 🐞 ไมค์ใช้ไม่ได้ = `IosSpeechToText` stub (หนี้ L1.6 ไม่เคยทำ) → **L3.13** (`wo-notes/L3.13-WO.md` · qc-L3.13 20 ข้อ · expo-speech-recognition · Opus) → build #8 · หน้าเช้าเล่าด้วยเสียงก็ใช้ตัวเดียวกัน

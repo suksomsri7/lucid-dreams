@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "L3.13 merged (speech-to-text native · OTA-safe lazy load) · ⛔ build #8 waits for owner order · pending L3.12 decision · TestFlight build 2 + OTA #1–#3 live · waiting owner re-test results",
+  "step": "owner ordered build (22:40 UTC) → build #8 RUNNING abd96f3f-23dd-4bcb-bddf-c4235be9aa7e = 0.1.0 (3) (L3.13 speech + all hotfixes) → submit --wait → VALID → notify",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,9 +9,8 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "owner: order build #8 (speech-to-text needs native)",
-    "owner: decide L3.12 bell",
-    "owner: re-test after OTA (Settings v2 · watch card · launch sound = approved file)"
+    "EAS build abd96f3f",
+    "owner: decide L3.12 bell"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -84,7 +83,8 @@
     "build7_result": "FINISHED · submitted OK (build number 2)",
     "ota1": "fb214693-4a8d-4d22-806a-9ec39328c9e2 (ios 01a0d7dc-d766-744a-99e9-3da1de44bc56) · L3.11 + hotfix JS · eas update needs --environment production in non-interactive",
     "ota2": "69cee45a-663c-4e9f-a94a-f8bdd9898ca3 (ios 01a0d7fa-57c5-7a32-b97d-8b8e532dfff0)",
-    "ota3": "236b59f2-49ff-4bcc-b7bd-d1e7be075705 (back title minimal · history.empty text)"
+    "ota3": "236b59f2-49ff-4bcc-b7bd-d1e7be075705 (back title minimal · history.empty text)",
+    "build8": "abd96f3f-23dd-4bcb-bddf-c4235be9aa7e (buildNumber 3 · L3.13)"
   },
   "voice": {
     "name": "George",
@@ -100,5 +100,5 @@
   "queue": [
     "L3.12: ear test + local bell fallback should use the approved bell (sigv2-C) instead of per-user makeSignature — decide with owner (drops per-user watermark idea)"
   ],
-  "buildPolicy": "🔴 เจ้าของสั่ง 25 ก.ย. 16:47: ไม่ build จนกว่าจะสั่ง — L3.13 (native) รอคำสั่ง build #8 · OTA (JS) ส่งได้"
+  "buildPolicy": "เจ้าของสั่ง build #8 แล้ว 25 ก.ย. 22:40 UTC · build ถัดไปต้องรอคำสั่งใหม่"
 }
