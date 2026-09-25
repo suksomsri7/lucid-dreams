@@ -27,6 +27,7 @@ import {
 import { systemClock, type Clock } from '@lucid/engine';
 
 import type { AudioEvent, AudioPlayer, AudioPlayerStatus, Unsubscribe } from '../types';
+import { readAudioRoute, subscribeAudioRoute, type AudioRoute } from './audioRoute';
 
 // Metro asset import — `require` is typed by `expo/types` (types/metro-require.d.ts)
 const BED_SOURCE = require('../../../assets/audio/bed-loop.m4a') as number;
@@ -46,6 +47,19 @@ function clampVolume(volume: number): number {
  * names them `<hash>-l.wav` / `<hash>-r.wav` / `<hash>-c.wav`. Anything else asked to play on one
  * side would come out of both (a bundled asset, or a centre render passed with `pan: -1`).
  */
+/**
+ * The name the devices screen may show as an AUDIO device, or `null` (WO L3.9 §B).
+ *
+ * Only a headphone-shaped route becomes a device here: the phone's own speaker is a choice the
+ * user makes on the sheet (`prefs.audioSpeaker`, handled in `src/devices/registry.ts`), and a
+ * route nobody recognised must not be silently promoted to "your sleep headphones are ready".
+ * Before this existed `status.route` was hard-coded `null` for the whole app's life, which is why
+ * the 🎧 card said "no headphones found yet" on a phone with headphones connected.
+ */
+function headphoneName(route: AudioRoute | null): string | null {
+  return route !== null && route.kind === 'headphones' ? route.portName : null;
+}
+
 function describePanMismatch(source: string, pan: number | undefined): string | null {
   if (pan === undefined || pan === 0) return null;
   const wanted = pan < 0 ? 'l' : 'r';
@@ -61,7 +75,25 @@ export class IosAudioPlayer implements AudioPlayer {
   private readonly listeners = new Set<(event: AudioEvent) => void>();
 
   /** Injected so tests can pin timestamps (APP-RUN §0.2 rule 6). */
-  constructor(private readonly clock: Clock = systemClock) {}
+  constructor(private readonly clock: Clock = systemClock) {
+    // WO L3.9: one subscription for the lifetime of the platform bundle (this object is created
+    // once, in `native.ios.ts`). It is what makes "plug the headphones in and the 🎧 card changes"
+    // instant instead of waiting for the devices screen's 3 s tick — `src/devices/registry.ts`
+    // listens for the `ROUTE_CHANGED` event below and refreshes itself. Deliberately an event
+    // rather than a direct call into the registry: the registry imports the platform, so calling
+    // it from here would close an import cycle.
+    //
+    // Never unsubscribed on purpose: `dispose()` runs at the end of *every* night
+    // (`src/night/session.ts`), and the devices screen still needs the route after that — so the
+    // listener lives as long as the process, like the `WCSession` delegate does.
+    this.status = { ...this.status, route: headphoneName(readAudioRoute()) };
+    subscribeAudioRoute((route) => {
+      const name = headphoneName(route);
+      if (name === this.status.route) return;
+      this.status = { ...this.status, route: name };
+      this.emit('ROUTE_CHANGED', route === null ? 'none' : `${route.portType}:${route.kind}`);
+    });
+  }
 
   async configureSession(): Promise<void> {
     try {
@@ -201,7 +233,16 @@ export class IosAudioPlayer implements AudioPlayer {
     });
   }
 
+  /**
+   * WO L3.9: the route is re-read here as well as updated from the notification, because the one
+   * case the notification cannot cover is the important one — the user leaves the app, pairs their
+   * buds in Settings, comes back. iOS does post a route change then, but the app may have been
+   * suspended when it did. Two native property reads per call is cheaper than a wrong 🎧 card
+   * (`LucidFocus.readState()` is read on every render of the pre-night screen for the same reason).
+   */
   getStatus(): AudioPlayerStatus {
+    const route = headphoneName(readAudioRoute());
+    if (route !== this.status.route) this.status = { ...this.status, route };
     return this.status;
   }
 
