@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 14:00 UTC · ❌ Apple ปฏิเสธ 0.1.0 (1) หลังอัปโหลด: ITMS-90362 watch `UIBackgroundModes` → แก้เป็น `WKBackgroundModes` (8ea2979) · 🚀 build #5 `4673aae5` กำลังรัน · หลังเสร็จ submit `--wait` แล้วดู processingState=VALID ก่อนแจ้งเจ้าของ
 - 2026-09-25 13:00 UTC · 🎉 **build #4 FINISHED** (`d38f43d9` · 0.1.0 (1) · Swift ทุก target ผ่าน) · `eas submit` → TestFlight submission `b03506c2` · รอ Apple ประมวลผล → เจ้าของติดตั้ง → **R1 คืนแรก** ตาม `R1-CHECKLIST.md` + จุดตรวจใน wo-notes/L3.7.md §6 และ L3.8.md §E · สั่ง build รอบหน้า = pexpect ไม่จำเป็นแล้ว (credentials ครบ) ใช้ `scripts/build-r1.sh testflight` ได้ (auto-submit ใช้ไม่ได้ → submit แยก)
 - 2026-09-25 12:10 UTC · ✅ เจ้าของผูก App Group ครบ · ลบ 3 profile INVALID ผ่าน ASC API · pexpect build สร้าง profile ใหม่ · 🚀 **build #4** `d38f43d9` กำลังรัน
 - 2026-09-25 11:40 UTC · ❌ build #3 ล้มที่เซ็น: profile ของ .watch/.watch.streak/.widget ไม่มี App Group (แอปหลักผ่าน) · Apple API ไม่มี endpoint appGroups → ต้องให้เจ้าของผูกในพอร์ทัล (ส่งขั้นตอน TG) · จากนั้น: ลบ 3 profile ผ่าน ASC API → รัน build แบบ interactive (pexpect) ให้ EAS สร้าง profile ใหม่ → non-interactive ใช้ไม่ได้กับ profile ใหม่
