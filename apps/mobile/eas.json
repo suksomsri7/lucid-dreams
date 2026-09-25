@@ -1,18 +1,39 @@
 {
-  "cli": { "version": ">= 16.0.0", "appVersionSource": "remote" },
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
   "build": {
     "r1-internal": {
       "distribution": "internal",
-      "ios": { "simulator": false, "resourceClass": "m-medium" },
-      "env": { "EXPO_PUBLIC_API_BASE_URL": "https://dreaming.suksomsri.cloud" },
+      "ios": {
+        "simulator": false,
+        "resourceClass": "m-medium"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://dreaming.suksomsri.cloud",
+        "EXPO_APPLE_TEAM_ID": "3DD2VCN6JQ"
+      },
       "channel": "r1"
     },
     "testflight": {
       "distribution": "store",
-      "ios": { "resourceClass": "m-medium" },
-      "env": { "EXPO_PUBLIC_API_BASE_URL": "https://dreaming.suksomsri.cloud" },
+      "ios": {
+        "resourceClass": "m-medium"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://dreaming.suksomsri.cloud",
+        "EXPO_APPLE_TEAM_ID": "3DD2VCN6JQ"
+      },
       "channel": "testflight"
     }
   },
-  "submit": { "testflight": { "ios": { "ascAppId": "<ASC_APP_ID>", "appleTeamId": "<TEAM_ID>" } } }
+  "submit": {
+    "testflight": {
+      "ios": {
+        "ascAppId": "<ASC_APP_ID>",
+        "appleTeamId": "3DD2VCN6JQ"
+      }
+    }
+  }
 }
