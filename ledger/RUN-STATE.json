@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "build 3 REJECTED by Apple (ITMS-90683 NSPhotoLibraryUsageDescription — expo-speech-recognition references Photo APIs) → added purpose string (98ec3b7) → build #9 RUNNING 1f4d3363-f7da-47f6-9b87-6f2529c8c18e = 0.1.0 (4) → auto submit + ASC poll in one background job",
+  "step": "🎉 TestFlight 0.1.0 (4) VALID (build #9 · L3.13 speech + all hotfixes + photo purpose string) · waiting owner tests (mic · watch · sound · devices · first night) · next build only on owner order",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "EAS build 1f4d3363 + Apple processing",
+    "owner: test build 4 + first night",
     "owner: decide L3.12 bell"
   ],
   "icons": {
@@ -59,7 +59,7 @@
     "build5": "4673aae5-b932-4a21-9246-2b54d9ce8a3c",
     "build5_result": "FINISHED · ipa https://expo.dev/artifacts/eas/wg6VMigXzA-jmaVX5W9M1ZM_TsJYYJzrJ23bfO5132s.ipa · submission 8ab5015e uploaded OK",
     "ascBuildId": "54926033-7d9c-4380-b65a-1a93f21f383c",
-    "status": "LIVE_TESTFLIGHT build 2 · 2026-09-25 20:20 UTC",
+    "status": "LIVE_TESTFLIGHT build 4",
     "ownerReports": [
       "15:17 onboarding pulse Find→redirect",
       "15:17 Sound sheet dead",
@@ -87,7 +87,8 @@
     "ota3": "236b59f2-49ff-4bcc-b7bd-d1e7be075705 (back title minimal · history.empty text)",
     "build8": "abd96f3f-23dd-4bcb-bddf-c4235be9aa7e (buildNumber 3 · L3.13)",
     "build8_result": "FINISHED · ipa https://expo.dev/artifacts/eas/VAjscTAp41a5yuc7vSKjyTYwIOy-MLH0qJQEZMhv0cE.ipa · submitted OK · Apple processing REJECTED ITMS-90683 (missing NSPhotoLibraryUsageDescription)",
-    "build9": "1f4d3363-f7da-47f6-9b87-6f2529c8c18e (buildNumber 4)"
+    "build9": "1f4d3363-f7da-47f6-9b87-6f2529c8c18e (buildNumber 4)",
+    "build9_result": "FINISHED · uploaded · Apple VALID 2026-09-26 12:21 UTC-server"
   },
   "voice": {
     "name": "George",
