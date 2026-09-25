@@ -10,7 +10,8 @@
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
     "L3.13 builder",
-    "owner: decide L3.12 (single fixed bell everywhere vs per-user watermark)"
+    "owner: order build #8",
+    "owner: decide L3.12 bell"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -69,7 +70,8 @@
       "16:40 Settings unchanged on build 2 (L3.11 not in build; OTA pending)",
       "16:40 Apple Watch not found (WCSession never activated before night — fixed hotfix #3)",
       "16:40 anchor sound differs from approved file (per-user bell + different TTS take → server now serves fixed approved file)",
-      "16:43 mic in advisor → \"This device cannot do that yet\" (IosSpeechToText stub never implemented)"
+      "16:43 mic in advisor → \"This device cannot do that yet\" (IosSpeechToText stub never implemented)",
+      "16:47 History empty (expected: no night yet) + back button shows \"(tabs)\" → fixed OTA #3"
     ],
     "ownerDevices": {
       "iphone": "iOS 27",
@@ -81,7 +83,8 @@
     "build7": "ff036e01-b214-407d-8f71-806213b74429 (buildNumber 2)",
     "build7_result": "FINISHED · submitted OK (build number 2)",
     "ota1": "fb214693-4a8d-4d22-806a-9ec39328c9e2 (ios 01a0d7dc-d766-744a-99e9-3da1de44bc56) · L3.11 + hotfix JS · eas update needs --environment production in non-interactive",
-    "ota2": "69cee45a-663c-4e9f-a94a-f8bdd9898ca3 (ios 01a0d7fa-57c5-7a32-b97d-8b8e532dfff0)"
+    "ota2": "69cee45a-663c-4e9f-a94a-f8bdd9898ca3 (ios 01a0d7fa-57c5-7a32-b97d-8b8e532dfff0)",
+    "ota3": "236b59f2-49ff-4bcc-b7bd-d1e7be075705 (back title minimal · history.empty text)"
   },
   "voice": {
     "name": "George",
@@ -96,5 +99,6 @@
   },
   "queue": [
     "L3.12: ear test + local bell fallback should use the approved bell (sigv2-C) instead of per-user makeSignature — decide with owner (drops per-user watermark idea)"
-  ]
+  ],
+  "buildPolicy": "🔴 เจ้าของสั่ง 25 ก.ย. 16:47: ไม่ build จนกว่าจะสั่ง — L3.13 (native) รอคำสั่ง build #8 · OTA (JS) ส่งได้"
 }
