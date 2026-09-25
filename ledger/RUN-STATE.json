@@ -14,16 +14,17 @@
     "เจ้าของ: รุ่น iPhone/Watch/หูฟัง",
     "เจ้าของ: สั่ง build",
     "owner: confirm anchor sound v2-C (TG 3478)",
-    "owner: pick icon J/K/L (Zzz)"
+    "owner: pick icon M/N/O (Zzz glass)"
   ],
   "icons": {
-    "status": "round-4 Zzz idea (J/K/L)",
+    "status": "round-5 owner layout Zzz + Liquid Glass (M/N/O)",
     "files": [
-      "ledger/design-icon/icon-J-zzz-rise.png",
-      "ledger/design-icon/icon-K-z-single.png",
-      "ledger/design-icon/icon-L-zzz-night.png"
+      "ledger/design-icon/icon-M-zzz-glass-light.png",
+      "ledger/design-icon/icon-N-zzz-glass-indigo.png",
+      "ledger/design-icon/icon-O-zzz-glass-night.png"
     ],
-    "waitingOwner": "pick J/K/L or redirect",
-    "tg": "3514-3517"
+    "layoutSource": "/root/.claude/uploads/6d18d1f7-5456-504b-91b8-0ce562fd2ed8/5f9001da-image.jpg",
+    "waitingOwner": "pick M/N/O -> full iOS icon set",
+    "tg": "3518-3521"
   }
 }
