@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "build #3 (098b3cb1) ERRORED at signing: 3 child targets (.watch/.watch.streak/.widget) provisioning profiles lack App Group group.cloud.suksomsri.dreaming (ASC API has no appGroups endpoint) → owner assigns group in portal → Fable deletes 3 profiles via ASC API (DELETE /v1/profiles/{id}: 86S7Q74AVB, 3BZ569VUCX, 35B84KATZT) → interactive pexpect build regenerates → TestFlight",
+  "step": "build #4 RUNNING (d38f43d9-5682-4f62-aa01-82772a0a7d65) — child profiles regenerated with App Group → when FINISHED: eas submit --platform ios --profile testflight --id d38f43d9-… --non-interactive",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "owner: assign App Group to 3 child App IDs in developer portal (TG 3561)"
+    "EAS build d38f43d9 finishing"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -40,12 +40,14 @@
       "capability sync DATA_PROTECTION ล้ม → เปิดผ่าน ASC API เอง",
       ".watch.complication ถูก Apple ปฏิเสธ → .watch.streak",
       "--auto-submit non-interactive ตั้ง ASC key ไม่ได้ → ใช้ eas submit แยกพร้อม ascApiKeyPath ใน eas.json",
-      "@lucid/data entry ห้าม export driver ที่ import sql.js — Metro ตาม dynamic import แล้วพัง node:fs · ใช้ subpath @lucid/data/sqljs ในเทสต์เท่านั้น"
+      "@lucid/data entry ห้าม export driver ที่ import sql.js — Metro ตาม dynamic import แล้วพัง node:fs · ใช้ subpath @lucid/data/sqljs ในเทสต์เท่านั้น",
+      "App Group assignment ต้องทำมือในพอร์ทัล (ASC API ไม่มี /appGroups) · หลังผูก profile เดิม INVALID → DELETE /v1/profiles/{id} แล้วรัน eas build แบบ interactive (pexpect) ให้สร้างใหม่"
     ],
     "build1_result": "ERRORED: Bundle JavaScript — Unable to resolve node:fs from sql.js (fixed 2f17f44)",
     "build2": "751f8a56-ebed-4960-add6-64ba4ad948a0",
     "build2_result": "CANCELED by Fable on owner request (was IN_PROGRESS)",
-    "build3": "098b3cb1-bc3c-4189-b05a-c40e015eee6c ERRORED signing (App Group on child targets)"
+    "build3": "098b3cb1-bc3c-4189-b05a-c40e015eee6c ERRORED signing (App Group on child targets)",
+    "build4": "d38f43d9-5682-4f62-aa01-82772a0a7d65"
   },
   "voice": {
     "name": "George",
