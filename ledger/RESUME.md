@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 21:00 UTC · 🐞 รายงานเพิ่ม (build 2): Settings ยังเก่า (L3.11 ไม่ทัน build → OTA) · นาฬิกาไม่เจอ (**WatchSensorSource ไม่เคยถูก probe ก่อนคืน** → เพิ่ม probe()+subscribe status ใน registry) · เสียงไม่ตรงไฟล์ที่เลือก (ระฆังต่อ seed + George ต่าง take) → **server เสิร์ฟไฟล์อนุมัติเป๊ะ `ANCHOR_FIXED_FILE`** + george-2 · **OTA #2** `69cee45a` · ค้าง: ear test ยังใช้ระฆัง makeSignature (L3.12 · ต้องตัดสินเรื่อง watermark ต่อคน)
 - 2026-09-25 20:20 UTC · 🎉 **TestFlight 0.1.0 (2) VALID** (build #7 · L3.7–L3.11 ครบ · watch min 10.0 · lucid-audio-route) + OTA #1 · แจ้งเจ้าของ TG 3582 · **สถานะ = รอผลคืนแรก R1** · session ใหม่: อ่าน RUN-STATE.r1 (builds/lessons/ownerReports/ownerDevices)
 - 2026-09-25 19:50 UTC · ✅ **L3.11 merged** (12/12 · parity 09a/09b) · build #7 = **0.1.0 (2)** FINISHED + อัปโหลด ASC สำเร็จ (รอ VALID) · **OTA #1** `fb214693` ช่อง testflight (Settings v2 + JS hotfix · ปลอดภัยกับ build 1 เพราะ requireOptionalNativeModule) · บทเรียน: `eas update --non-interactive` ต้อง `--environment production`
 - 2026-09-25 19:10 UTC · ✅ build #6 ผ่าน compiler (โมดูล native ใหม่ + watchOS 10) ❌ แต่ submit ล้ม: buildNumber 1 ซ้ำ → `autoIncrement: true` ใน eas.json · 🚀 **build #7** `ff036e01` = 0.1.0 (2)

@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "🎉 TestFlight 0.1.0 (2) VALID · OTA #1 live · waiting owner R1 tests (sound at launch · headphones detection · watch install on watchOS 10 · ▶ · Settings v2 · Diagnostics sound test · first night)",
+  "step": "OTA #2 69cee45a live (approved anchor file via ANCHOR_FIXED_FILE · watch link probe · george-2) · TestFlight build 2 · waiting owner re-test · queue: L3.12 ear-test bell from approved file",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "owner: install build 2 + first-night test (ledger/R1-CHECKLIST.md)"
+    "owner: relaunch app twice (OTA) then re-test Settings / watch card / launch sound"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -64,7 +64,10 @@
       "15:20 Settings Find a device = Coming soon x5",
       "15:21 Settings layout: inconsistent insets, stray \"Watermark reset\", Language segment overflow",
       "15:25 plan card ▶ silent",
-      "15:25 chip tap no thinking indicator → 9 duplicate turns"
+      "15:25 chip tap no thinking indicator → 9 duplicate turns",
+      "16:40 Settings unchanged on build 2 (L3.11 not in build; OTA pending)",
+      "16:40 Apple Watch not found (WCSession never activated before night — fixed hotfix #3)",
+      "16:40 anchor sound differs from approved file (per-user bell + different TTS take → server now serves fixed approved file)"
     ],
     "ownerDevices": {
       "iphone": "iOS 27",
@@ -75,7 +78,8 @@
     "build6_result": "FINISHED (Swift lucid-audio-route + watch min 10.0 OK) · submit FAILED: duplicate build number 1",
     "build7": "ff036e01-b214-407d-8f71-806213b74429 (buildNumber 2)",
     "build7_result": "FINISHED · submitted OK (build number 2)",
-    "ota1": "fb214693-4a8d-4d22-806a-9ec39328c9e2 (ios 01a0d7dc-d766-744a-99e9-3da1de44bc56) · L3.11 + hotfix JS · eas update needs --environment production in non-interactive"
+    "ota1": "fb214693-4a8d-4d22-806a-9ec39328c9e2 (ios 01a0d7dc-d766-744a-99e9-3da1de44bc56) · L3.11 + hotfix JS · eas update needs --environment production in non-interactive",
+    "ota2": "69cee45a-663c-4e9f-a94a-f8bdd9898ca3 (ios 01a0d7fa-57c5-7a32-b97d-8b8e532dfff0)"
   },
   "voice": {
     "name": "George",
@@ -85,9 +89,10 @@
     "decidedAt": "2026-09-25",
     "reference": "/root/.lucid/tts/anchor-fast-George.mp3",
     "prodSample": "/root/.lucid/tts/anchor-prod-George-2026-09-25.mp3",
-    "samplesBackup": "gdrive-own:VPS-Archive/lucid-dreams/tts-samples/"
+    "samplesBackup": "gdrive-own:VPS-Archive/lucid-dreams/tts-samples/",
+    "fixedFile": "/var/lib/lucid-api/anchor-fixed.mp3 (= anchor-fast-George.mp3 md5 6bdc81c3…) · env ANCHOR_FIXED_FILE"
   },
   "queue": [
-    "L3.11 Settings v2 (after L3.9 merge · Sonnet · OTA)"
+    "L3.12: ear test + local bell fallback should use the approved bell (sigv2-C) instead of per-user makeSignature — decide with owner (drops per-user watermark idea)"
   ]
 }
