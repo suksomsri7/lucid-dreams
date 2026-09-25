@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
-  "wo": "L3.8",
-  "step": "voice = George \"You are dreaming.\" normal speed (server live + cache warm) · L3.8 builder: app must fetch full anchor mp3 from /ai/anchor (app currently plays bell only!) → then build TestFlight (owner ordered: \"เปลี่ยนเสียงเสร็จบิ้วได้เลย\")",
+  "wo": "R1",
+  "step": "L3.8 merged (full anchor bell+whisper reaches device) → build #3 TestFlight starting",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "L3.8 builder"
+    "EAS build #3"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",

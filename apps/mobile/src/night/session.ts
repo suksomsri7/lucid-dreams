@@ -52,7 +52,7 @@ import {
 import { isoFromEpochSeconds } from '@lucid/data';
 
 import type { DreamPlan } from '../advisor/types';
-import { ambienceSource, buildAnchorSignature, getAnchorSeed, playAnchorOnce } from '../audio/player';
+import { ambienceSource, buildAnchorSignature, getAnchorSeed, playAnchorOnce, prefetchFullAnchor } from '../audio/player';
 import {
   attachArmKeyToSession,
   ensureNightSession,
@@ -92,6 +92,10 @@ export interface NightLiveStats {
   sleptForSec: number | null;
   cuesPlayed: number;
   cuesPlanned: number;
+  /** WO L3.8 — cues that played the full anchor (bell + whisper) … */
+  cuesWithFullAnchor: number;
+  /** … and cues that fell back to the bell WAV alone (no downloaded file yet, or no network). */
+  cuesBellOnly: number;
   anyCueWoke: boolean;
   /** The watch dropped out and the night switched to prior-window scheduling (L2.7). */
   timerFallback: boolean;
@@ -146,6 +150,16 @@ function createRuntime(ctx: RuntimeContext): Runtime {
   let onsetPersisted = false;
   let finished = false;
   let persistedWakeCount = 0;
+  /**
+   * WO L3.8 — how many of tonight's cues actually contained the whispered sentence, and how many
+   * were the bell alone because the full anchor had never been downloaded (`src/audio/
+   * anchorRemote.ts`). The database's cue row has no column for this (`packages/data`'s
+   * `appendCue` is off-limits to this WO), so it lives on the live stats the night screen and
+   * `stop()` already read — enough for R1 to answer "did the whisper reach the user tonight?"
+   * from the app instead of from the server's logs.
+   */
+  let cuesWithFullAnchor = 0;
+  let cuesBellOnly = 0;
 
   function emit(): void {
     for (const listener of listeners) listener();
@@ -203,7 +217,21 @@ function createRuntime(ctx: RuntimeContext): Runtime {
         const cue = ctx.controller.cues[ctx.controller.cues.length - 1];
         if (!cue) break;
         if (action.type === 'PLAY_CUE' && ctx.controller.state === 'CUE' && ctx.platform) {
-          void playAnchorOnce(ctx.signature, { volume: cue.volume, pan: 0 }).catch(() => undefined);
+          const cueIndex = cue.index;
+          void playAnchorOnce(ctx.signature, { volume: cue.volume, pan: 0, lang: ctx.signature.lang, cachedOnly: true })
+            .then((playback) => {
+              // WO L3.8: which of the two sounds the user just heard. Counted (not just logged)
+              // because "the cue played" and "the cue whispered" are two different claims and
+              // only the first one was ever recorded before this.
+              if (playback.fullAnchor) cuesWithFullAnchor += 1;
+              else cuesBellOnly += 1;
+              if (__DEV__) {
+                // eslint-disable-next-line no-console -- dev-only trace, same shape as WHISPER_SEED below
+                console.log('[night] cue audio', { index: cueIndex, fullAnchor: playback.fullAnchor });
+              }
+              emit();
+            })
+            .catch(() => undefined);
         }
         persist((sessionId) =>
           recordNightCue(sessionId, {
@@ -311,6 +339,8 @@ function createRuntime(ctx: RuntimeContext): Runtime {
       sleptForSec: ctx.controller.onsetT == null ? null : Math.max(0, nowT - ctx.controller.onsetT),
       cuesPlayed: ctx.controller.cues.filter((c) => c.played).length,
       cuesPlanned: ctx.controller.maxCuesTonight,
+      cuesWithFullAnchor,
+      cuesBellOnly,
       anyCueWoke: ctx.controller.cues.some((c) => c.response === 'WOKE'),
       timerFallback: ctx.controller.mode === 'TIMER' || ctx.controller.timerFallback,
     };
@@ -344,6 +374,8 @@ export async function startNightSession(state: NightStoreState): Promise<NightSe
   const plan = state.plan;
   const locale: Locale = state.lang ?? 'en';
   const platform = getPlatform();
+  // Last chance to have the bell+whisper file on disk before lights-out (cues are cachedOnly).
+  void prefetchFullAnchor().catch(() => undefined);
 
   const dateIso = new Date().toISOString().slice(0, 10);
   const sessionId = await ensureNightSession(state.sessionId, plan, dateIso);

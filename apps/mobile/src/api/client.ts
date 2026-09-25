@@ -182,3 +182,93 @@ export async function deleteDevice(): Promise<void> {
     await AsyncStorage.removeItem(DEVICE_TOKEN_KEY).catch(() => undefined);
   }
 }
+
+// ---------------------------------------------------------------------------
+// WO L3.8 — the full anchor file (`POST /ai/anchor`: the bell **and** the whisper)
+// ---------------------------------------------------------------------------
+
+/** How long the phone waits for `/ai/anchor` before giving up (a cold MISS costs ~4 s of ffmpeg). */
+export const ANCHOR_AUDIO_TIMEOUT_MS = 15000;
+
+export interface AnchorAudioRequest {
+  /** `getAnchorSeed()` — the per-install seed the server folds into `makeSignature`. */
+  seed: string;
+  lang: 'th' | 'en';
+}
+
+/**
+ * What the caller needs in order to decide whether these bytes may be kept: the body plus
+ * the three headers `/ai/anchor` answers with (`apps/api/src/server.ts`'s `headers()`).
+ * `hash` is the server's own `makeSignature(seed, lang).hash` — `src/audio/anchorRemote.ts`
+ * compares it with the signature it asked for, so a file built from someone else's seed (or
+ * from a server whose signature maths has moved on) is dropped instead of cached forever.
+ */
+export type AnchorAudioResult =
+  | {
+      ok: true;
+      bytes: Uint8Array;
+      contentType: string | null;
+      hash: string | null;
+      cache: string | null;
+      notes: string | null;
+      /** Wall-clock milliseconds of the whole call, for the R1 note's "first download" number. */
+      elapsedMs: number;
+    }
+  | { ok: false; status: number | null; detail: string };
+
+async function requestAnchorAudio(
+  request: AnchorAudioRequest,
+  token: string,
+  signal: AbortSignal,
+): Promise<Response> {
+  return fetch(`${apiBaseUrl()}/ai/anchor`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+    body: JSON.stringify(request),
+    signal,
+  });
+}
+
+/**
+ * Download the user's own anchor mp3 (bell + "You are dreaming.").
+ *
+ * Like {@link postScore} and {@link deleteDevice} — and unlike {@link requestDreamPlan} — this
+ * **never throws**: the only caller is a best-effort prefetch/fallback path
+ * (`src/audio/anchorRemote.ts`), and every possible failure means the same thing to it, namely
+ * "tonight is bell-only". The 15 s `AbortController` timeout is the point of the whole
+ * function: `ensureFullAnchorUri` can be reached from `playAnchorOnce`, i.e. from a night cue at
+ * 3 a.m. with no signal, and a `fetch` with no timeout there would hang that cue forever.
+ * A 401 re-registers the device and retries exactly once, same shape as the two calls above.
+ */
+export async function fetchAnchorAudio(
+  request: AnchorAudioRequest,
+  timeoutMs: number = ANCHOR_AUDIO_TIMEOUT_MS,
+): Promise<AnchorAudioResult> {
+  const started = Date.now();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const token = await getDeviceToken();
+    let response = await requestAnchorAudio(request, token, controller.signal);
+    if (response.status === 401) {
+      const fresh = await getDeviceToken(true);
+      response = await requestAnchorAudio(request, fresh, controller.signal);
+    }
+    if (!response.ok) return { ok: false, status: response.status, detail: `HTTP ${response.status}` };
+    const buffer = await response.arrayBuffer();
+    return {
+      ok: true,
+      bytes: new Uint8Array(buffer),
+      contentType: response.headers.get('content-type'),
+      hash: response.headers.get('x-anchor-hash'),
+      cache: response.headers.get('x-cache'),
+      notes: response.headers.get('x-anchor-notes'),
+      elapsedMs: Date.now() - started,
+    };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    return { ok: false, status: null, detail };
+  } finally {
+    clearTimeout(timer);
+  }
+}

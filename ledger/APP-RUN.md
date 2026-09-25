@@ -243,7 +243,7 @@
 | L2.2n (L2.2 + L1.7 native) | ✅ DONE 24 ก.ย. (20/20 · prebuild ตรวจ pbxproj) | main | 🔴 Swift ยังไม่ผ่าน compiler → R1 · developer portal: App Group + HealthKit · หนี้: setStreakNights ยังไม่มีใครเรียก (L3ui) |
 | L2.3 (app) | ✅ DONE 25 ก.ย. (oracles ครบ · ภาพ .qc-shots/L2.3) | main | ทดสอบกับสายคาดจริงเมื่อเจ้าของซื้อ |
 | L3.F | ✅ DONE 25 ก.ย. 00:30 UTC (engine 130 · data 16 · api 65 · oracle 8 ชุด 209/209 · 15 จอ TH/EN · audit 13 high devDeps) | main | **สถานะ = พร้อม build R1 · รอเจ้าของ** (ASC app Dreaming + Team ID + ASC API key) |
-| L3.8 | ▶ 25 ก.ย. 10:00 UTC builder Opus (wo/L3.8) | wo/L3.8 | แอปดึงเสียงสมอเต็ม (ระฆัง+กระซิบ George) จาก /ai/anchor · แคชในเครื่อง · ใช้กับ cue กลางคืน+เสียงแบรนด์ · oracle qc-L3.8 22 |
+| L3.8 | ✅ DONE 25 ก.ย. 11:00 UTC (22/22 · parity 04) | main | แอปดึงเสียงสมอเต็ม (ระฆัง+กระซิบ George) จาก /ai/anchor · แคชในเครื่อง · ใช้กับ cue กลางคืน+เสียงแบรนด์ · oracle qc-L3.8 22 |
 | L3.7 | ✅ DONE 25 ก.ย. 05:10 UTC (29/29 · parity 11 · prebuild ผ่าน) | main | แบรนด์: ไอคอน M · intro+เอฟเฟกต์ · เสียงสมอ 1 รอบ (โหลดเสร็จ/Start tonight) · oracle qc-L3.7 27 · parity 11 |
 | L3.1 | ✅ DONE 24 ก.ย. (M1 10/10 · parity 06a/b) | main | route /ai/score → L3.2s |
 | L3.2s | ✅ DONE 24 ก.ย. (api 65/65 · smoke จริง · prod อัปเดต) | main | L3.F: weekly ตัดคืน CONTROL ออกจนครบ 3 คืน |
