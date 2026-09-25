@@ -243,6 +243,7 @@
 | L2.2n (L2.2 + L1.7 native) | ✅ DONE 24 ก.ย. (20/20 · prebuild ตรวจ pbxproj) | main | 🔴 Swift ยังไม่ผ่าน compiler → R1 · developer portal: App Group + HealthKit · หนี้: setStreakNights ยังไม่มีใครเรียก (L3ui) |
 | L2.3 (app) | ✅ DONE 25 ก.ย. (oracles ครบ · ภาพ .qc-shots/L2.3) | main | ทดสอบกับสายคาดจริงเมื่อเจ้าของซื้อ |
 | L3.F | ✅ DONE 25 ก.ย. 00:30 UTC (engine 130 · data 16 · api 65 · oracle 8 ชุด 209/209 · 15 จอ TH/EN · audit 13 high devDeps) | main | **สถานะ = พร้อม build R1 · รอเจ้าของ** (ASC app Dreaming + Team ID + ASC API key) |
+| L3.14 | ▶ 26 ก.ย. 02:20 UTC builder Opus (wo/L3.14) | wo/L3.14 | เสียงครบคืน: seed speech (/ai/tts George) · ducking · ambience จริง · oracle qc-L3.14 19 · OTA |
 | L3.13 | ✅ DONE 25 ก.ย. 22:30 UTC (20/20 · รอ build #8 ตามคำสั่งเจ้าของ) | main | R1 hotfix #4: Speech-to-Text iOS จริง (expo-speech-recognition) · UX ไมค์ กำลังฟัง/ปฏิเสธ · oracle qc-L3.13 20 |
 | L3.11 | ✅ DONE 25 ก.ย. 19:50 UTC (12/12 · OTA fb214693) | main | Settings v2 โปร่ง ตามแบบ 09 v2 · oracle qc-L3.11 12 · ส่ง OTA |
 | L3.10 | ✅ DONE 25 ก.ย. 17:50 UTC (18/18) | main | R1 hotfix #2: การ์ดแผน ▶ (onPlayAnchor + PREVIEW_VOLUME) · busy + TypingBubble + กันกดซ้อน · oracle qc-L3.10 18 |

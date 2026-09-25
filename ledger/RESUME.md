@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-26 02:20 UTC · 🎧 เจ้าของจะเทสธีม **บินได้** คืนนี้ ขอเสียงครบ → พบ **ประโยคปลูกภาพไม่เคยถูกพูด** (console.log) + ambience เป็น placeholder → Fable สังเคราะห์ ambience ใหม่ 3 ไฟล์ 57 s (`/root/.lucid/ambience/`) + อุ่น TTS seed บินได้ th/en · แผนปล่อยเสียงต่อคืนใน `wo-notes/L3.14-WO.md` · **L3.14** (qc-L3.14 19 ข้อ · Opus) → OTA #4
 - 2026-09-26 01:25 UTC · 🎉 **TestFlight 0.1.0 (4) VALID** (build #9 · speech-to-text + photo purpose string) · แจ้งเจ้าของ TG 3596 · **สถานะ = รอผลทดสอบ build 4 + คืนแรก** · build ถัดไปรอคำสั่ง · ค้าง L3.12 (ระฆังทดสอบหู)
 - 2026-09-26 00:20 UTC · ❌ build 3 ถูก Apple ปฏิเสธ ITMS-90683 (ขาด NSPhotoLibraryUsageDescription จาก expo-speech-recognition) → เติมแล้ว (98ec3b7 + InfoPlist.strings th/en) · 🚀 **build #9** `1f4d3363` = 0.1.0 (4) · job พื้นหลังเดียว: รอ FINISHED → submit --wait → poll ASC จนเห็น build 4
 - 2026-09-25 22:40 UTC · 🚀 เจ้าของสั่ง "Build" → **build #8** `abd96f3f` = 0.1.0 (3) (L3.13 speech) กำลังรัน → submit --wait → VALID → แจ้ง

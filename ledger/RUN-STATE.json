@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
-  "wo": "R1",
-  "step": "🎉 TestFlight 0.1.0 (4) VALID (build #9 · L3.13 speech + all hotfixes + photo purpose string) · waiting owner tests (mic · watch · sound · devices · first night) · next build only on owner order",
+  "wo": "L3.14",
+  "step": "owner wants to test theme Flying tonight with full audio → L3.14 (seed-line speech via /ai/tts George · bed ducking · real ambience loops) builder Opus wo/L3.14 → OTA #4 (no build) · Fable: ambience synthesized (wind/rain/underwater 57 s) + seed TTS prewarmed th/en",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,8 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "owner: test build 4 + first night",
-    "owner: decide L3.12 bell"
+    "L3.14 builder"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -104,5 +103,6 @@
   "queue": [
     "L3.12: ear test + local bell fallback should use the approved bell (sigv2-C) instead of per-user makeSignature — decide with owner (drops per-user watermark idea)"
   ],
-  "buildPolicy": "เจ้าของสั่ง build #8 แล้ว 25 ก.ย. 22:40 UTC · build ถัดไปต้องรอคำสั่งใหม่"
+  "buildPolicy": "เจ้าของสั่ง build #8 แล้ว 25 ก.ย. 22:40 UTC · build ถัดไปต้องรอคำสั่งใหม่",
+  "audioPlan": "ledger/wo-notes/L3.14-WO.md §แผนปล่อยเสียงต่อคืน"
 }
