@@ -22,7 +22,32 @@
  *    forever, so `end` without a final result is reported through `onError` as `NO_SPEECH`.
  */
 
-import { ExpoSpeechRecognitionModule } from 'expo-speech-recognition';
+import type { ExpoSpeechRecognitionModule as SpeechModule } from 'expo-speech-recognition';
+
+/**
+ * Loaded lazily and defensively (Fable, R1 review 2026-09-25): `expo-speech-recognition` calls
+ * `requireNativeModule` when its JS is evaluated, which throws on a binary that does not ship
+ * the native module. This file is also delivered by OTA to TestFlight build 2, which has no
+ * such module — a static import would crash that build at launch. `null` ⇒ `isAvailable()`
+ * is false and the mic shows "not on this device", exactly like the old stub.
+ */
+let speechModuleCache: typeof SpeechModule | null | undefined;
+function loadSpeechModule(): typeof SpeechModule | null {
+  if (speechModuleCache !== undefined) return speechModuleCache;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- guarded native load
+    const mod = require('expo-speech-recognition') as { ExpoSpeechRecognitionModule?: typeof SpeechModule };
+    speechModuleCache = mod.ExpoSpeechRecognitionModule ?? null;
+  } catch {
+    speechModuleCache = null;
+  }
+  return speechModuleCache;
+}
+function speech(): typeof SpeechModule {
+  const mod = loadSpeechModule();
+  if (!mod) throw new Error('SPEECH_NATIVE_MODULE_MISSING');
+  return mod;
+}
 
 import type { SpeechResult, SpeechToText, Unsubscribe } from '../types';
 
@@ -55,9 +80,10 @@ export class IosSpeechToText implements SpeechToText {
    * that is about to fail.
    */
   async isAvailable(): Promise<boolean> {
+    if (!loadSpeechModule()) return false;
     try {
-      if (!ExpoSpeechRecognitionModule.isRecognitionAvailable()) return false;
-      const state = await ExpoSpeechRecognitionModule.getStateAsync();
+      if (!speech().isRecognitionAvailable()) return false;
+      const state = await speech().getStateAsync();
       return state !== 'stopping';
     } catch {
       return false;
@@ -73,7 +99,7 @@ export class IosSpeechToText implements SpeechToText {
    */
   async requestPermissions(): Promise<boolean> {
     try {
-      const response = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+      const response = await speech().requestPermissionsAsync();
       return response.granted;
     } catch {
       return false;
@@ -82,9 +108,9 @@ export class IosSpeechToText implements SpeechToText {
 
   async start(options: { locale: string }): Promise<void> {
     // A session left over from a previous tap would answer `start()` with a `busy` error.
-    const state = await ExpoSpeechRecognitionModule.getStateAsync().catch(() => 'inactive');
+    const state = await speech().getStateAsync().catch(() => 'inactive');
     if (state !== 'inactive') {
-      ExpoSpeechRecognitionModule.abort();
+      speech().abort();
     }
 
     this.detachNative();
@@ -95,7 +121,7 @@ export class IosSpeechToText implements SpeechToText {
     // eslint-disable-next-line no-console -- WO L3.13: the S4 audit trail (mode + language only, never the words)
     console.log(`[speech] start lang=${options.locale} mode=${mode}`);
 
-    ExpoSpeechRecognitionModule.start({
+    speech().start({
       lang: options.locale,
       // Partial results are what makes the words appear in the composer while the user is still
       // talking (DESIGN §2.6) instead of one block of text seconds later.
@@ -118,12 +144,12 @@ export class IosSpeechToText implements SpeechToText {
    */
   async stop(): Promise<void> {
     try {
-      const state = await ExpoSpeechRecognitionModule.getStateAsync().catch(() => 'inactive');
+      const state = await speech().getStateAsync().catch(() => 'inactive');
       if (state === 'inactive') {
         this.detachNative();
         return;
       }
-      ExpoSpeechRecognitionModule.stop();
+      speech().stop();
     } catch {
       this.detachNative();
     }
@@ -159,8 +185,8 @@ export class IosSpeechToText implements SpeechToText {
    */
   private async resolveMode(locale: string): Promise<RecognitionMode> {
     try {
-      if (!ExpoSpeechRecognitionModule.supportsOnDeviceRecognition()) return 'server';
-      const supported = await ExpoSpeechRecognitionModule.getSupportedLocales({});
+      if (!speech().supportsOnDeviceRecognition()) return 'server';
+      const supported = await speech().getSupportedLocales({});
       const wanted = normaliseTag(locale);
       const installed = supported.installedLocales.length > 0 ? supported.installedLocales : supported.locales;
       return installed.some((tag) => normaliseTag(tag) === wanted) ? 'on-device' : 'server';
@@ -172,12 +198,12 @@ export class IosSpeechToText implements SpeechToText {
 
   private attachNative(): void {
     this.nativeSubscriptions = [
-      ExpoSpeechRecognitionModule.addListener('result', (event) => {
+      speech().addListener('result', (event) => {
         const transcript = event.results[0]?.transcript ?? '';
         if (event.isFinal) this.sawFinalResult = true;
         this.emitResult({ text: transcript, isFinal: event.isFinal });
       }),
-      ExpoSpeechRecognitionModule.addListener('error', (event) => {
+      speech().addListener('error', (event) => {
         // `aborted` is this class cancelling a stale session in `start()`, not something that
         // happened to the user — reporting it would flash an error for a session they never saw.
         if (event.error === 'aborted') return;
@@ -186,7 +212,7 @@ export class IosSpeechToText implements SpeechToText {
         console.warn(`[speech] error ${event.error}`);
         this.emitError(toErrorCode(event.error));
       }),
-      ExpoSpeechRecognitionModule.addListener('end', () => {
+      speech().addListener('end', () => {
         const silent = !this.sawFinalResult;
         this.detachNative();
         // Apple ends a task it heard nothing in with no result at all. Without this the caller
