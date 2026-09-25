@@ -63,7 +63,7 @@ export const ANCHOR_WHISPER_GAIN = 1.1;
  * turns into the thing you are supposed to hear in a dream. Pitch is untouched — `atempo` is a
  * time stretch, not a resample, which is exactly why it is ffmpeg's job and not ours.
  */
-export const ANCHOR_WHISPER_ATEMPO = 0.85;
+export const ANCHOR_WHISPER_ATEMPO = 1; // มติ 25 ก.ย.: เจ้าของบอก "ช้าไปมาก" ⇒ ความเร็วปกติ (สคริปต์ไม่มี …)
 
 /** 128 kbps mono — indistinguishable from the source for a 10 s clip, ~160 KB on the wire. */
 export const ANCHOR_MP3_BITRATE = '128k';
@@ -183,9 +183,11 @@ export function buildMixFilter(
   // `atempo` refuses anything outside [0.5, 100]; 1 means "no stretch", so skip the filter
   // entirely rather than paying for a resampler that does nothing.
   const stretch = atempo > 0 && atempo !== 1 ? `,atempo=${atempo}` : '';
+  // ตัดความเงียบหัว/ท้ายของคลิปกระซิบ (eleven-v3 เว้นหัว ~0.3 s ท้าย ~0.5 s) — เจ้าของเลือกเสียงจากไฟล์ที่ตัดแล้ว (anchor-fast-George.mp3)
+  const trim = `,silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse`;
   return [
     `[0:a]${format},volume=${gain}[a]`,
-    `[1:a]${format}${stretch},volume=${whisperGain},adelay=${Math.round(delayMs)}:all=1[b]`,
+    `[1:a]${format}${trim}${stretch},volume=${whisperGain},adelay=${Math.round(delayMs)}:all=1[b]`,
     `[a][b]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0[mix]`,
   ].join(';');
 }

@@ -225,7 +225,7 @@ describe.skipIf(!ffmpegPath)('L1.6s POST /ai/anchor (v2-C · one whisper over th
     expect(Math.abs(ms - signature.durationMs)).toBeLessThan(300);
   }, 60_000);
 
-  it('S2 the whisper starts at whisperAtMs and is slowed to 0.85 — over the bell, not after it', async () => {
+  it('S2 the whisper starts at whisperAtMs at ANCHOR_WHISPER_ATEMPO speed — over the bell, not after it', async () => {
     const seed = 'seed-s2';
     const response = await postAnchor(main.url, main.token, { seed, lang: 'th' });
     const samples = await decode(Buffer.from(await response.arrayBuffer()));
@@ -278,7 +278,7 @@ describe.skipIf(!ffmpegPath)('L1.6s POST /ai/anchor (v2-C · one whisper over th
       // The vendor was asked exactly once, for English, with the one sentence there is.
       expect(server.calls()).toHaveLength(1);
       expect(server.calls()[0]).toEqual({ lang: 'en', text: anchorWhisperText() });
-      expect(anchorWhisperText()).toBe('You… are… dreaming…');
+      expect(anchorWhisperText()).toBe('You are dreaming.');
     } finally {
       await server.close();
     }

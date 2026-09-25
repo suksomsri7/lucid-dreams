@@ -74,7 +74,8 @@ export type AnchorLang = 'th' | 'en';
  * instead of reading a three-word sentence at conversational speed. The server slows the
  * clip down another 15 % (`atempo=0.85`) on top of that.
  */
-export const ANCHOR_WHISPER_TEXT = 'You… are… dreaming…';
+// มติเจ้าของ 25 ก.ย. 2026: ไม่มีจุดเว้นจังหวะ (รอบก่อน "ช้าไปมาก") · เสียง George · ความเร็วปกติ
+export const ANCHOR_WHISPER_TEXT = 'You are dreaming.';
 
 /** The sentence the TTS vendor renders. Takes no language — that is the decision. */
 export function anchorWhisperText(): string {

@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
-  "wo": "R1",
-  "step": "R1 PAUSED — fal.ai topped up · male whisper samples sent (Brian/George/Daniel ×3 + bell mix, TG 3533–3539) · waiting owner: pick voice (or keep Sarah) → set TTS_VOICE on server + prewarm cache → owner orders build",
+  "wo": "L3.8",
+  "step": "voice = George \"You are dreaming.\" normal speed (server live + cache warm) · L3.8 builder: app must fetch full anchor mp3 from /ai/anchor (app currently plays bell only!) → then build TestFlight (owner ordered: \"เปลี่ยนเสียงเสร็จบิ้วได้เลย\")",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,8 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "owner: pick whisper voice Brian/George/Daniel/Sarah",
-    "owner: order build"
+    "L3.8 builder"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -46,5 +45,15 @@
     "build1_result": "ERRORED: Bundle JavaScript — Unable to resolve node:fs from sql.js (fixed 2f17f44)",
     "build2": "751f8a56-ebed-4960-add6-64ba4ad948a0",
     "build2_result": "CANCELED by Fable on owner request (was IN_PROGRESS)"
+  },
+  "voice": {
+    "name": "George",
+    "text": "You are dreaming.",
+    "atempo": 1,
+    "trim": "silenceremove -45dB",
+    "decidedAt": "2026-09-25",
+    "reference": "/root/.lucid/tts/anchor-fast-George.mp3",
+    "prodSample": "/root/.lucid/tts/anchor-prod-George-2026-09-25.mp3",
+    "samplesBackup": "gdrive-own:VPS-Archive/lucid-dreams/tts-samples/"
   }
 }
