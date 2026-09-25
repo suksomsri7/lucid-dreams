@@ -10,8 +10,9 @@ import { AUDIO_HOURS_PER_FULL_CHARGE, summarizeDevices } from '@lucid/engine';
 import { applyDeviceFoundFixture } from '../../src/dev/fixtures';
 import { getAnchorSeed, playAnchorOnce, resetAnchorSeed, buildAnchorSignature } from '../../src/audio/player';
 import { deleteDevice } from '../../src/api/client';
-import { deviceRegistry, refreshDevicesFromPlatform } from '../../src/devices/registry';
-import { useLocale, useT, type TranslateParams, type TranslationKey } from '../../src/i18n';
+import { DeviceSearchSheet } from '../../src/devices/DeviceSearchSheet';
+import { deviceRegistry, refreshDevicesFromPlatform, watchPlatformDevices } from '../../src/devices/registry';
+import { useLocale, useT } from '../../src/i18n';
 import { scheduleDailyReminders } from '../../src/notifications';
 import {
   DEFAULT_GUARD_HOURS,
@@ -40,8 +41,6 @@ import { Button, GlassCard, Icon, Row, Screen, SectionLabel, Seg, Sub, Switch, T
 
 /** Re-checked whenever the screen mounts — cheap, side-effect-free reads (same policy `plan/devices.tsx` uses). */
 const REFRESH_MS = 4000;
-
-type Translate = (key: TranslationKey, params?: TranslateParams) => string;
 
 /**
  * Tab 3 — one page for everything (DESIGN §3.1 · mockup `09-settings.png`, WO L3.6).
@@ -73,9 +72,13 @@ export default function SettingsScreen() {
     tick();
     const unsubscribe = deviceRegistry.subscribe(setDevices);
     const interval = setInterval(tick, REFRESH_MS);
+    // WO L3.9: the device rows here are the same registry the two devices screens show, so they get
+    // the same instant refresh on a route change / on coming back from iOS Settings.
+    const unsubscribePlatform = watchPlatformDevices();
     return () => {
       unsubscribe();
       clearInterval(interval);
+      unsubscribePlatform();
     };
   }, []);
 
@@ -378,7 +381,12 @@ export default function SettingsScreen() {
         testID="settings-delete-all-step2"
       />
 
-      <DeviceSearchSheet visible={sheet === 'deviceSearch'} onClose={() => setSheet(null)} t={t} />
+      <DeviceSearchSheet
+        visible={sheet === 'deviceSearch'}
+        onClose={() => setSheet(null)}
+        origin="settings"
+        testID="settings-device-search-sheet"
+      />
     </Screen>
   );
 }
@@ -579,34 +587,6 @@ function TypeConfirmSheet({
       <View style={styles.sheetButtons}>
         <Button label={cta} tone="dg" block disabled={!typedCorrectly} onPress={onConfirm} testID={testID ? `${testID}-confirm` : undefined} />
       </View>
-    </SheetShell>
-  );
-}
-
-interface DeviceSearchSheetProps {
-  visible: boolean;
-  onClose: () => void;
-  t: Translate;
-}
-
-/** Same "coming soon" placeholder as `plan/devices.tsx#DeviceSearchSheet` — BLE scanning is L2.3; duplicated (not imported) because that one lives in a screen file, same note that file's own header already makes about `onboarding/devices.tsx`'s `CategoryCard`. */
-function DeviceSearchSheet({ visible, onClose, t }: DeviceSearchSheetProps) {
-  const keys: TranslationKey[] = [
-    'onboarding.devices.search.heart.chestStrap',
-    'onboarding.devices.search.heart.armband',
-    'onboarding.devices.search.heart.mattress',
-    'onboarding.devices.search.audio.bluetooth',
-    'onboarding.devices.search.audio.speaker',
-  ];
-  return (
-    <SheetShell visible={visible} onClose={onClose} title={t('onboarding.devices.search.title')} testID="settings-device-search-sheet">
-      {keys.map((key) => (
-        <View key={key} style={styles.sheetRow}>
-          <Text style={{ fontSize: 14, color: colors.ink }}>{t(key)}</Text>
-          <Text style={{ fontSize: 12, color: colors.mut }}>{t('onboarding.devices.search.comingSoon')}</Text>
-        </View>
-      ))}
-      <Button tone="gh" block label={t('common.close')} onPress={onClose} testID="settings-device-search-close" />
     </SheetShell>
   );
 }

@@ -1,0 +1,8 @@
+{
+  "$comment": "apps/mobile/modules/lucid-audio-route — local Expo module behind src/platform/ios/audioRoute.ts (WO L3.9 §B): the current AVAudioSession output route plus an event when it changes. Its own module rather than a function on lucid-focus because lucid-focus is the Focus-status module and needs the com.apple.developer.focus-status capability, which is deliberately not shipped yet (ledger/wo-notes/L2.2n.md) — the route reader must work in the build that is on TestFlight today.",
+  "platforms": ["apple"],
+  "apple": {
+    "modules": ["LucidAudioRouteModule"],
+    "podspecPath": "ios/LucidAudioRoute.podspec"
+  }
+}

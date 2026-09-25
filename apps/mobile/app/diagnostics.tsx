@@ -28,12 +28,19 @@ import { Directory, File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { getAnchorSeed, buildAnchorSignature, playAnchorOnce } from '../src/audio/player';
 import { useT, type TranslationKey } from '../src/i18n';
 import { getPlatform, hasRealGlass, type AudioSessionState, type SensorStatus } from '../src/platform';
 import { Button, GlassCard, Row, Screen, Sub, Title, Subtitle } from '../src/ui';
 
 const MAX_KEPT_EVENTS = 500;
 const BED_START_VOLUME = 0.12;
+/**
+ * Level for the "test sound" button (WO L3.9 §G). Same 0.5 floor `src/audio/brand.ts` now uses for
+ * the launch tone: this button exists to answer "is the phone making any sound at all", and a 0.15
+ * whisper tuned for headphones on a pillow is not an answer in a lit room.
+ */
+const TEST_SOUND_VOLUME = 0.5;
 
 interface DeviceRead {
   platform: 'ios' | 'android' | 'web';
@@ -70,6 +77,9 @@ export default function DiagnosticsScreen() {
   const [phoneBattery, setPhoneBattery] = useState<BatterySample | null>(null);
   const [sensorsRunning, setSensorsRunning] = useState(false);
   const [bedPlaying, setBedPlaying] = useState(false);
+  /** Result of the last "test sound" tap: `null` = never tapped, `''` = played, otherwise the error. */
+  const [audioTestResult, setAudioTestResult] = useState<string | null>(null);
+  const [audioTesting, setAudioTesting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
 
@@ -160,6 +170,30 @@ export default function DiagnosticsScreen() {
     }
   }, [platform, bedPlaying, t, addWarning]);
 
+  /**
+   * "Press this and tell me whether you heard anything" (WO L3.9 §G).
+   *
+   * R1 found the app completely silent and there was no way to tell, from the phone alone, whether
+   * the session was misconfigured, the file was missing or the volume was zero. This plays the same
+   * bell the launch tone plays, through the same `playAnchorOnce` path, and shows what came back —
+   * `lastError` is then the one string the owner has to read out.
+   */
+  const testSound = useCallback(async () => {
+    setAudioTesting(true);
+    setAudioTestResult(null);
+    try {
+      const seed = await getAnchorSeed();
+      await playAnchorOnce(buildAnchorSignature(seed, locale), { volume: TEST_SOUND_VOLUME, pan: 0 });
+      setAudioTestResult('');
+    } catch (error) {
+      setAudioTestResult(errorMessage(error));
+      addWarning(`audioTest:${errorMessage(error)}`);
+    } finally {
+      setAudioTesting(false);
+      setAudioState(platform.audioPlayer.getStatus().state);
+    }
+  }, [locale, platform, addWarning]);
+
   const exportDiagnostics = useCallback(async () => {
     setMessage(null);
     try {
@@ -224,6 +258,15 @@ export default function DiagnosticsScreen() {
     }
   }, [platform, device, sensorStatus, epochs, audioEvents, warnings, phoneBattery, locale, t]);
 
+  /**
+   * What the "test sound" row says (WO L3.9 §G): the player's own `status.error` (set by
+   * `IosAudioPlayer#fail` for every failed call) wins, then the error the last test threw, and if
+   * the last test played with neither, the row says so out loud.
+   */
+  const audioError = platform.audioPlayer.getStatus().error ?? (audioTestResult === null || audioTestResult === '' ? null : audioTestResult);
+  const audioErrorText =
+    audioError ?? (audioTestResult === '' ? t('diagnostics.audio.none') : t('common.none'));
+
   const yesNo = (value: boolean): string => (value ? t('common.yes') : t('common.no'));
   const percent = (value: number): string => `${Math.round(value * 100)}%`;
 
@@ -276,9 +319,23 @@ export default function DiagnosticsScreen() {
         <Row label={t('diagnostics.audioSession')} value={t(AUDIO_STATE_KEY[audioState])} />
         <Row
           label={t('diagnostics.audioRoute')}
-          value={platform.audioPlayer.getStatus().route ?? t('common.unknown')}
+          value={platform.audioPlayer.getStatus().route ?? t('common.none')}
         />
         <Row label={t('diagnostics.audioEvents')} value={String(audioEvents.length)} />
+        {/* WO L3.9 §G — the player's own last error, verbatim. The whole point is that R1 can read
+            it off the screen instead of needing Xcode attached. */}
+        <Row
+          label={t('diagnostics.audio.lastError')}
+          value={audioErrorText}
+        />
+        <Button
+          testID="test-sound"
+          label={t('diagnostics.audio.test')}
+          tone="pri"
+          block
+          disabled={audioTesting}
+          onPress={() => void testSound()}
+        />
         <Button
           testID="toggle-bed"
           label={bedPlaying ? t('diagnostics.stopBed') : t('diagnostics.startBed')}

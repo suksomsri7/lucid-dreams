@@ -27,12 +27,32 @@ import {
 import { systemClock, type Clock } from '@lucid/engine';
 
 import type { AudioEvent, AudioPlayer, AudioPlayerStatus, Unsubscribe } from '../types';
+import { readAudioRoute, subscribeAudioRoute, type AudioRoute } from './audioRoute';
 
 // Metro asset import — `require` is typed by `expo/types` (types/metro-require.d.ts)
 const BED_SOURCE = require('../../../assets/audio/bed-loop.m4a') as number;
 
 /** Hard ceiling from DESIGN §2.3.1 / §0.5 S6 — the engine may never ask for more. */
 const MAX_VOLUME = 0.35;
+
+/** Extra rope on top of a clip's own length, for the gap between `play()` and the first sample. */
+const ONE_SHOT_GUARD_MS = 1500;
+/** Used when `expo-audio` has not published a duration yet — longer than any clip the app owns. */
+const ONE_SHOT_FALLBACK_MS = 15000;
+
+/**
+ * How long to wait for a one-shot before giving up on `didJustFinish` (WO L3.9 §G).
+ *
+ * `duration` is in **seconds** and is `0`/`NaN` until the player has loaded the file, which is
+ * exactly the state it is in on the tick `play()` is called on — hence the fallback rather than a
+ * computed 1.5 s that would chop every clip.
+ */
+export function oneShotTimeoutMs(durationSeconds: number | null | undefined): number {
+  if (typeof durationSeconds !== 'number' || !Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+    return ONE_SHOT_FALLBACK_MS;
+  }
+  return Math.round(durationSeconds * 1000) + ONE_SHOT_GUARD_MS;
+}
 
 function clampVolume(volume: number): number {
   if (!Number.isFinite(volume)) return 0;
@@ -46,6 +66,19 @@ function clampVolume(volume: number): number {
  * names them `<hash>-l.wav` / `<hash>-r.wav` / `<hash>-c.wav`. Anything else asked to play on one
  * side would come out of both (a bundled asset, or a centre render passed with `pan: -1`).
  */
+/**
+ * The name the devices screen may show as an AUDIO device, or `null` (WO L3.9 §B).
+ *
+ * Only a headphone-shaped route becomes a device here: the phone's own speaker is a choice the
+ * user makes on the sheet (`prefs.audioSpeaker`, handled in `src/devices/registry.ts`), and a
+ * route nobody recognised must not be silently promoted to "your sleep headphones are ready".
+ * Before this existed `status.route` was hard-coded `null` for the whole app's life, which is why
+ * the 🎧 card said "no headphones found yet" on a phone with headphones connected.
+ */
+function headphoneName(route: AudioRoute | null): string | null {
+  return route !== null && route.kind === 'headphones' ? route.portName : null;
+}
+
 function describePanMismatch(source: string, pan: number | undefined): string | null {
   if (pan === undefined || pan === 0) return null;
   const wanted = pan < 0 ? 'l' : 'r';
@@ -61,7 +94,25 @@ export class IosAudioPlayer implements AudioPlayer {
   private readonly listeners = new Set<(event: AudioEvent) => void>();
 
   /** Injected so tests can pin timestamps (APP-RUN §0.2 rule 6). */
-  constructor(private readonly clock: Clock = systemClock) {}
+  constructor(private readonly clock: Clock = systemClock) {
+    // WO L3.9: one subscription for the lifetime of the platform bundle (this object is created
+    // once, in `native.ios.ts`). It is what makes "plug the headphones in and the 🎧 card changes"
+    // instant instead of waiting for the devices screen's 3 s tick — `src/devices/registry.ts`
+    // listens for the `ROUTE_CHANGED` event below and refreshes itself. Deliberately an event
+    // rather than a direct call into the registry: the registry imports the platform, so calling
+    // it from here would close an import cycle.
+    //
+    // Never unsubscribed on purpose: `dispose()` runs at the end of *every* night
+    // (`src/night/session.ts`), and the devices screen still needs the route after that — so the
+    // listener lives as long as the process, like the `WCSession` delegate does.
+    this.status = { ...this.status, route: headphoneName(readAudioRoute()) };
+    subscribeAudioRoute((route) => {
+      const name = headphoneName(route);
+      if (name === this.status.route) return;
+      this.status = { ...this.status, route: name };
+      this.emit('ROUTE_CHANGED', route === null ? 'none' : `${route.portType}:${route.kind}`);
+    });
+  }
 
   async configureSession(): Promise<void> {
     try {
@@ -152,12 +203,35 @@ export class IosAudioPlayer implements AudioPlayer {
    * would leave the user stuck on a step with no way forward. It is recorded as an `ERROR` audio
    * event instead, which lands in the night's diagnostics export — so a wrong-file bug shows up
    * in R1's data rather than as silence nobody can explain.
+   *
+   * ## 🔴 The session has to be configured here too (WO L3.9 §G)
+   *
+   * Until this work order only `startBed()` called `configureSession()`/`setIsAudioActiveAsync`,
+   * so every one-shot — the launch tone, "Start tonight", the plan card's ▶, both ear tests —
+   * played on an unconfigured session: `playsInSilentMode` had never been applied, so with the
+   * ring/silent switch flipped (which is how a phone sits on a bedside table) the app was
+   * completely silent. That is exactly what the owner reported on TestFlight 0.1.0 (1): "opening
+   * the app plays no sound at all". Both calls are idempotent and cheap, and `configureSession()`
+   * is skipped once the session has been configured once.
    */
   async playOneShot(options: { source: string; volume: number; pan?: number }): Promise<void> {
     const target = clampVolume(options.volume);
     const panMismatch = describePanMismatch(options.source, options.pan);
     if (panMismatch !== null) {
       this.emit('ERROR', `PAN_SOURCE_MISMATCH:${panMismatch}`, target);
+    }
+    // WO L3.9 §G — `playsInSilentMode` + an active session, or nothing is audible with the ring
+    // switch on. Failures are recorded and playback is still attempted: a session that refuses to
+    // configure is not a reason to refuse to make a sound.
+    try {
+      // `'error'` is retried on purpose: one refused session (another app held the route for a
+      // second) must not silence every sound the app makes for the rest of the launch.
+      if (this.status.state === 'idle' || this.status.state === 'error') await this.configureSession();
+      await setIsAudioActiveAsync(true);
+    } catch (error) {
+      // `configureSession()` records its own `ERROR` event before re-throwing — this catch only
+      // has to make sure a refused session does not stop us from trying to play anyway.
+      if (this.status.state !== 'error') this.fail('SESSION_ACTIVATED', error);
     }
     const shot = createAudioPlayer(options.source, { updateInterval: 100 });
     shot.volume = target;
@@ -191,17 +265,25 @@ export class IosAudioPlayer implements AudioPlayer {
 
       // Belt and braces: `didJustFinish` should always fire, but a clip that somehow
       // never reports it must not hang the caller (the ear-test screen awaits this).
-      // WO L3.8: the downloaded full anchor is 9.84 s long (bell + the whisper that starts 2.6 s
-      // in), so the old 8 s ceiling would have cut its tail off every time `didJustFinish` was
-      // late. `.mp3` is only ever that file here (everything else this player opens is a
-      // locally-rendered `.wav` or a bundled asset), so only it gets the longer rope.
-      const signature = /anchor-[0-9a-f]+/.exec(options.source);
-      const timeoutMs = signature ? 4000 : options.source.endsWith('.mp3') ? 13000 : 8000;
-      setTimeout(finish, timeoutMs);
+      //
+      // WO L3.9 §G: this used to be guessed from the file name, and the guess was wrong — the
+      // regex `anchor-[0-9a-f]+` never matched the real path (`.../anchor/<hash>-c.wav`), so every
+      // centre play, including the 9.84 s downloaded bell+whisper, fell through to 8000 ms and was
+      // cut off before the whisper ended. The player knows the real length, so ask it.
+      setTimeout(finish, oneShotTimeoutMs(shot.duration));
     });
   }
 
+  /**
+   * WO L3.9: the route is re-read here as well as updated from the notification, because the one
+   * case the notification cannot cover is the important one — the user leaves the app, pairs their
+   * buds in Settings, comes back. iOS does post a route change then, but the app may have been
+   * suspended when it did. Two native property reads per call is cheaper than a wrong 🎧 card
+   * (`LucidFocus.readState()` is read on every render of the pre-night screen for the same reason).
+   */
   getStatus(): AudioPlayerStatus {
+    const route = headphoneName(readAudioRoute());
+    if (route !== this.status.route) this.status = { ...this.status, route };
     return this.status;
   }
 

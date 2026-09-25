@@ -4,7 +4,8 @@
  *
  * Every source the app can honestly report on, in the three categories the owner decided on
  * (24 Sep): 💓 the Apple Watch link, the BLE heart-rate strap/armband and the phone on the
- * mattress · 🎧 the current audio output route · 👁 nothing yet.
+ * mattress · 🎧 the current audio output route (WO L3.9: real at last — see `audioRoute.ts`) and,
+ * when the user has chosen it, the iPhone's own speaker · 👁 nothing yet.
  *
  * Every call here is a **pure read** (`getStatus()`, `selected()`, a preference) — never
  * `start()`/`connect()`/`configureSession()`. The devices screen polls this every few seconds
@@ -12,11 +13,13 @@
  * looked at.
  */
 
+import { AppState } from 'react-native';
+
 import { DeviceRegistry, type DeviceEntry } from '@lucid/engine';
 
 import { getLocale, translate } from '../i18n';
-import { getPlatform } from '../platform';
-import type { SensorStatus } from '../platform';
+import { getPlatform, WATCH_APP_NOT_INSTALLED } from '../platform';
+import type { SensorStatus, Unsubscribe } from '../platform';
 import { getSensorPrefs } from './prefs';
 
 export const deviceRegistry = new DeviceRegistry();
@@ -25,6 +28,16 @@ export const WATCH_DEVICE_ID = 'apple-watch';
 export const BLE_DEVICE_ID = 'ble-heart-rate';
 export const MATTRESS_DEVICE_ID = 'phone-on-mattress';
 export const HEADPHONES_DEVICE_ID = 'headphones-route';
+/** The iPhone's own speaker, listed only once the user has chosen it (WO L3.9 §B). */
+export const SPEAKER_DEVICE_ID = 'speaker-route';
+
+/**
+ * `WCSession` exposes no watch model or name, so this is the name every screen shows for the
+ * watch. One constant rather than the same literal in four files (it is a product name, not
+ * translatable text — it must read "Apple Watch" in Thai too).
+ */
+export const WATCH_DEVICE_NAME = 'Apple Watch';
+
 
 /** Live heart rate per device id, for the devices screen's "connected · heart 62 · 84% battery" line. */
 const liveBpm = new Map<string, number>();
@@ -72,7 +85,7 @@ export function refreshDevicesFromPlatform(nowIso: string = new Date().toISOStri
   const prefs = getSensorPrefs();
 
   deviceRegistry.add(
-    entryFromStatus(WATCH_DEVICE_ID, 'Apple Watch', platform.watchSensorSource.getStatus()),
+    entryFromStatus(WATCH_DEVICE_ID, WATCH_DEVICE_NAME, platform.watchSensorSource.getStatus()),
   );
 
   // The strap/armband (WO L2.3). Only ever listed once the user has chosen one in
@@ -105,6 +118,9 @@ export function refreshDevicesFromPlatform(nowIso: string = new Date().toISOStri
     deviceRegistry.remove(MATTRESS_DEVICE_ID);
   }
 
+  // 🎧 The output route. `status.route` is the name of the *headphones* iOS is playing into, or
+  // `null` (WO L3.9 §B — before that work order it was hard-coded `null`, which is why the card
+  // said "no headphones found yet" on a phone with headphones on it).
   const audio = platform.audioPlayer.getStatus();
   if (audio.route) {
     deviceRegistry.add({
@@ -124,4 +140,66 @@ export function refreshDevicesFromPlatform(nowIso: string = new Date().toISOStri
     // real device with no headphones yet) — remove rather than leave a stale entry.
     deviceRegistry.remove(HEADPHONES_DEVICE_ID);
   }
+
+  // The iPhone's own speaker as tonight's sound device (WO L3.9 §B). Two conditions, both
+  // required: the user chose it on the "find another device" sheet (`prefs.audioSpeaker` — a
+  // speaker is never counted just because it exists, or every phone on earth would pass the 🎧
+  // gate with no headphones anywhere), and there are no headphones right now (`audio.route ===
+  // null`) — when both are connected iOS plays into the headphones, so listing the speaker as
+  // well would be a device that is not actually carrying the whisper.
+  if (prefs.audioSpeaker && !audio.route) {
+    deviceRegistry.add({
+      id: SPEAKER_DEVICE_ID,
+      category: 'AUDIO',
+      name: translate(getLocale(), 'devices.speaker.name'),
+      // The phone's own battery is checked separately by the pre-night gate (`PHONE_BATTERY`), so
+      // reporting it here as well would block the night twice for one reason.
+      battery: null,
+      connected: true,
+      lastDataAt: nowIso,
+    });
+  } else {
+    deviceRegistry.remove(SPEAKER_DEVICE_ID);
+  }
+}
+
+/**
+ * "A watch is paired, but Dreaming is not on it yet" (WO L3.9 §D).
+ *
+ * Both booleans are derived from the one status field the platform door exposes: `connected` is
+ * `paired && appInstalled` (`WatchSensorSource`), and the reserved error value
+ * {@link WATCH_APP_NOT_INSTALLED} is the only way the other combination is reported. Kept here
+ * rather than in the screens so the two devices screens cannot disagree about it.
+ */
+export function watchLinkHint(): { paired: boolean; appInstalled: boolean } {
+  const status = getPlatform().watchSensorSource.getStatus();
+  const appInstalled = status.connected;
+  return { paired: appInstalled || status.error === WATCH_APP_NOT_INSTALLED, appInstalled };
+}
+
+/**
+ * Keeps the registry in step with the two things that change while a devices screen is open but
+ * that no timer can see quickly enough (WO L3.9):
+ *
+ *  1. **the audio route** — `ROUTE_CHANGED` is emitted by `IosAudioPlayer` the moment iOS says the
+ *     headphones went in or came out, so the 🎧 card changes in well under a second instead of on
+ *     the next 3 s tick (R1 asks for ≤ 2 s);
+ *  2. **coming back from Settings** — the whole point of the "pair your headphones in Settings"
+ *     row is that returning to the app shows the result without a tap, and the app may have been
+ *     suspended while the pairing happened, so `AppState` 'active' re-reads everything.
+ *
+ * One function used by every devices screen (onboarding, pre-night, settings) rather than three
+ * copies of the same two subscriptions. Safe to call from several screens at once.
+ */
+export function watchPlatformDevices(): Unsubscribe {
+  const audioEvents = getPlatform().audioPlayer.onEvent((event) => {
+    if (event.kind === 'ROUTE_CHANGED') refreshDevicesFromPlatform();
+  });
+  const appState = AppState.addEventListener('change', (state) => {
+    if (state === 'active') refreshDevicesFromPlatform();
+  });
+  return () => {
+    audioEvents();
+    appState.remove();
+  };
 }

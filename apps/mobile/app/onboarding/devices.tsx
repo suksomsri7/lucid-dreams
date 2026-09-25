@@ -1,25 +1,26 @@
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
-import { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Linking, Pressable, Text, View } from 'react-native';
 
 import { summarizeDevices, type DeviceCategory, type DeviceEntry } from '@lucid/engine';
 
 import { applyDeviceFoundFixture } from '../../src/dev/fixtures';
-import { useT, type TranslationKey } from '../../src/i18n';
+import { useT } from '../../src/i18n';
+import { DeviceSearchSheet } from '../../src/devices/DeviceSearchSheet';
+import { useSensorPrefs } from '../../src/devices/prefs';
 import {
   HEADPHONES_DEVICE_ID,
+  SPEAKER_DEVICE_ID,
   WATCH_DEVICE_ID,
+  WATCH_DEVICE_NAME,
   deviceRegistry,
   refreshDevicesFromPlatform,
+  watchLinkHint,
+  watchPlatformDevices,
 } from '../../src/devices/registry';
 import { completeOnboarding } from '../../src/store/onboarding';
-import { Button, GlassCard, Icon, Screen, Sub, Title, colors, radius, spacing } from '../../src/ui';
-
-const AUDIO_SEARCH_KEYS: TranslationKey[] = [
-  'onboarding.devices.search.audio.bluetooth',
-  'onboarding.devices.search.audio.speaker',
-];
+import { Button, GlassCard, Icon, Screen, Sub, Title, colors, spacing, type IconName } from '../../src/ui';
 
 /**
  * Onboarding screen (b) — 3 device categories (DESIGN §4-01(b) · §3.2 step 3 · mockup
@@ -38,6 +39,7 @@ const AUDIO_SEARCH_KEYS: TranslationKey[] = [
 export default function OnboardingDevicesScreen() {
   const { t } = useT();
   const router = useRouter();
+  const { audioSpeaker } = useSensorPrefs();
   const [devices, setDevices] = useState<DeviceEntry[]>(() => deviceRegistry.list());
   const [audioSearchOpen, setAudioSearchOpen] = useState(false);
 
@@ -47,7 +49,36 @@ export default function OnboardingDevicesScreen() {
     // else, see `src/dev/fixtures.ts`. Runs after the real platform read so it wins.
     applyDeviceFoundFixture();
     setDevices(deviceRegistry.list());
-    return deviceRegistry.subscribe(setDevices);
+    const unsubscribeRegistry = deviceRegistry.subscribe(setDevices);
+    // WO L3.9: headphones plugged in (`ROUTE_CHANGED`) and "the user came back from iOS Settings"
+    // (`AppState` 'active') both refresh this screen without a tap — the whole point of sending
+    // people to Settings to pair.
+    const unsubscribePlatform = watchPlatformDevices();
+    return () => {
+      unsubscribeRegistry();
+      unsubscribePlatform();
+    };
+  }, []);
+
+  /**
+   * WO L3.9 §D: a watch that is paired but has no Dreaming on it used to read "no pulse device
+   * found yet", which is both true and useless — this is the one state the user can fix in 20
+   * seconds, so the screen says how.
+   */
+  const watchHint = watchLinkHint();
+  const watchNeedsInstall = watchHint.paired && !watchHint.appInstalled;
+
+  /**
+   * iOS Settings, where Bluetooth pairing actually happens. Only the documented
+   * `Linking.openSettings()` — the private scheme that deep-links into the Bluetooth pane is an App
+   * Store rejection (APP-RUN §0.5) and is never used.
+   */
+  const openBluetoothSettings = useCallback(() => {
+    try {
+      void Linking.openSettings().catch(() => undefined);
+    } catch {
+      // no Settings app to open (web QC build)
+    }
   }, []);
 
   // `summarizeDevices` (packages/engine/src/devices.ts) is the one place that decides
@@ -73,6 +104,7 @@ export default function OnboardingDevicesScreen() {
     const parts = [t('onboarding.devices.status.connected')];
     if (entry.id === WATCH_DEVICE_ID) parts.push(t('onboarding.devices.status.watchDetail'));
     if (entry.id === HEADPHONES_DEVICE_ID) parts.push(t('onboarding.devices.status.headphonesDetail'));
+    if (entry.id === SPEAKER_DEVICE_ID) parts.push(t('onboarding.devices.status.speakerDetail'));
     if (entry.battery !== null) parts.push(t('onboarding.devices.status.battery', { battery: Math.round(entry.battery * 100) }));
     return parts.join(' · ');
   }
@@ -121,10 +153,13 @@ export default function OnboardingDevicesScreen() {
             first
           />
         )}
+        {watchNeedsInstall ? (
+          <DeviceRow name={WATCH_DEVICE_NAME} sub={t('devices.watch.installHint')} muted />
+        ) : null}
         <SearchOtherRow
           label={t('onboarding.devices.searchOther')}
           sub={t('onboarding.devices.searchOther.heartHint')}
-          onPress={() => router.push('/plan/find-devices')}
+          onPress={() => router.push('/onboarding/find-devices')}
           testID="onboarding-search-heart"
         />
       </CategoryCard>
@@ -147,6 +182,17 @@ export default function OnboardingDevicesScreen() {
             first
           />
         )}
+        {/* WO L3.9 §C: one tap to the place where headphones are actually paired. Kept while the
+            only sound device is the iPhone speaker too — headphones are still the better night. */}
+        {audioSummary.connected === 0 || audioSpeaker ? (
+          <SearchOtherRow
+            icon="gear"
+            label={t('devices.search.bluetooth')}
+            sub={t('onboarding.devices.search.audio.openSettings')}
+            onPress={openBluetoothSettings}
+            testID="onboarding-pair-headphones"
+          />
+        ) : null}
         <SearchOtherRow
           label={t('onboarding.devices.searchOther')}
           onPress={() => setAudioSearchOpen(true)}
@@ -171,7 +217,12 @@ export default function OnboardingDevicesScreen() {
         <Sub style={{ flex: 1, lineHeight: 17 }}>{t('onboarding.devices.info')}</Sub>
       </GlassCard>
 
-      <AudioSearchSheet visible={audioSearchOpen} onClose={() => setAudioSearchOpen(false)} />
+      <DeviceSearchSheet
+        visible={audioSearchOpen}
+        onClose={() => setAudioSearchOpen(false)}
+        origin="onboarding"
+        testID="onboarding-device-search-sheet"
+      />
     </Screen>
   );
 }
@@ -253,12 +304,14 @@ function DeviceRow({ name, sub, muted = false, connected = false, first = false,
 interface SearchOtherRowProps {
   label: string;
   sub?: string;
+  /** `plus` for "find another device"; `gear` for the row that opens iOS Settings (WO L3.9). */
+  icon?: IconName;
   onPress: () => void;
   testID?: string;
 }
 
-/** `.cat .li` with `.pl` plus icon + `.cv` chevron — opens the "not built yet" sheet. */
-function SearchOtherRow({ label, sub, onPress, testID }: SearchOtherRowProps) {
+/** `.cat .li` with `.pl` plus icon + `.cv` chevron — one actionable row at the foot of a card. */
+function SearchOtherRow({ label, sub, icon = 'plus', onPress, testID }: SearchOtherRowProps) {
   return (
     <Pressable accessibilityRole="button" onPress={onPress} testID={testID}>
       <View
@@ -273,7 +326,7 @@ function SearchOtherRow({ label, sub, onPress, testID }: SearchOtherRowProps) {
           borderTopColor: colors.hairline,
         }}
       >
-        <Icon name="plus" size={15} color={colors.acc} strokeWidth={2.2} />
+        <Icon name={icon} size={15} color={colors.acc} strokeWidth={2.2} />
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 13.5, fontWeight: '600', color: colors.ink }}>{label}</Text>
           {sub ? <Text style={{ fontSize: 11.5, lineHeight: 15, marginTop: 1, color: colors.mut }}>{sub}</Text> : null}
@@ -281,55 +334,5 @@ function SearchOtherRow({ label, sub, onPress, testID }: SearchOtherRowProps) {
         <Icon name="chevronRight" size={14} color={colors.mut} />
       </View>
     </Pressable>
-  );
-}
-
-interface AudioSearchSheetProps {
-  visible: boolean;
-  onClose: () => void;
-}
-
-/**
- * The 🎧 half of "find another device" (WO L2.3 closes the 💓 half — that row now opens the real
- * scanner at `/plan/find-devices`, which is reachable from here even though it lives under
- * `app/plan/`: it needs no plan).
- *
- * This half stays a sheet, and stops promising a scanner that is never coming: sleep headphones
- * and speakers are **classic** Bluetooth (A2DP), invisible to `react-native-ble-plx`, and no iOS
- * app is allowed to pair them on the user's behalf. So it names the two kinds and points at the
- * one place that can do it.
- */
-function AudioSearchSheet({ visible, onClose }: AudioSearchSheetProps) {
-  const { t } = useT();
-  if (!visible) return null;
-  const keys = AUDIO_SEARCH_KEYS;
-
-  return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose} testID="onboarding-device-search-sheet">
-      <Pressable
-        style={{ flex: 1, backgroundColor: 'rgba(17,19,24,0.35)', justifyContent: 'flex-end' }}
-        onPress={onClose}
-        accessibilityRole="button"
-      >
-        {/* A no-op `onPress` claims the touch responder for taps inside the panel, so they
-            never bubble to the backdrop `Pressable` above and close the sheet by accident. */}
-        <Pressable onPress={() => undefined}>
-          <GlassCard style={{ margin: spacing.lg, borderRadius: radius.card }} title={t('onboarding.devices.search.title')}>
-            {keys.map((key) => (
-              <View
-                key={key}
-                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.sm }}
-              >
-                <Text style={{ fontSize: 14, color: colors.ink }}>{t(key)}</Text>
-              </View>
-            ))}
-            <Text style={{ fontSize: 12.5, lineHeight: 17, color: colors.mut }}>
-              {t('onboarding.devices.search.audio.hint')}
-            </Text>
-            <Button tone="gh" block label={t('common.close')} onPress={onClose} testID="onboarding-device-search-close" />
-          </GlassCard>
-        </Pressable>
-      </Pressable>
-    </Modal>
   );
 }

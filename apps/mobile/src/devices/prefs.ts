@@ -1,10 +1,14 @@
 /**
- * The two things the sensor rig has to remember between launches (WO L2.3):
+ * The things the sensor rig has to remember between launches (WO L2.3, extended by L3.9):
  *
  *  1. **which** BLE heart-rate device the user chose — APP-RUN §0.5 S8 is "bond only to the
  *     device the user chose", and a night that starts while the phone is asleep in a drawer
  *     must be able to reconnect to *that* strap without asking again;
- *  2. whether "phone on the mattress" is on.
+ *  2. whether "phone on the mattress" is on;
+ *  3. whether the user has chosen the phone's own speaker as tonight's sound device (L3.9 §B —
+ *     the owner's rule is "any device the user has works", and a speaker is a device; but it is
+ *     never counted automatically, because a whisper out of a speaker is a decision, not a
+ *     detection).
  *
  * Its own tiny AsyncStorage key rather than a field in the settings store on purpose: the
  * settings store (`src/settings/store.ts`) is being written by another builder in a parallel
@@ -33,9 +37,15 @@ export interface SensorPrefs {
   ble: BondedBleDevice | null;
   /** "Phone on the mattress" — the phone's accelerometer as a motion-only HEART source. */
   phoneOnMattress: boolean;
+  /**
+   * The user picked the iPhone's own speaker as the AUDIO device (WO L3.9 §B/§C). Off by default:
+   * until it is on, a phone with no headphones honestly has no sound device, and the pre-night
+   * gate says so instead of promising a whisper nobody would hear.
+   */
+  audioSpeaker: boolean;
 }
 
-const DEFAULT_PREFS: SensorPrefs = { ble: null, phoneOnMattress: false };
+const DEFAULT_PREFS: SensorPrefs = { ble: null, phoneOnMattress: false, audioSpeaker: false };
 
 let prefs: SensorPrefs = DEFAULT_PREFS;
 let hydrated = false;
@@ -68,7 +78,11 @@ function parse(raw: string): SensorPrefs {
     value.ble != null && typeof value.ble === 'object' && typeof value.ble.id === 'string' && value.ble.id.length > 0
       ? { id: value.ble.id, name: typeof value.ble.name === 'string' ? value.ble.name : null }
       : null;
-  return { ble, phoneOnMattress: value.phoneOnMattress === true };
+  return {
+    ble,
+    phoneOnMattress: value.phoneOnMattress === true,
+    audioSpeaker: value.audioSpeaker === true,
+  };
 }
 
 async function hydrate(): Promise<void> {
@@ -105,7 +119,18 @@ export function setPhoneOnMattress(enabled: boolean): void {
   emit();
 }
 
-/** React binding — re-renders whenever either preference changes. */
+/**
+ * "Use the iPhone speaker for tonight's sound" (WO L3.9). Persisted exactly like
+ * `phoneOnMattress`: it is a choice about the rig, it has to survive a restart, and
+ * `src/devices/registry.ts` is the only reader.
+ */
+export function setAudioSpeaker(enabled: boolean): void {
+  prefs = { ...prefs, audioSpeaker: enabled };
+  persist();
+  emit();
+}
+
+/** React binding — re-renders whenever any preference changes. */
 export function useSensorPrefs(): SensorPrefs & { hydrated: boolean } {
   const snapshot = useSyncExternalStore(subscribe, getSensorPrefs, getSensorPrefs);
   const isHydrated = useSyncExternalStore(subscribe, sensorPrefsHydrated, sensorPrefsHydrated);
