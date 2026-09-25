@@ -29,7 +29,7 @@ module.exports = {
   bundleIdentifier: '.watch.streak', // เดิม '.watch.complication' — Apple ปฏิเสธชื่อนั้นตอนจด App ID (25 ก.ย.) จึงใช้ .watch.streak
 
   // Same floor as the watch app itself (targets/watch/expo-target.config.js).
-  deploymentTarget: '11.0',
+  deploymentTarget: '10.0', // ลดจาก 11.0 (25 ก.ย.): นาฬิกาเจ้าของ SE2 ยังอยู่ watchOS 10.6.2 · ถ้า compile ติด availability ให้กลับเป็น 11.0
 
   frameworks: ['WidgetKit', 'SwiftUI'],
 

@@ -17,7 +17,7 @@ module.exports = {
 
   // watchOS 11 covers Series 6 and later, which is everything that can run a long
   // mindAndBody workout session overnight without dying (DESIGN §8.1).
-  deploymentTarget: '11.0',
+  deploymentTarget: '10.0', // ลดจาก 11.0 (25 ก.ย.): นาฬิกาเจ้าของ SE2 ยังอยู่ watchOS 10.6.2 · ถ้า compile ติด availability ให้กลับเป็น 11.0
 
   /**
    * The watch app's icon (WO L3.7 §B1). Path is resolved relative to *this folder*
