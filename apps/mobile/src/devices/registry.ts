@@ -84,6 +84,12 @@ export function refreshDevicesFromPlatform(nowIso: string = new Date().toISOStri
   const platform = getPlatform();
   const prefs = getSensorPrefs();
 
+  // R1 hotfix (2026-09-25): ask WCSession for the real paired/installed flags (throttled inside);
+
+  // without this the cached status stayed all-false until a night started.
+
+  (platform.watchSensorSource as { probe?: () => void }).probe?.();
+
   deviceRegistry.add(
     entryFromStatus(WATCH_DEVICE_ID, WATCH_DEVICE_NAME, platform.watchSensorSource.getStatus()),
   );

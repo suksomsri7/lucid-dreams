@@ -21,6 +21,9 @@ import { WATCH_APP_NOT_INSTALLED } from '../types';
 import type { SensorSource, SensorStatus, Unsubscribe } from '../types';
 import { watchBridge, type WatchEpochPayload, type WatchLinkStatus } from './watchBridge';
 
+/** Re-activating WCSession more often than this buys nothing — activation is idempotent but not free. */
+const PROBE_MIN_INTERVAL_MS = 5000;
+
 function toNullableNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
@@ -43,8 +46,37 @@ export class WatchSensorSource implements SensorSource {
   private unsubscribeStatus: Unsubscribe | null = null;
   private unsubscribeCommand: Unsubscribe | null = null;
 
+  private linkSubscribed = false;
+  private lastProbeMs = 0;
+
+  /**
+   * R1 hotfix (2026-09-25): nothing ever called `isAvailable()`/`start()` before a night began,
+   * so `this.link` stayed at its all-false default and every devices screen said "no pulse
+   * device" even with a paired watch. Two fixes: (1) the native `status` event (fired from
+   * `activationDidCompleteWith`, which is asynchronous) is listened to from the first probe on,
+   * not only inside `start()`; (2) `refreshDevicesFromPlatform()` calls {@link probe}, which
+   * activates the session at most once per {@link PROBE_MIN_INTERVAL_MS}.
+   */
+  private subscribeLinkStatus(): void {
+    if (this.linkSubscribed || !watchBridge.isNativeAvailable()) return;
+    this.linkSubscribed = true;
+    watchBridge.onStatus((status) => {
+      this.link = status;
+      this.emitStatus();
+    });
+  }
+
+  /** Fire-and-forget refresh of the paired/installed flags; safe to call on every screen tick. */
+  probe(): void {
+    const now = Date.now();
+    if (now - this.lastProbeMs < PROBE_MIN_INTERVAL_MS) return;
+    this.lastProbeMs = now;
+    void this.isAvailable().catch(() => undefined);
+  }
+
   async isAvailable(): Promise<boolean> {
     if (!watchBridge.isNativeAvailable()) return false;
+    this.subscribeLinkStatus();
     const status = await watchBridge.activate();
     this.link = status;
     this.emitStatus();

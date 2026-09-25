@@ -34,6 +34,7 @@
  * the schema (§0.5 S3).
  */
 
+import { readFileSync, statSync } from 'node:fs';
 import { serve } from '@hono/node-server';
 import { getConnInfo } from '@hono/node-server/conninfo';
 import {
@@ -670,13 +671,22 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
       ].join('|'),
     );
 
-    const headers = (cache: 'HIT' | 'MISS'): Record<string, string> => ({
+    const headers = (cache: 'HIT' | 'MISS' | 'FIXED'): Record<string, string> => ({
       'content-type': 'audio/mpeg',
       'x-cache': cache,
       'x-anchor-hash': signature.hash,
       'x-anchor-notes': signature.notes.join(','),
       'cache-control': 'private, max-age=86400',
     });
+
+    // มติเจ้าของ 25 ก.ย. 2026 (R1): ใช้ไฟล์ที่เจ้าของอนุมัติ **เป๊ะ** (anchor-fast-George.mp3 = ระฆัง v2-C ต้นแบบ +
+    // George take ที่ฟังแล้วเลือก) แทนการผสมต่อ seed — เสียงกระซิบจาก vendor แต่ละ take ไม่เหมือนกัน และระฆัง
+    // ต่อผู้ใช้ทำให้ "เสียงไม่ตรงกับที่ฟังตอนเลือก" · ตั้ง ANCHOR_FIXED_FILE ใน .env (ไม่ตั้ง = พฤติกรรมเดิม ใช้ในเทสต์)
+    const fixed = readFixedAnchor(process.env.ANCHOR_FIXED_FILE);
+    if (fixed) {
+      logger.info('anchor.fixed', { deviceId: device.deviceId, lang, bytes: fixed.byteLength });
+      return new Response(new Uint8Array(fixed), { status: 200, headers: headers('FIXED') });
+    }
 
     const cached = store.ttsGet(key);
     if (cached) {
@@ -1014,4 +1024,20 @@ export async function startServer(options: StartServerOptions): Promise<RunningS
       store.close();
     },
   };
+}
+
+let fixedAnchorCache: { path: string; mtimeMs: number; bytes: Buffer } | null = null;
+/** Approved anchor file (ANCHOR_FIXED_FILE). Re-read when the file changes; `null` when unset/missing. */
+function readFixedAnchor(path: string | undefined): Buffer | null {
+  if (!path) return null;
+  try {
+    const stat = statSync(path);
+    if (fixedAnchorCache && fixedAnchorCache.path === path && fixedAnchorCache.mtimeMs === stat.mtimeMs) return fixedAnchorCache.bytes;
+    const bytes = readFileSync(path);
+    if (bytes.byteLength < 8_000) return null;
+    fixedAnchorCache = { path, mtimeMs: stat.mtimeMs, bytes };
+    return bytes;
+  } catch {
+    return null;
+  }
 }

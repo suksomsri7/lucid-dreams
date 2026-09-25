@@ -43,7 +43,7 @@ import { buildAnchorSignature, getAnchorSeed } from './anchor';
  * see rule 3 in the header. `george-1` = the v2-C bell + George whispering at normal speed
  * (owner decision 25 Sep 2026, server cache warmed the same day).
  */
-export const FULL_ANCHOR_VERSION = 'george-1';
+export const FULL_ANCHOR_VERSION = 'george-2'; // george-2 (2026-09-25): server now serves the owner-approved file (ANCHOR_FIXED_FILE) — old george-1 caches must be replaced
 
 /** `audio/mpeg` (possibly with parameters) is the only body this module will store. */
 const AUDIO_MPEG = 'audio/mpeg';
