@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "build #6 FINISHED but ASC upload failed (duplicate buildNumber 1) → eas.json autoIncrement → build #7 RUNNING ff036e01-b214-407d-8f71-806213b74429 (0.1.0 build 2) → submit --wait → VALID → notify · L3.11 builder parallel",
+  "step": "build #7 = 0.1.0 (2) uploaded to ASC (waiting processing VALID) · OTA fb214693 published to channel testflight (runtime 0.1.0: L3.11 Settings v2 + L3.9/L3.10 JS · safe on build 1 via requireOptionalNativeModule) · L3.11 merged 9d67226 · then: owner tests build 2 → R1 night",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,8 +9,8 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "EAS build ff036e01",
-    "L3.11 builder"
+    "Apple processing build 2",
+    "owner: install build 2 + first-night test"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -74,7 +74,9 @@
     },
     "build6": "e772e81c-8065-40c3-9833-f4995410af3c",
     "build6_result": "FINISHED (Swift lucid-audio-route + watch min 10.0 OK) · submit FAILED: duplicate build number 1",
-    "build7": "ff036e01-b214-407d-8f71-806213b74429 (buildNumber 2)"
+    "build7": "ff036e01-b214-407d-8f71-806213b74429 (buildNumber 2)",
+    "build7_result": "FINISHED · submitted OK (build number 2)",
+    "ota1": "fb214693-4a8d-4d22-806a-9ec39328c9e2 (ios 01a0d7dc-d766-744a-99e9-3da1de44bc56) · L3.11 + hotfix JS · eas update needs --environment production in non-interactive"
   },
   "voice": {
     "name": "George",

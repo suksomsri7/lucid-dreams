@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 19:50 UTC · ✅ **L3.11 merged** (12/12 · parity 09a/09b) · build #7 = **0.1.0 (2)** FINISHED + อัปโหลด ASC สำเร็จ (รอ VALID) · **OTA #1** `fb214693` ช่อง testflight (Settings v2 + JS hotfix · ปลอดภัยกับ build 1 เพราะ requireOptionalNativeModule) · บทเรียน: `eas update --non-interactive` ต้อง `--environment production`
 - 2026-09-25 19:10 UTC · ✅ build #6 ผ่าน compiler (โมดูล native ใหม่ + watchOS 10) ❌ แต่ submit ล้ม: buildNumber 1 ซ้ำ → `autoIncrement: true` ใน eas.json · 🚀 **build #7** `ff036e01` = 0.1.0 (2)
 - 2026-09-25 18:30 UTC · ✅ **L3.9 merged** (36/36 · โมดูล native lucid-audio-route · playOneShot ตั้ง session · DeviceSearchSheet · Diagnostics ทดสอบเสียง · watch installHint) · 🚀 **build #6** `e772e81c` (รวม watch min 10.0 + L3.10) · ▶ L3.11 Settings v2 (Sonnet · wo/L3.11) คู่ขนาน · ถ้า Swift ของโมดูลใหม่/watchOS 10 ล้ม ดู log แล้วแก้
 - 2026-09-25 17:50 UTC · ✅ **L3.10 merged** (18/18 · ▶ ต่อสาย + พรีวิว 0.5 · busy+TypingBubble · ชิปล็อกทันที) · บทเรียน: คอมเมนต์ไทยใน src/ ทำ fitness ล้ม (Fable เอง) · รอ L3.9 → build #6
