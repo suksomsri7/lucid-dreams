@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
-  "wo": "R1",
-  "step": "waiting-owner: ASC app + Team ID + ASC API key → eas build r1-internal (owner orders)",
+  "wo": "L3.7",
+  "step": "builder (Opus) working in worktree ../lucid-dreams-L3.7 branch wo/L3.7 · oracle scripts/qc-L3.7.sh 27 · parity mockup 11-splash frame 1 · then Fable QC → merge → R1",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -13,18 +13,15 @@
     "เจ้าของ: Team ID + ASC API key (.p8 · Key ID · Issuer ID)",
     "เจ้าของ: รุ่น iPhone/Watch/หูฟัง",
     "เจ้าของ: สั่ง build",
-    "owner: confirm anchor sound v2-C (TG 3478)",
-    "owner: pick icon M/N/O (Zzz glass)"
+    "owner: confirm anchor sound v2-C (TG 3478)"
   ],
   "icons": {
-    "status": "round-5 owner layout Zzz + Liquid Glass (M/N/O)",
+    "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
     "files": [
-      "ledger/design-icon/icon-M-zzz-glass-light.png",
-      "ledger/design-icon/icon-N-zzz-glass-indigo.png",
-      "ledger/design-icon/icon-O-zzz-glass-night.png"
-    ],
-    "layoutSource": "/root/.claude/uploads/6d18d1f7-5456-504b-91b8-0ce562fd2ed8/5f9001da-image.jpg",
-    "waitingOwner": "pick M/N/O -> full iOS icon set",
-    "tg": "3518-3521"
+      "apps/mobile/assets/icon.png",
+      "apps/mobile/assets/splash-icon.png",
+      "apps/mobile/assets/adaptive-icon.png",
+      "targets/watch/Assets.xcassets/AppIcon.appiconset/icon-1024.png"
+    ]
   }
 }
