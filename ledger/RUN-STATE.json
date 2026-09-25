@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
-  "wo": "R1",
-  "step": "OTA #2 69cee45a live (approved anchor file via ANCHOR_FIXED_FILE · watch link probe · george-2) · TestFlight build 2 · waiting owner re-test · queue: L3.12 ear-test bell from approved file",
+  "wo": "L3.13",
+  "step": "R1 hotfix #4: speech-to-text was a stub (mic → \"cannot do that yet\") → builder Opus wo/L3.13 (expo-speech-recognition · native) → build #8 (+ pending L3.12 ear-test bell if owner decides)",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,8 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "owner: relaunch app twice (OTA) then re-test Settings / watch card / launch sound"
+    "L3.13 builder",
+    "owner: decide L3.12 (single fixed bell everywhere vs per-user watermark)"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -67,7 +68,8 @@
       "15:25 chip tap no thinking indicator → 9 duplicate turns",
       "16:40 Settings unchanged on build 2 (L3.11 not in build; OTA pending)",
       "16:40 Apple Watch not found (WCSession never activated before night — fixed hotfix #3)",
-      "16:40 anchor sound differs from approved file (per-user bell + different TTS take → server now serves fixed approved file)"
+      "16:40 anchor sound differs from approved file (per-user bell + different TTS take → server now serves fixed approved file)",
+      "16:43 mic in advisor → \"This device cannot do that yet\" (IosSpeechToText stub never implemented)"
     ],
     "ownerDevices": {
       "iphone": "iOS 27",
