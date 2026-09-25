@@ -1,6 +1,6 @@
 /**
  * The iOS pieces that are either fully real (battery, device info, glass detection, and — since
- * WO L2.2n — the Live Activity and HealthKit) or still honestly unwired (Speech, notifications).
+ * WO L2.2n — the Live Activity and HealthKit) or still honestly unwired (notifications).
  *
  * The unwired ones need a dependency this spike deliberately does not add yet (APP-RUN §0.5 S9:
  * every new dependency must be justified). They stay honest about it: `isSupported()` /
@@ -11,7 +11,8 @@
  *    widget extension in `targets/live-activity`. Also mirrors the same numbers onto the watch
  *    face, see the class comment.
  *  - `IosHealthImport` → **real** (L2.2n): `modules/lucid-health` (read-only HealthKit).
- *  - `IosSpeechToText` → `expo-speech-recognition` (DESIGN §8.2), scheduled for L1.6.
+ *  - `IosSpeechToText` → **real** since WO L3.13, and big enough to live in its own file:
+ *    `./IosSpeechToText.ts` (`expo-speech-recognition`, DESIGN §8.2).
  *  - `IosNotificationsPermission` → `expo-notifications`, scheduled for L1.7/L3.1 (the
  *    usage string is already in `app.config.ts`; WO L1.3 only needs the ask to happen
  *    once at onboarding, not the scheduling API).
@@ -36,8 +37,6 @@ import type {
   LiveStatusContent,
   NotificationsPermission,
   SleepPhase,
-  SpeechResult,
-  SpeechToText,
   Unsubscribe,
 } from '../types';
 import { watchBridge } from './watchBridge';
@@ -245,34 +244,6 @@ export class IosNotificationsPermission implements NotificationsPermission {
   async requestAuthorization(): Promise<boolean> {
     // TODO(L1.7/L3.1): call the real notification permission request here.
     return false;
-  }
-}
-
-// ---------------------------------------------------------------------------
-
-export class IosSpeechToText implements SpeechToText {
-  async isAvailable(): Promise<boolean> {
-    return false; // expo-speech-recognition is added in L1.6
-  }
-
-  async requestPermissions(): Promise<boolean> {
-    return false;
-  }
-
-  async start(): Promise<void> {
-    throw NOT_WIRED('On-device speech recognition', 'L1.6');
-  }
-
-  async stop(): Promise<void> {
-    // nothing running — safe
-  }
-
-  onResult(_listener: (result: SpeechResult) => void): Unsubscribe {
-    return () => undefined;
-  }
-
-  onError(_listener: (error: string) => void): Unsubscribe {
-    return () => undefined;
   }
 }
 

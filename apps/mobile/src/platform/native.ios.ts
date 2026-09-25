@@ -10,8 +10,8 @@ import {
   IosHealthImport,
   IosLiveStatus,
   IosNotificationsPermission,
-  IosSpeechToText,
 } from './ios/IosPeripherals';
+import { IosSpeechToText } from './ios/IosSpeechToText';
 import { PhoneMotionSource } from './ios/PhoneMotionSource';
 import { WatchSensorSource } from './ios/WatchSensorSource';
 import type { PlatformBundle } from './types';
