@@ -24,9 +24,9 @@
 	<string>cloud.suksomsri.dreaming</string>
 	<key>WKRunsIndependentlyOfCompanionApp</key>
 	<false/>
-	<key>UIBackgroundModes</key>
+	<key>WKBackgroundModes</key>
 	<array>
-		<!-- keeps the HKWorkoutSession alive all night -->
+		<!-- keeps the HKWorkoutSession alive all night · watchOS ใช้ WKBackgroundModes (UIBackgroundModes = ITMS-90362 ตอนอัปโหลด 25 ก.ย.) -->
 		<string>workout-processing</string>
 	</array>
 	<key>NSHealthShareUsageDescription</key>
