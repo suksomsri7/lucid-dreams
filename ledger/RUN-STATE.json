@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
-  "wo": "R1",
-  "step": "🎉 R1 build LIVE on TestFlight: 0.1.0 (1) VALID · IN_BETA_TESTING · group Team (Expo) · owner INVITED → owner installs iPhone+Watch → first night → send diagnostics.json + screenshots → Fable R1 review (calibration → R2)",
+  "wo": "L3.9",
+  "step": "R1 hotfix #1 (owner found: pulse Find→redirect · Sound sheet dead · Fable found: audio route never detected · watch install hint) → builder Opus wo/L3.9 → native change ⇒ build #6 + TestFlight",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "owner: accept TestFlight invite + install + first-night test (ledger/R1-CHECKLIST.md)"
+    "L3.9 builder"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",

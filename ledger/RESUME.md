@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 16:00 UTC · 🐞 **R1 รายงานแรก** (เจ้าของ iOS 27 · ภาพ 2 ใบ): ปุ่มค้นหาชีพจรตอน onboarding เด้งกลับ (ด่าน hasOnboarded) · ชีต Sound กดอะไรไม่ได้ · Fable พบเพิ่ม: **`IosAudioPlayer.status.route` ไม่เคยถูกตั้ง ⇒ ไม่มีทางผ่าน AUDIO readiness** (ต้องมีโมดูล native อ่าน AVAudioSession) · นาฬิกาต้องติดตั้งแอปผ่าน Watch app ก่อนถึงจะ connected → **L3.9** (`wo-notes/L3.9-WO.md` · qc-L3.9 26 ข้อ) → build #6
 - 2026-09-25 15:30 UTC · 🎉 **Dreaming 0.1.0 (1) อยู่บน TestFlight** (Apple VALID · IN_BETA_TESTING · เจ้าของ INVITED · ITSAppUsesNonExemptEncryption=false ไม่ต้องตอบ compliance) · แจ้งเจ้าของ TG 3570 · **สถานะ = รอผลคืนแรก R1** (diagnostics + ภาพ) → ปรับเทียบ R2 · แก้เล็กใช้ `eas update --channel testflight` (runtime 0.1.0) · build ใหม่ = `scripts/build-r1.sh testflight` + `eas submit --id --wait` (ต้องรอคำสั่งเจ้าของ)
 - 2026-09-25 15:10 UTC · ✅ **build #5 FINISHED** `4673aae5` → submit `--wait` อัปโหลดถึง Apple (8ab5015e) · รอ processing VALID (เช็คอีเมล ITMS ด้วย) → แจ้งเจ้าของติดตั้ง TestFlight → R1 คืนแรก
 - 2026-09-25 14:00 UTC · ❌ Apple ปฏิเสธ 0.1.0 (1) หลังอัปโหลด: ITMS-90362 watch `UIBackgroundModes` → แก้เป็น `WKBackgroundModes` (8ea2979) · 🚀 build #5 `4673aae5` กำลังรัน · หลังเสร็จ submit `--wait` แล้วดู processingState=VALID ก่อนแจ้งเจ้าของ
