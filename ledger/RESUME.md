@@ -1,7 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
-- 2026-09-25 21:50 UTC · 🔴 **เจ้าของ: ห้าม build จนกว่าจะสั่ง** (L3.13 เสร็จแล้วรอคำสั่ง #8) · History ว่าง = ยังไม่มีคืน (คาดหวังผิด) + ปุ่มย้อนกลับโชว์ "(tabs)" → แก้  + ข้อความว่างใหม่ → **OTA #3** 236b59f2-49ff-4bcc-b7bd-d1e7be075705
+- 2026-09-25 21:50 UTC · 🔴 **เจ้าของ: ห้าม build จนกว่าจะสั่ง** (L3.13 เสร็จแล้วรอคำสั่ง #8) · History ว่าง = ยังไม่มีคืน (คาดหวังผิด) + ปุ่มย้อนกลับโชว์ "(tabs)" → แก้ `headerBackButtonDisplayMode: minimal` + ข้อความว่างใหม่ → **OTA #3** 236b59f2-49ff-4bcc-b7bd-d1e7be075705
 - 2026-09-25 21:30 UTC · 🐞 ไมค์ใช้ไม่ได้ = `IosSpeechToText` stub (หนี้ L1.6 ไม่เคยทำ) → **L3.13** (`wo-notes/L3.13-WO.md` · qc-L3.13 20 ข้อ · expo-speech-recognition · Opus) → build #8 · หน้าเช้าเล่าด้วยเสียงก็ใช้ตัวเดียวกัน
 - 2026-09-25 21:00 UTC · 🐞 รายงานเพิ่ม (build 2): Settings ยังเก่า (L3.11 ไม่ทัน build → OTA) · นาฬิกาไม่เจอ (**WatchSensorSource ไม่เคยถูก probe ก่อนคืน** → เพิ่ม probe()+subscribe status ใน registry) · เสียงไม่ตรงไฟล์ที่เลือก (ระฆังต่อ seed + George ต่าง take) → **server เสิร์ฟไฟล์อนุมัติเป๊ะ `ANCHOR_FIXED_FILE`** + george-2 · **OTA #2** `69cee45a` · ค้าง: ear test ยังใช้ระฆัง makeSignature (L3.12 · ต้องตัดสินเรื่อง watermark ต่อคน)
 - 2026-09-25 20:20 UTC · 🎉 **TestFlight 0.1.0 (2) VALID** (build #7 · L3.7–L3.11 ครบ · watch min 10.0 · lucid-audio-route) + OTA #1 · แจ้งเจ้าของ TG 3582 · **สถานะ = รอผลคืนแรก R1** · session ใหม่: อ่าน RUN-STATE.r1 (builds/lessons/ownerReports/ownerDevices)
