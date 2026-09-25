@@ -14,7 +14,7 @@
  * compiled the complication's sources into the watch app as well.
  *
  * `bundleIdentifier` starts with a dot, which `with-widget.ts` appends to the **main app's**
- * id, giving `cloud.suksomsri.dreaming.watch.complication`. That prefix matters: an embedded binary
+ * id, giving `cloud.suksomsri.dreaming.watch.streak`. That prefix matters: an embedded binary
  * must sit under its host's identifier, and the host here is the watch app
  * (`cloud.suksomsri.dreaming.watch`, the default for `type: 'watch'`).
  *
@@ -26,7 +26,7 @@ module.exports = {
   type: 'watch-widget',
   name: 'LucidWatchComplication',
   displayName: 'Dreaming',
-  bundleIdentifier: '.watch.complication',
+  bundleIdentifier: '.watch.streak', // เดิม '.watch.complication' — Apple ปฏิเสธชื่อนั้นตอนจด App ID (25 ก.ย.) จึงใช้ .watch.streak
 
   // Same floor as the watch app itself (targets/watch/expo-target.config.js).
   deploymentTarget: '11.0',

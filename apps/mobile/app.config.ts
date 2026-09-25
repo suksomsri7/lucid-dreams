@@ -185,6 +185,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'dreaming',
   // บัญชี Expo ของโปรเจกต์นี้ (token ใน /root/.lucid/expo.env) — EAS ใช้จับคู่ slug กับโปรเจกต์ @luciddreams-team/dreaming
   owner: 'luciddreams-team',
+  // EAS Update (ติดตั้ง expo-updates ตอน build R1 25 ก.ย.): ช่อง = โปรไฟล์ใน eas.json (r1 / testflight)
+  // runtimeVersion ตาม `version` ⇒ OTA ถึงเฉพาะบิลด์เวอร์ชันเดียวกัน (reference_ota_runtime_must_match_build)
+  updates: { url: 'https://u.expo.dev/2e4f819e-0f38-4481-be29-87093567bacf' },
+  runtimeVersion: { policy: 'appVersion' },
   version: '0.1.0',
   orientation: 'portrait',
   scheme: 'dreaming',
