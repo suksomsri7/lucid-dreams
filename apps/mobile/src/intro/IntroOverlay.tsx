@@ -42,6 +42,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Platform, StyleSheet, Text } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 
+import { prefetchFullAnchor } from '../audio/anchorRemote';
 import { playBrandAnchor } from '../audio/brand';
 import { introFixtureRequested } from '../dev/fixtures';
 import { useT } from '../i18n';
@@ -161,6 +162,12 @@ export function IntroOverlay() {
 
       // Not awaited on purpose (WO §B4): the tone outlives the overlay.
       void playBrandAnchor();
+
+      // WO L3.8: warm the full anchor (bell + whisper) in the background from the very first
+      // launch, so tonight's cue can whisper even if the phone is offline by bedtime. Never
+      // awaited and it swallows its own errors — the intro must fade out on time regardless,
+      // and this launch's own brand tone is still allowed to be the bell alone.
+      void prefetchFullAnchor();
 
       fadeOutTimer.current = setTimeout(() => {
         Animated.timing(overlayOpacity, {

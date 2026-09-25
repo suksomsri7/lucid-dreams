@@ -44,6 +44,8 @@ import {
   type AnchorSignature,
 } from '@lucid/engine';
 
+import { clearFullAnchorCache } from './anchorRemote';
+
 /** `-1`/`1` mirror `MemorizationPlan.pan`; `0` is the un-panned plan-card preview. */
 export type AnchorPan = -1 | 0 | 1;
 
@@ -186,5 +188,11 @@ export async function resetAnchorSeed(): Promise<string> {
   cachedAnchorSeed = fresh;
   await AsyncStorage.setItem(ANCHOR_SEED_STORAGE_KEY, fresh).catch(() => undefined);
   clearAnchorCache();
+  // WO L3.8: the downloaded bell+whisper mp3s live in the same directory, so the line above
+  // already removes them — this call says so out loud, and keeps being correct if either
+  // cache ever moves. (`anchorRemote.ts` imports `getAnchorSeed`/`buildAnchorSignature` from
+  // here, so this is a deliberate two-file cycle; both directions are only ever used inside
+  // function bodies, never at module load, which is what makes it safe under Metro.)
+  clearFullAnchorCache();
   return fresh;
 }

@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import { FlatList, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { prefetchFullAnchor } from '../audio/anchorRemote';
 import { playBrandAnchor } from '../audio/brand';
 import { getPlatform } from '../platform';
 import { useT, type Locale, type TranslateParams, type TranslationKey } from '../i18n';
@@ -167,6 +168,10 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
     // never awaited, so the sound starts under the screen transition instead of after it;
     // `playBrandAnchor` swallows its own errors, so there is nothing here that can fail.
     void playBrandAnchor();
+    // WO L3.8: the last cheap moment to download the bell+whisper file — the user is awake, the
+    // phone is in their hand and the network is probably up. Fire-and-forget: the plan screen
+    // opens immediately either way (`prefetchFullAnchor` never throws and never blocks).
+    void prefetchFullAnchor();
     router.push('/plan');
   }
 

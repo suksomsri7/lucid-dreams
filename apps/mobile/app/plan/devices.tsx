@@ -21,6 +21,7 @@ import {
   type ReadinessReason,
 } from '@lucid/engine';
 
+import { fullAnchorStatus, prefetchFullAnchor } from '../../src/audio/anchorRemote';
 import { applyDeviceFoundFixture, applyPlanFixture, fixturePhoneStatus } from '../../src/dev/fixtures';
 import {
   HEADPHONES_DEVICE_ID,
@@ -60,6 +61,20 @@ const BLOCKER_KEY: Partial<Record<ReadinessReason, TranslationKey>> = {
   DND_BLOCKS: 'ready.blocker.DND_BLOCKS',
 };
 
+/**
+ * The three states of the full anchor row (WO L3.8): the bell+whisper file is on disk and
+ * tonight can whisper offline, it is being downloaded right now, or it is not there and tonight
+ * will be the bell alone. Deliberately **not** part of `evaluateReadiness`: a missing whisper is
+ * a worse night, not an unusable one, so it must never disable the footer button.
+ */
+type AnchorRowState = 'ready' | 'loading' | 'offline';
+
+const ANCHOR_ROW_KEY: Record<AnchorRowState, TranslationKey> = {
+  ready: 'plan.anchor.ready',
+  loading: 'plan.anchor.loading',
+  offline: 'plan.anchor.offline',
+};
+
 /** Re-check the platform every few seconds while this screen is open — a watch/headphone
  * pairing that completes, or a phone that starts charging, should unlock the footer
  * without the user having to leave and come back. Also what keeps a `?fixture=devices`
@@ -76,6 +91,7 @@ export default function PlanDevicesScreen() {
   const [audioSearchOpen, setAudioSearchOpen] = useState(false);
   const [phone, setPhone] = useState<{ charging: boolean; battery: number } | null>(null);
   const [dndOk, setDndOk] = useState<boolean>(true);
+  const [anchorState, setAnchorState] = useState<AnchorRowState>('loading');
 
   // `?fixture=devices`/`?fixture=ear-passed` (WO L1.7ui QC parity) — lets this screen be
   // screenshotted directly by URL without visiting `/plan` first. No-op once a real plan
@@ -125,6 +141,26 @@ export default function PlanDevicesScreen() {
 
   useEffect(() => {
     void dndAllowsAppAudio().then(setDndOk);
+  }, []);
+
+  // WO L3.8 — the third and last prefetch point (after app launch and "Start tonight"). This is
+  // the screen where the user is *preparing* the night, so it is also the one place the outcome
+  // is shown: a file already on disk shows "ready" without a single network call; anything else
+  // tries once, in the background, and the row settles on ready/offline when that finishes.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      if ((await fullAnchorStatus()) === 'ready') {
+        if (!cancelled) setAnchorState('ready');
+        return;
+      }
+      if (!cancelled) setAnchorState('loading');
+      const ok = await prefetchFullAnchor();
+      if (!cancelled) setAnchorState(ok ? 'ready' : 'offline');
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -274,6 +310,15 @@ export default function PlanDevicesScreen() {
         />
         <PhoneLine ok={dndOk} text={t('ready.devices.phone.dnd')} last />
       </GlassCard>
+
+      {/* One line, no card, no button, and readiness above is untouched (WO L3.8): it sits in the
+          empty space mockup 04(b) already leaves under the phone card. */}
+      <View style={styles.anchorRow}>
+        <Icon name="volume" size={13} color={anchorState === 'ready' ? colors.rem : colors.mut} />
+        <Text style={styles.anchorText} numberOfLines={2} testID="ready-anchor-status">
+          {t(ANCHOR_ROW_KEY[anchorState])}
+        </Text>
+      </View>
 
       <AudioSearchSheet visible={audioSearchOpen} onClose={() => setAudioSearchOpen(false)} />
     </Screen>
@@ -449,6 +494,8 @@ const styles = StyleSheet.create({
     borderTopColor: colors.hairline,
   },
   phoneLineText: { fontSize: 12.5, color: colors.ink2, flex: 1 },
+  anchorRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.xs },
+  anchorText: { fontSize: 12, lineHeight: 16, color: colors.mut, flex: 1 },
   sheetBackdrop: { flex: 1, backgroundColor: 'rgba(17,19,24,0.35)', justifyContent: 'flex-end' },
   sheetRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.sm },
   sheetHint: { fontSize: 12.5, lineHeight: 17, color: colors.mut },

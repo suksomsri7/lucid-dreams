@@ -191,8 +191,12 @@ export class IosAudioPlayer implements AudioPlayer {
 
       // Belt and braces: `didJustFinish` should always fire, but a clip that somehow
       // never reports it must not hang the caller (the ear-test screen awaits this).
+      // WO L3.8: the downloaded full anchor is 9.84 s long (bell + the whisper that starts 2.6 s
+      // in), so the old 8 s ceiling would have cut its tail off every time `didJustFinish` was
+      // late. `.mp3` is only ever that file here (everything else this player opens is a
+      // locally-rendered `.wav` or a bundled asset), so only it gets the longer rope.
       const signature = /anchor-[0-9a-f]+/.exec(options.source);
-      const timeoutMs = signature ? 4000 : 8000;
+      const timeoutMs = signature ? 4000 : options.source.endsWith('.mp3') ? 13000 : 8000;
       setTimeout(finish, timeoutMs);
     });
   }

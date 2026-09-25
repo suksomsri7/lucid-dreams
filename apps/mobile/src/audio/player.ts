@@ -21,14 +21,33 @@ import {
 import { getPlatform } from '../platform';
 import { ambienceSource } from './ambience';
 import { buildAnchorSignature, ensureAnchorWavUri, getAnchorSeed, resetAnchorSeed, type AnchorPan } from './anchor';
+import { ensureFullAnchorUri, prefetchFullAnchor } from './anchorRemote';
+import type { AnchorLang } from '@lucid/engine';
 
-export { ambienceSource, buildAnchorSignature, getAnchorSeed, resetAnchorSeed };
+export { ambienceSource, buildAnchorSignature, getAnchorSeed, resetAnchorSeed, prefetchFullAnchor };
 export type { AnchorPan };
 
 export interface PlayAnchorOptions {
   volume: number;
   /** `-1`/`1` for a hard-panned ear test round, `0` (default) for the plan card preview. */
   pan?: AnchorPan;
+  /**
+   * Which language's file to look for in the full-anchor cache (WO L3.8). Defaults to
+   * `signature.lang`, which is the only value that can ever match the server's `x-anchor-hash`
+   * — pass it only if the signature and the UI locale have deliberately diverged.
+   */
+  lang?: AnchorLang;
+}
+
+/**
+ * What `playAnchorOnce` actually played (WO L3.8). `fullAnchor: false` means the user heard the
+ * bell alone — the night session records that per cue so R1 can tell a silent-whisper night
+ * from a working one instead of guessing.
+ */
+export interface AnchorPlayback {
+  fullAnchor: boolean;
+  /** The file that was handed to the platform player, `null` when nothing played (web stub). */
+  source: string | null;
 }
 
 /**
@@ -38,16 +57,28 @@ export interface PlayAnchorOptions {
  * `anchor.ts` — `expo-file-system`'s `File`/`Directory` classes are native-only shapes
  * with empty web stand-ins, and a screen's mount effect must never throw on the web QC
  * build over something a screenshot does not need anyway.
+ *
+ * WO L3.8 adds the half the method actually needs: **centre playback prefers the full anchor**
+ * (bell + the whispered "You are dreaming.", downloaded once by `anchorRemote.ts`), and falls
+ * back to the locally-rendered bell WAV whenever that file is not on disk. A hard-panned round
+ * (`pan ≠ 0`, the ear tests) is untouched and always plays the short one-sided WAV: the
+ * downloaded mp3 is a stereo mix, so it could not prove "you heard nothing on this side"
+ * anyway, and `IosAudioPlayer` would (correctly) record a `PAN_SOURCE_MISMATCH` for it.
  */
-export async function playAnchorOnce(signature: AnchorSignature, options: PlayAnchorOptions): Promise<void> {
+export async function playAnchorOnce(
+  signature: AnchorSignature,
+  options: PlayAnchorOptions,
+): Promise<AnchorPlayback> {
   const pan = options.pan ?? 0;
   if (Platform.OS === 'web') {
     // eslint-disable-next-line no-console -- intentional web stub log (WO L1.7ui)
     console.log('[audio] playAnchorOnce stub on web', { hash: signature.hash, pan, volume: options.volume });
-    return;
+    return { fullAnchor: false, source: null };
   }
-  const uri = await ensureAnchorWavUri(signature, pan);
-  await getPlatform().audioPlayer.playOneShot({ source: uri, volume: options.volume, pan });
+  const full = pan === 0 ? await ensureFullAnchorUri(signature, options.lang ?? signature.lang) : null;
+  const source = full ?? (await ensureAnchorWavUri(signature, pan));
+  await getPlatform().audioPlayer.playOneShot({ source, volume: options.volume, pan });
+  return { fullAnchor: full !== null, source };
 }
 
 /**

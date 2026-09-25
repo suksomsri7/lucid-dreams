@@ -104,6 +104,10 @@ export const en: Translations = {
   'plan.ambience.wind': 'Gentle wind',
   'plan.ambience.rain': 'Rain',
   'plan.ambience.silence': 'Silence',
+  // WO L3.8 — the full-anchor (bell + whisper) status row on the device check screen. Never blocks.
+  'plan.anchor.ready': 'Whisper ready (works offline)',
+  'plan.anchor.loading': 'Downloading the whisper…',
+  'plan.anchor.offline': 'No whisper yet — tonight you will only hear the bell',
   'plan.notFound.title': 'No plan for tonight yet',
   'plan.notFound.body': 'Go back and talk to the dream advisor first, then tap "Start tonight" on the plan card.',
   'plan.notFound.cta': 'Go to the chat',
