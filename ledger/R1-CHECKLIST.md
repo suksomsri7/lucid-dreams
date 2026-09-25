@@ -5,6 +5,8 @@
 - [ ] `apps/mobile/eas.json` โปรไฟล์ `r1-internal` · `EXPO_TOKEN` จาก `/root/.lucid/expo.env` · `ios.appleTeamId` จากเจ้าของ (ทีมเดิม SiamDive/SHARK/GoodFood) · bundle id `cloud.suksomsri.dreaming` จองใน ASC
 - [x] (25 ก.ย. 06:30 UTC) แจ้งเจ้าของ "พร้อม build R1" พร้อมรายการที่รวม · **ไม่ยิง eas build เอง**
 
+## ✅ build #4 ขึ้น TestFlight 25 ก.ย. (0.1.0 build 1) — บทเรียนใน RUN-STATE.r1.lessons
+
 ## เจ้าของ (ก่อนสั่ง build)
 - [x] Team ID = `3DD2VCN6JQ` (SIAM DIVE CENTER COMPANY LIMITED · 25 ก.ย.) ใส่ `eas.json` env + `/root/.lucid/apple.env` แล้ว
 - [x] (25 ก.ย.) App ID ใน developer portal: Explicit `cloud.suksomsri.dreaming` · Description "Dreaming" · เปิด HealthKit + App Groups (`group.cloud.suksomsri.dreaming`) + Push Notifications (expo-notifications ใส่ aps-environment ให้เอง) · ตัวลูก `cloud.suksomsri.dreaming.watch` / `.watch.complication` / `.widget` ให้ EAS สร้างเอง (ถ้า EAS ทำไม่ได้ค่อยสร้างมือ)

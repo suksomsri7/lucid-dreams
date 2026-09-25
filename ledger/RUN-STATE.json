@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "build #4 RUNNING (d38f43d9-5682-4f62-aa01-82772a0a7d65) — child profiles regenerated with App Group → when FINISHED: eas submit --platform ios --profile testflight --id d38f43d9-… --non-interactive",
+  "step": "build #4 FINISHED (ipa) · submitted to TestFlight (submission b03506c2) · waiting Apple processing → owner installs via TestFlight → R1 night tests per ledger/R1-CHECKLIST.md",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,8 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "EAS build d38f43d9 finishing"
+    "Apple TestFlight processing",
+    "owner: install + R1 device tests"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -47,7 +48,9 @@
     "build2": "751f8a56-ebed-4960-add6-64ba4ad948a0",
     "build2_result": "CANCELED by Fable on owner request (was IN_PROGRESS)",
     "build3": "098b3cb1-bc3c-4189-b05a-c40e015eee6c ERRORED signing (App Group on child targets)",
-    "build4": "d38f43d9-5682-4f62-aa01-82772a0a7d65"
+    "build4": "d38f43d9-5682-4f62-aa01-82772a0a7d65",
+    "build4_result": "FINISHED · ipa https://expo.dev/artifacts/eas/f3GIaunYhziho1NMPR7ZbzDXHB3XXTUig9sXSeU3jEk.ipa · version 0.1.0 (1)",
+    "submission1": "b03506c2-04b3-4fa5-aaf3-49fe8b4a7e35"
   },
   "voice": {
     "name": "George",
