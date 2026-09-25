@@ -43,7 +43,7 @@ export function __setPlatformForTests(bundle: PlatformBundle | null): void {
 
 export { GlassSurface, hasRealGlass } from './GlassSurface';
 export type { GlassSurfaceProps } from './GlassSurface';
-export { NotImplementedError } from './types';
+export { NotImplementedError, WATCH_APP_NOT_INSTALLED } from './types';
 export type {
   AudioEvent,
   AudioPlayer,

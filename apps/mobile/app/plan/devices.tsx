@@ -10,7 +10,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   evaluateReadiness,
@@ -23,13 +23,18 @@ import {
 
 import { fullAnchorStatus, prefetchFullAnchor } from '../../src/audio/anchorRemote';
 import { applyDeviceFoundFixture, applyPlanFixture, fixturePhoneStatus } from '../../src/dev/fixtures';
+import { DeviceSearchSheet } from '../../src/devices/DeviceSearchSheet';
 import {
   HEADPHONES_DEVICE_ID,
   MATTRESS_DEVICE_ID,
+  SPEAKER_DEVICE_ID,
   WATCH_DEVICE_ID,
+  WATCH_DEVICE_NAME,
   deviceRegistry,
   liveHeartRate,
   refreshDevicesFromPlatform,
+  watchLinkHint,
+  watchPlatformDevices,
 } from '../../src/devices/registry';
 import { useT, type TranslationKey } from '../../src/i18n';
 import { getPlatform } from '../../src/platform';
@@ -43,14 +48,8 @@ import {
   Screen,
   StepNav,
   colors,
-  radius,
   spacing,
 } from '../../src/ui';
-
-const AUDIO_SEARCH_KEYS: TranslationKey[] = [
-  'onboarding.devices.search.audio.bluetooth',
-  'onboarding.devices.search.audio.speaker',
-];
 
 const BLOCKER_KEY: Partial<Record<ReadinessReason, TranslationKey>> = {
   HEART_NONE: 'ready.blocker.HEART_NONE',
@@ -109,9 +108,13 @@ export default function PlanDevicesScreen() {
     tick();
     const unsubscribe = deviceRegistry.subscribe(setDevices);
     const interval = setInterval(tick, REFRESH_MS);
+    // WO L3.9: the 3 s tick is the floor, not the ceiling — a route change (headphones in/out) and
+    // a return from iOS Settings both refresh immediately.
+    const unsubscribePlatform = watchPlatformDevices();
     return () => {
       unsubscribe();
       clearInterval(interval);
+      unsubscribePlatform();
     };
   }, []);
 
@@ -181,6 +184,11 @@ export default function PlanDevicesScreen() {
   const heartDevices = devices.filter((entry) => entry.category === 'HEART' && entry.connected);
   const audioDevices = devices.filter((entry) => entry.category === 'AUDIO' && entry.connected);
 
+  // WO L3.9 §D — paired but Dreaming not installed on the watch: the one 💓 state with a 20-second
+  // fix, which used to render as a flat "no pulse device found yet".
+  const watchHint = watchLinkHint();
+  const watchNeedsInstall = watchHint.paired && !watchHint.appInstalled;
+
   const readiness = useMemo(() => {
     const now = new Date();
     const wakeAt = new Date(now.getTime() + 8 * 3600 * 1000); // no wake-time setting exists yet (debt, see wo-notes)
@@ -216,6 +224,7 @@ export default function PlanDevicesScreen() {
     if (entry.battery === null) {
       const parts = [t('onboarding.devices.status.connected')];
       if (entry.id === HEADPHONES_DEVICE_ID) parts.push(t('onboarding.devices.status.headphonesDetail'));
+      if (entry.id === SPEAKER_DEVICE_ID) parts.push(t('onboarding.devices.status.speakerDetail'));
       return parts.join(' · ');
     }
     const hours = Math.round(entry.battery * AUDIO_HOURS_PER_FULL_CHARGE);
@@ -270,6 +279,7 @@ export default function PlanDevicesScreen() {
         ) : (
           <DeviceRow name={t('onboarding.devices.heart.empty.title')} sub={t('onboarding.devices.heart.empty.sub')} muted first />
         )}
+        {watchNeedsInstall ? <DeviceRow name={WATCH_DEVICE_NAME} sub={t('devices.watch.installHint')} muted /> : null}
         <SearchOtherRow
           label={t('onboarding.devices.searchOther')}
           onPress={() => router.push('/plan/find-devices')}
@@ -320,7 +330,12 @@ export default function PlanDevicesScreen() {
         </Text>
       </View>
 
-      <AudioSearchSheet visible={audioSearchOpen} onClose={() => setAudioSearchOpen(false)} />
+      <DeviceSearchSheet
+        visible={audioSearchOpen}
+        onClose={() => setAudioSearchOpen(false)}
+        origin="plan"
+        testID="ready-device-search-sheet"
+      />
     </Screen>
   );
 }
@@ -410,42 +425,6 @@ function PhoneLine({ ok, text, first = false, last = false }: PhoneLineProps) {
   );
 }
 
-interface AudioSearchSheetProps {
-  visible: boolean;
-  onClose: () => void;
-}
-
-/**
- * The 🎧 half of "find another device". The 💓 half is a real page now (`/plan/find-devices`,
- * WO L2.3) — this one cannot be: sleep headphones and speakers are **classic** Bluetooth (A2DP),
- * which `react-native-ble-plx` does not see and no iOS app may pair on the user's behalf. So it
- * names the two kinds that count and points at the one place that can actually do it, instead of
- * keeping the "coming soon" chip L1.3 put here for something that is never coming.
- */
-function AudioSearchSheet({ visible, onClose }: AudioSearchSheetProps) {
-  const { t } = useT();
-  if (!visible) return null;
-  const keys = AUDIO_SEARCH_KEYS;
-
-  return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose} testID="ready-device-search-sheet">
-      <Pressable style={styles.sheetBackdrop} onPress={onClose} accessibilityRole="button">
-        <Pressable onPress={() => undefined}>
-          <GlassCard style={{ margin: spacing.lg, borderRadius: radius.card }} title={t('onboarding.devices.search.title')}>
-            {keys.map((key) => (
-              <View key={key} style={styles.sheetRow}>
-                <Text style={{ fontSize: 14, color: colors.ink }}>{t(key)}</Text>
-              </View>
-            ))}
-            <Text style={styles.sheetHint}>{t('onboarding.devices.search.audio.hint')}</Text>
-            <Button tone="gh" block label={t('common.close')} onPress={onClose} testID="ready-device-search-close" />
-          </GlassCard>
-        </Pressable>
-      </Pressable>
-    </Modal>
-  );
-}
-
 const styles = StyleSheet.create({
   summaryRow: { flexDirection: 'row' },
   categoryHeader: {
@@ -496,7 +475,4 @@ const styles = StyleSheet.create({
   phoneLineText: { fontSize: 12.5, color: colors.ink2, flex: 1 },
   anchorRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.xs },
   anchorText: { fontSize: 12, lineHeight: 16, color: colors.mut, flex: 1 },
-  sheetBackdrop: { flex: 1, backgroundColor: 'rgba(17,19,24,0.35)', justifyContent: 'flex-end' },
-  sheetRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.sm },
-  sheetHint: { fontSize: 12.5, lineHeight: 17, color: colors.mut },
 });

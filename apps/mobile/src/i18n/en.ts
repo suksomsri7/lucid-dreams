@@ -252,6 +252,10 @@ export const en: Translations = {
   'diagnostics.audioSession.error': 'Error',
   'diagnostics.audioRoute': 'Output route',
   'diagnostics.audioEvents': 'Audio events recorded',
+  // "Test sound" button + the last audio failure (WO L3.9 §G — R1 opened the app and heard nothing)
+  'diagnostics.audio.test': 'Test sound (bell)',
+  'diagnostics.audio.lastError': 'Last audio problem',
+  'diagnostics.audio.none': 'No problem — sound played',
   'diagnostics.startBed': 'Start bed audio',
   'diagnostics.stopBed': 'Stop bed audio',
   'diagnostics.startSensors': 'Start watch stream',
@@ -302,19 +306,30 @@ export const en: Translations = {
     "Sound testing now happens right before every night — so you'll know your headphones are really working, every time.",
   'onboarding.devices.ready': "I'm ready",
   'onboarding.devices.search.title': 'Find another device',
-  'onboarding.devices.search.comingSoon': 'Coming soon',
-  'onboarding.devices.search.heart.chestStrap': 'Chest strap',
-  'onboarding.devices.search.heart.armband': 'Armband',
-  'onboarding.devices.search.heart.mattress': 'Phone on the mattress',
-  'onboarding.devices.search.audio.bluetooth': 'Bluetooth headphones',
-  'onboarding.devices.search.audio.speaker': 'Speaker',
-  'onboarding.devices.search.audio.hint': 'Pair your headphones in the iPhone Settings app, then come back to this page.',
+  'onboarding.devices.search.audio.openSettings':
+    'Open Settings → Bluetooth and pair your headphones, then come back — this page updates by itself.',
+  'onboarding.devices.search.audio.speakerHint': 'The whisper plays quietly out of the speaker — put the phone near your pillow.',
+  'onboarding.devices.search.audio.speakerOn': "Chosen · tonight's sound plays from the iPhone speaker",
+
+  // Rows of the shared "find another device" sheet (WO L3.9 §F) — `src/devices/DeviceSearchSheet.tsx`
+  'devices.search.strap': 'Chest strap',
+  'devices.search.strap.hint': 'Switch it on and wear it against the skin — opens the scanner',
+  'devices.search.armband': 'Armband',
+  'devices.search.armband.hint': 'On the upper or lower arm — opens the scanner',
+  'devices.search.mattress': 'Phone on the mattress',
+  'devices.search.mattress.hint': 'Works with no pulse device at all — on the mattress, not under the pillow',
+  'devices.search.bluetooth': 'Bluetooth headphones',
+  'devices.search.speaker': 'iPhone speaker',
   'onboarding.devices.status.heartRate': 'Heart {bpm}',
   'onboarding.devices.status.mattressDetail': 'reads movement from the mattress',
+  'onboarding.devices.status.speakerDetail': 'keep the phone near your pillow',
 
   // Bluetooth device search (WO L2.3) — /plan/find-devices · no mockup; follows the device-card style of image 04(b)
   'devices.mattress.name': 'Phone on the mattress',
   'devices.ble.unnamed': 'Heart rate sensor',
+  // The built-in speaker + the "install it on the watch" hint (WO L3.9 §B/§D)
+  'devices.speaker.name': 'iPhone speaker',
+  'devices.watch.installHint': 'Paired · install Dreaming on the watch from the Watch app (scroll to Available Apps)',
   'find.nav.title': 'Find a device',
   'find.nav.step': 'Heart / movement',
   'find.scanning': 'Searching…',

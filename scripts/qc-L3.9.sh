@@ -36,6 +36,18 @@ chk H6.3 "$(grep -qsE "find-devices" $src/devices/DeviceSearchSheet.tsx && echo 
 chk H6.4 "$(grep -qsE "setPhoneOnMattress|phoneOnMattress" $src/devices/DeviceSearchSheet.tsx && echo 1 || echo 0)" "มือถือบนที่นอน = สวิตช์เปิด/ปิดจริง"
 chk H6.5 "$(grep -qsE "'devices\.search\.(strap|armband|mattress|bluetooth|speaker)'" $src/i18n/th.ts && grep -qsE "'devices\.search\.(strap|armband|mattress|bluetooth|speaker)'" $src/i18n/en.ts && echo 1 || echo 0)" "i18n ชีตกลาง devices.search.* th/en"
 chk H6.6 "$(grep -rqsE "comingSoon" $src/devices/DeviceSearchSheet.tsx && echo 0 || echo 1)" "ไม่มี Coming soon ในชีตกลาง"
+# 7 เสียงเปิดแอปเงียบ (เจ้าของ 25 ก.ย. 16:50): playOneShot ไม่เคยตั้ง audio mode/activate session · ตัดหาง 8 s
+chk H7.1 "$(python3 - <<'PY'
+import re
+s=open('apps/mobile/src/platform/ios/IosAudioPlayer.ts').read()
+i=s.find('async playOneShot('); body=s[i:i+2500]
+print(1 if ('configureSession()' in body and 'setIsAudioActiveAsync(true)' in body) else 0)
+PY
+)" "playOneShot ตั้ง audio mode (playsInSilentMode) + activate session ก่อนเล่น"
+chk H7.2 "$(grep -qsE "duration" $src/platform/ios/IosAudioPlayer.ts && grep -qsE "ONE_SHOT_MAX_MS|oneShotTimeout" $src/platform/ios/IosAudioPlayer.ts && echo 1 || echo 0)" "timeout ของ one-shot มาจากความยาวไฟล์ (ไม่ตัดระฆัง 9.8 s ที่ 8 s)"
+chk H7.3 "$(grep -qsE "BRAND_MIN_VOLUME" $src/audio/brand.ts && echo 1 || echo 0)" "เสียงเปิดแอปมีพื้นระดับเสียง 0.5 (ลำโพงกลางวัน)"
+chk H7.4 "$(grep -qsE "lastError|audioError|status\.error" $m/app/diagnostics.tsx $src/diagnostics/*.ts* 2>/dev/null && echo 1 || echo 0)" "หน้า Diagnostics แสดง error ล่าสุดของตัวเล่นเสียง + ปุ่มทดสอบเสียง"
+chk H7.5 "$(grep -qsE "'diagnostics\.audio\.(test|lastError|none)'" $src/i18n/th.ts && grep -qsE "'diagnostics\.audio\.(test|lastError|none)'" $src/i18n/en.ts && echo 1 || echo 0)" "i18n diagnostics.audio.* th/en"
 # 5 สุขภาพ
 chk H5.1 "$(cd $m && pnpm -s typecheck >/dev/null 2>&1 && echo 1 || echo 0)" "pnpm typecheck"
 chk H5.2 "$(pnpm -s fitness >/dev/null 2>&1 && echo 1 || echo 0)" "pnpm fitness"

@@ -17,6 +17,7 @@
 
 import { epochIndexOf, normalizeEpochs, SensorEpochSchema, type SensorEpoch } from '@lucid/engine';
 
+import { WATCH_APP_NOT_INSTALLED } from '../types';
 import type { SensorSource, SensorStatus, Unsubscribe } from '../types';
 import { watchBridge, type WatchEpochPayload, type WatchLinkStatus } from './watchBridge';
 
@@ -82,6 +83,18 @@ export class WatchSensorSource implements SensorSource {
     this.emitStatus();
   }
 
+  /**
+   * WO L3.9: a watch that is paired but has no Dreaming on it is not "no watch" — it is a watch
+   * one tap away from working, and the devices screen has to be able to say so (the owner's
+   * TestFlight 0.1.0 (1) showed "no pulse device" with the watch on his wrist). It travels in
+   * `error` because that is the field for a machine-readable transport reason, and
+   * `src/devices/registry.ts#watchLinkHint` is the only reader.
+   */
+  private linkError(): string | null {
+    if (this.error !== null) return this.error;
+    return this.link.paired && !this.link.appInstalled ? WATCH_APP_NOT_INSTALLED : null;
+  }
+
   getStatus(): SensorStatus {
     return {
       id: this.id,
@@ -93,7 +106,7 @@ export class WatchSensorSource implements SensorSource {
       lastDataT: this.lastEpochT,
       lastBpm: this.lastBpm,
       battery: this.battery,
-      error: this.error,
+      error: this.linkError(),
     };
   }
 

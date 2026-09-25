@@ -35,9 +35,18 @@ import { buildAnchorSignature, getAnchorSeed, playAnchorOnce } from './player';
  */
 export const FALLBACK_BRAND_VOLUME = 0.15;
 
+/**
+ * Launch / "Start tonight" happen in daylight, usually on the speaker: the night-time starting
+ * level (0.15, tuned for headphones on a pillow) is inaudible there — the owner opened the
+ * TestFlight build and heard nothing (R1, 25 Sep 2026). The brand tone therefore plays at a floor
+ * of {@link BRAND_MIN_VOLUME}; the user's own setting still wins when it is higher.
+ */
+export const BRAND_MIN_VOLUME = 0.5;
+
 /** Resolve the level to play at: the user's setting once known, the shared default before that. */
 function brandVolume(): number {
-  return isSettingsHydrated() ? getSettings().volumeStart : FALLBACK_BRAND_VOLUME;
+  const configured = isSettingsHydrated() ? getSettings().volumeStart : FALLBACK_BRAND_VOLUME;
+  return Math.max(configured, BRAND_MIN_VOLUME);
 }
 
 /**

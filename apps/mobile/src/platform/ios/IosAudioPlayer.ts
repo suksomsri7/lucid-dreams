@@ -35,6 +35,25 @@ const BED_SOURCE = require('../../../assets/audio/bed-loop.m4a') as number;
 /** Hard ceiling from DESIGN §2.3.1 / §0.5 S6 — the engine may never ask for more. */
 const MAX_VOLUME = 0.35;
 
+/** Extra rope on top of a clip's own length, for the gap between `play()` and the first sample. */
+const ONE_SHOT_GUARD_MS = 1500;
+/** Used when `expo-audio` has not published a duration yet — longer than any clip the app owns. */
+const ONE_SHOT_FALLBACK_MS = 15000;
+
+/**
+ * How long to wait for a one-shot before giving up on `didJustFinish` (WO L3.9 §G).
+ *
+ * `duration` is in **seconds** and is `0`/`NaN` until the player has loaded the file, which is
+ * exactly the state it is in on the tick `play()` is called on — hence the fallback rather than a
+ * computed 1.5 s that would chop every clip.
+ */
+export function oneShotTimeoutMs(durationSeconds: number | null | undefined): number {
+  if (typeof durationSeconds !== 'number' || !Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+    return ONE_SHOT_FALLBACK_MS;
+  }
+  return Math.round(durationSeconds * 1000) + ONE_SHOT_GUARD_MS;
+}
+
 function clampVolume(volume: number): number {
   if (!Number.isFinite(volume)) return 0;
   return Math.min(Math.max(volume, 0), MAX_VOLUME);
@@ -184,12 +203,35 @@ export class IosAudioPlayer implements AudioPlayer {
    * would leave the user stuck on a step with no way forward. It is recorded as an `ERROR` audio
    * event instead, which lands in the night's diagnostics export — so a wrong-file bug shows up
    * in R1's data rather than as silence nobody can explain.
+   *
+   * ## 🔴 The session has to be configured here too (WO L3.9 §G)
+   *
+   * Until this work order only `startBed()` called `configureSession()`/`setIsAudioActiveAsync`,
+   * so every one-shot — the launch tone, "Start tonight", the plan card's ▶, both ear tests —
+   * played on an unconfigured session: `playsInSilentMode` had never been applied, so with the
+   * ring/silent switch flipped (which is how a phone sits on a bedside table) the app was
+   * completely silent. That is exactly what the owner reported on TestFlight 0.1.0 (1): "opening
+   * the app plays no sound at all". Both calls are idempotent and cheap, and `configureSession()`
+   * is skipped once the session has been configured once.
    */
   async playOneShot(options: { source: string; volume: number; pan?: number }): Promise<void> {
     const target = clampVolume(options.volume);
     const panMismatch = describePanMismatch(options.source, options.pan);
     if (panMismatch !== null) {
       this.emit('ERROR', `PAN_SOURCE_MISMATCH:${panMismatch}`, target);
+    }
+    // WO L3.9 §G — `playsInSilentMode` + an active session, or nothing is audible with the ring
+    // switch on. Failures are recorded and playback is still attempted: a session that refuses to
+    // configure is not a reason to refuse to make a sound.
+    try {
+      // `'error'` is retried on purpose: one refused session (another app held the route for a
+      // second) must not silence every sound the app makes for the rest of the launch.
+      if (this.status.state === 'idle' || this.status.state === 'error') await this.configureSession();
+      await setIsAudioActiveAsync(true);
+    } catch (error) {
+      // `configureSession()` records its own `ERROR` event before re-throwing — this catch only
+      // has to make sure a refused session does not stop us from trying to play anyway.
+      if (this.status.state !== 'error') this.fail('SESSION_ACTIVATED', error);
     }
     const shot = createAudioPlayer(options.source, { updateInterval: 100 });
     shot.volume = target;
@@ -223,13 +265,12 @@ export class IosAudioPlayer implements AudioPlayer {
 
       // Belt and braces: `didJustFinish` should always fire, but a clip that somehow
       // never reports it must not hang the caller (the ear-test screen awaits this).
-      // WO L3.8: the downloaded full anchor is 9.84 s long (bell + the whisper that starts 2.6 s
-      // in), so the old 8 s ceiling would have cut its tail off every time `didJustFinish` was
-      // late. `.mp3` is only ever that file here (everything else this player opens is a
-      // locally-rendered `.wav` or a bundled asset), so only it gets the longer rope.
-      const signature = /anchor-[0-9a-f]+/.exec(options.source);
-      const timeoutMs = signature ? 4000 : options.source.endsWith('.mp3') ? 13000 : 8000;
-      setTimeout(finish, timeoutMs);
+      //
+      // WO L3.9 §G: this used to be guessed from the file name, and the guess was wrong — the
+      // regex `anchor-[0-9a-f]+` never matched the real path (`.../anchor/<hash>-c.wav`), so every
+      // centre play, including the 9.84 s downloaded bell+whisper, fell through to 8000 ms and was
+      // cut off before the whisper ended. The player knows the real length, so ask it.
+      setTimeout(finish, oneShotTimeoutMs(shot.duration));
     });
   }
 

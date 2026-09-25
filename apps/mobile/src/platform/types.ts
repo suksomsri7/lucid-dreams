@@ -74,6 +74,15 @@ export interface SensorStatus {
 }
 
 /**
+ * One reserved `SensorStatus.error` value (WO L3.9 §D): the Apple Watch is paired with this
+ * iPhone, but Dreaming is not installed on it — so the source is legitimately not `connected`,
+ * while being one tap in the Watch app away from working. It lives here, in the platform
+ * contract, rather than in the iOS source that produces it, because `src/devices/registry.ts`
+ * (which is above the platform door and must not import `platform/ios/*`) is its reader.
+ */
+export const WATCH_APP_NOT_INSTALLED = 'WATCH_APP_NOT_INSTALLED' as const;
+
+/**
  * A source of evidence for the REM estimator. Several sources can run at once and
  * the engine fuses them; if all of them drop, the engine falls back to timer mode
  * (DESIGN §5.1).
