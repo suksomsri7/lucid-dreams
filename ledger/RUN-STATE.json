@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "L3.9",
-  "step": "R1 hotfixes in parallel: L3.9 (devices/audio route/native · Opus) ‖ L3.10 (advisor ▶ + thinking · Sonnet) → merge both → build #6 · then L3.11 Settings layout (after L3.9 merge; OTA-able)",
+  "step": "L3.10 merged (b71d6c3) · waiting L3.9 (37 checks) → merge → build #6 (watch min 10.0) → TestFlight → then L3.11 Settings v2 via OTA",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,8 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "L3.9 builder",
-    "L3.10 builder"
+    "L3.9 builder"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
