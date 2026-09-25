@@ -15,7 +15,8 @@
         "EXPO_PUBLIC_API_BASE_URL": "https://dreaming.suksomsri.cloud",
         "EXPO_APPLE_TEAM_ID": "3DD2VCN6JQ"
       },
-      "channel": "r1"
+      "channel": "r1",
+      "autoIncrement": true
     },
     "testflight": {
       "distribution": "store",
@@ -26,7 +27,8 @@
         "EXPO_PUBLIC_API_BASE_URL": "https://dreaming.suksomsri.cloud",
         "EXPO_APPLE_TEAM_ID": "3DD2VCN6JQ"
       },
-      "channel": "testflight"
+      "channel": "testflight",
+      "autoIncrement": true
     }
   },
   "submit": {
