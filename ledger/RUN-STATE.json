@@ -1,7 +1,7 @@
 {
   "run": "APP-RUN Phase 1",
   "wo": "R1",
-  "step": "L3.8 merged (full anchor bell+whisper reaches device) → build #3 TestFlight starting",
+  "step": "build #3 (098b3cb1) ERRORED at signing: 3 child targets (.watch/.watch.streak/.widget) provisioning profiles lack App Group group.cloud.suksomsri.dreaming (ASC API has no appGroups endpoint) → owner assigns group in portal → Fable deletes 3 profiles via ASC API (DELETE /v1/profiles/{id}: 86S7Q74AVB, 3BZ569VUCX, 35B84KATZT) → interactive pexpect build regenerates → TestFlight",
   "branch": null,
   "worktree": null,
   "builder": null,
@@ -9,7 +9,7 @@
   "lastCheckpoint": "2026-09-25T00:30Z",
   "lastCommit": "L3.F closed 24/24",
   "blockedOn": [
-    "EAS build #3"
+    "owner: assign App Group to 3 child App IDs in developer portal (TG 3561)"
   ],
   "icons": {
     "status": "CHOSEN M (icon-M-zzz-glass-light) · assets in main 4ae5404",
@@ -44,7 +44,8 @@
     ],
     "build1_result": "ERRORED: Bundle JavaScript — Unable to resolve node:fs from sql.js (fixed 2f17f44)",
     "build2": "751f8a56-ebed-4960-add6-64ba4ad948a0",
-    "build2_result": "CANCELED by Fable on owner request (was IN_PROGRESS)"
+    "build2_result": "CANCELED by Fable on owner request (was IN_PROGRESS)",
+    "build3": "098b3cb1-bc3c-4189-b05a-c40e015eee6c ERRORED signing (App Group on child targets)"
   },
   "voice": {
     "name": "George",

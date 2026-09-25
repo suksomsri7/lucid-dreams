@@ -1,6 +1,7 @@
 # RESUME — Lucid Dreams
 
 ## §0 สถานะล่าสุด
+- 2026-09-25 11:40 UTC · ❌ build #3 ล้มที่เซ็น: profile ของ .watch/.watch.streak/.widget ไม่มี App Group (แอปหลักผ่าน) · Apple API ไม่มี endpoint appGroups → ต้องให้เจ้าของผูกในพอร์ทัล (ส่งขั้นตอน TG) · จากนั้น: ลบ 3 profile ผ่าน ASC API → รัน build แบบ interactive (pexpect) ให้ EAS สร้าง profile ใหม่ → non-interactive ใช้ไม่ได้กับ profile ใหม่
 - 2026-09-25 11:00 UTC · ✅ **L3.8 merged** (22/22 · typecheck · fitness · iOS export · parity 04 ผ่าน · Fable เพิ่ม `cachedOnly` ให้ cue กลางคืนไม่รอเน็ต + prefetch ตอนเริ่มคืน) · แอปดึงไฟล์ระฆัง+กระซิบ George จาก /ai/anchor เก็บ `Paths.cache/anchor/<hash>-<lang>-george-1.mp3` · หนี้: DB ยังไม่เก็บว่า cue ไหนกระซิบจริง (นับใน NightLiveStats) · 🚀 build #3 TestFlight
 - 2026-09-25 10:00 UTC · ✅ **เสียง = George · "You are dreaming." · ความเร็วปกติ** (เจ้าของเลือก anchor-fast-George) → engine text/api atempo=1+trim/.env TTS_VOICE=George · lucid-api restart · แคช prod อุ่นแล้ว (anchor 9.84 s) · ตัวอย่างทั้งหมดสำรอง Drive `tts-samples/` · 🔴 พบว่า **แอปเล่นแค่ระฆัง ไม่เคยเรียก /ai/anchor** → เปิด **L3.8** (ใบงาน `wo-notes/L3.8-WO.md` · ข้อสอบ qc-L3.8 22 ข้อ) ก่อน build · เจ้าของสั่ง: เปลี่ยนเสียงเสร็จ build TestFlight ได้เลย
 - 2026-09-25 09:10 UTC · ✅ fal.ai เติมเงินแล้ว · ส่งเสียงชาย 3 เสียง (Brian/George/Daniel · x3 + ผสมระฆัง · `/root/.lucid/tts/male-*` · TG 3533–3539) · รอเจ้าของเลือกเสียง → เปลี่ยน `TTS_VOICE` ใน apps/api/.env + restart lucid-api + อุ่นแคช /ai/anchor → รอสั่ง build
