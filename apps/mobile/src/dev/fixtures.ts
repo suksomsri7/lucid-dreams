@@ -180,6 +180,17 @@ export function advisorFixtureRequested(): AdvisorFixture | null {
 }
 
 /**
+ * `?fixture=advisor-thinking` (WO L3.10, R1 hotfix #2 — `03-advisor-chat.png`'s room,
+ * frozen mid-reply): `useAdvisor.ts` reads this to freeze the room's default `ASK` state
+ * (intro bubble + 6 theme chips) with the first chip marked `selected` and `busy` stuck
+ * `true`, so `TypingBubble` and the disabled chips/composer are screenshottable without
+ * scripting a real ~4 s wait.
+ */
+export function advisorThinkingFixtureRequested(): boolean {
+  return readFixtureParam() === 'advisor-thinking';
+}
+
+/**
  * These fixtures screenshot a screen that lives *past* onboarding (the advisor room,
  * `app/plan/*` — WO L1.7ui), which `app/_layout.tsx`'s onboarding gate would otherwise
  * redirect away from on a fresh, un-onboarded web QC session (`hasOnboarded` starts
@@ -197,6 +208,7 @@ export function applyOnboardingBypassForAdvisorFixture(): void {
   const bypasses =
     value === 'advisor-start' ||
     value === 'advisor-plan' ||
+    value === 'advisor-thinking' ||
     value === 'plan' ||
     value === 'ear-passed' ||
     value === 'night' ||

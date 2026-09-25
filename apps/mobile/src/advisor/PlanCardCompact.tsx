@@ -7,21 +7,37 @@
  */
 
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useT } from '../i18n';
 import { GlassSurface, Icon, colors, night, radius, spacing, typeScale } from '../ui';
 import type { DreamPlan } from './types';
+
+/**
+ * WO L3.10 (R1 hotfix #2): what the "▶" row is doing right now. `'loading'` covers the
+ * first tap of a night (`ensureFullAnchorUri` still has to download the file, ~1–4 s per
+ * the WO) — `'playing'` is everything after that, until the clip finishes or the ~11 s
+ * safety timeout in `AdvisorRoom.tsx` fires. `'idle'` is the row's normal resting state.
+ */
+export type AnchorPlaybackStatus = 'idle' | 'loading' | 'playing';
 
 export interface PlanCardCompactProps {
   plan: DreamPlan;
   night?: boolean;
   /** No real audio yet (the anchor player is WO L1.6/L1.7) — omit to render the row inert. */
   onPlayAnchor?: () => void;
+  /** Defaults to `'idle'` — `AdvisorRoom.tsx` is the only caller that ever passes anything else. */
+  anchorStatus?: AnchorPlaybackStatus;
   testID?: string;
 }
 
-export function PlanCardCompact({ plan, night: isNight = false, onPlayAnchor, testID }: PlanCardCompactProps) {
+export function PlanCardCompact({
+  plan,
+  night: isNight = false,
+  onPlayAnchor,
+  anchorStatus = 'idle',
+  testID,
+}: PlanCardCompactProps) {
   const { t, locale } = useT();
   const title = locale === 'th' ? plan.theme.titleTh : plan.theme.titleEn;
   const langLabel = t(locale === 'th' ? 'settings.language.th' : 'settings.language.en');
@@ -62,12 +78,28 @@ export function PlanCardCompact({ plan, night: isNight = false, onPlayAnchor, te
         </View>
         <Pressable
           accessibilityRole="button"
-          disabled={!onPlayAnchor}
+          // Disabled with no handler at all (unchanged behaviour), and also disabled
+          // while a preview is loading/playing — the WO's "gate kept but repointed" rule
+          // for a duplicate-guard: a second tap mid-playback must not start a second
+          // `playAnchorPreview` call.
+          disabled={!onPlayAnchor || anchorStatus !== 'idle'}
           onPress={onPlayAnchor}
           testID={testID ? `${testID}-play` : undefined}
-          style={[styles.playButton, { backgroundColor: isNight ? night.glassBg : colors.glass2 }]}
+          style={[
+            styles.playButton,
+            { backgroundColor: isNight ? night.glassBg : colors.glass2 },
+            anchorStatus === 'playing' && styles.playButtonPlaying,
+          ]}
         >
-          <Icon name="play" size={12} color={isNight ? night.text : colors.ink} />
+          {anchorStatus === 'loading' ? (
+            <ActivityIndicator size="small" color={isNight ? night.text : colors.ink} testID={testID ? `${testID}-play-loading` : undefined} />
+          ) : (
+            <Icon
+              name={anchorStatus === 'playing' ? 'pause' : 'play'}
+              size={12}
+              color={isNight ? night.text : colors.ink}
+            />
+          )}
         </Pressable>
       </Row>
 
@@ -125,4 +157,6 @@ const styles = StyleSheet.create({
   anchorValue: { flex: 1, minWidth: 0 },
   anchorSub: { marginTop: 1 },
   playButton: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  // Dimmed, not re-coloured (the WO's "changed/dimmed icon while playing" — no new colour token).
+  playButtonPlaying: { opacity: 0.55 },
 });

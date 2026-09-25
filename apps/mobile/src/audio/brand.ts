@@ -38,7 +38,7 @@ export const FALLBACK_BRAND_VOLUME = 0.15;
 /**
  * Launch / "Start tonight" happen in daylight, usually on the speaker: the night-time starting
  * level (0.15, tuned for headphones on a pillow) is inaudible there — the owner opened the
- * TestFlight build and heard nothing (R1, 25 ก.ย.). The brand tone therefore plays at a floor
+ * TestFlight build and heard nothing (R1, 2026-09-25). The brand tone therefore plays at a floor
  * of {@link BRAND_MIN_VOLUME}; the user's own setting still wins when it is higher.
  */
 export const BRAND_MIN_VOLUME = 0.5;

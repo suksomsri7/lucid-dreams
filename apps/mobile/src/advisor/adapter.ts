@@ -316,6 +316,11 @@ export function createMockAdvisorAdapter(
 
     async pickChip(key) {
       requireNotStarted();
+      // WO L3.10 (R1 hotfix #2): `selected: true` is written before anything else in this
+      // method — even the mock has nothing to `await` here, but marking the tapped chip
+      // first (not after `askClarify`/`revealPlan` decide what happens next) keeps this in
+      // the same order the engine adapter below now has to use, where the gap before the
+      // real await matters.
       if (state === 'ASK') {
         selectChip((messages[0] as Message).id, key);
         askClarify(findTheme(key).key);
@@ -476,6 +481,25 @@ export function createEngineAdvisorAdapter(
     if (engineAdvisor.state === 'STARTED') throw new Error('advisor: conversation already started');
   }
 
+  /**
+   * WO L3.10 (R1 hotfix #2): lock the tapped chip's row on screen the instant it is
+   * tapped — *before* `engineAdvisor.pickChip` is awaited, not after it resolves ~4 s
+   * later. `pickChip` below calls this synchronously (the part of an `async` function
+   * body before its first `await` runs synchronously), so `useAdvisor.ts` can read
+   * `adapter.messages` with the chip already marked `selected` the moment it calls this
+   * method, without waiting for the AI reply.
+   */
+  function markChipSelected(key: string): void {
+    for (let i = uiMessages.length - 1; i >= 0; i -= 1) {
+      const message = uiMessages[i];
+      if (message?.chips) {
+        const locked: Message = { ...message, chips: message.chips.map((chip) => ({ ...chip, selected: chip.key === key })) };
+        uiMessages = [...uiMessages.slice(0, i), locked, ...uiMessages.slice(i + 1)];
+        return;
+      }
+    }
+  }
+
   const adapter: AdvisorAdapter = {
     get state() {
       return engineAdvisor.state;
@@ -498,6 +522,7 @@ export function createEngineAdvisorAdapter(
 
     async pickChip(key) {
       requireNotStarted();
+      markChipSelected(key);
       const turn = await engineAdvisor.pickChip(key);
       return applyTurn(turn);
     },

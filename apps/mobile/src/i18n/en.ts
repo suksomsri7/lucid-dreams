@@ -77,6 +77,8 @@ export const en: Translations = {
   'advisor.plan.genericSeed1': 'The picture you described begins to take shape',
   'advisor.plan.genericSeed2': 'Everything grows clearer',
   'advisor.fixture.userText': 'I want to dream about diving with a whale shark at Koh Tao, clear water',
+  // WO L3.10 (R1 hotfix #2) — a11y label for the "thinking" bubble (3 bouncing dots) while waiting on the AI.
+  'advisor.thinking': 'Thinking…',
 
   // History (WO L1.4) — reached from the "History" link in the advisor room, not the Journal tab (journal.* above)
   'history.title': 'History',

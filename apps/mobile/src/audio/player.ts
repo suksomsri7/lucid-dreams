@@ -87,6 +87,27 @@ export async function playAnchorOnce(
 }
 
 /**
+ * WO L3.10 (R1 hotfix #2): the level every "▶" preview tap in the advisor room/plan
+ * card should play at — `0.15` (used everywhere else `playAnchorOnce` is called with an
+ * explicit volume, e.g. `app/plan/index.tsx`) is tuned for the *night cue*, heard through
+ * headphones in a silent room. A daytime tap on a card, through the phone's own speaker,
+ * is nearly inaudible at that level (R1 report: "no sound" on first tap) — `0.5` is loud
+ * enough to confirm the anchor is real without this becoming the level anything actually
+ * cues at overnight.
+ */
+export const PREVIEW_VOLUME = 0.5;
+
+/**
+ * The advisor room's/plan card's "▶" preview — centre-panned, at `PREVIEW_VOLUME` (not
+ * whatever the night cue uses), and always the full anchor when it can be (bell +
+ * whispered phrase) so tapping ▶ previews what the user will actually hear tonight, not
+ * just the bare tone.
+ */
+export async function playAnchorPreview(signature: AnchorSignature, lang: AnchorLang): Promise<AnchorPlayback> {
+  return playAnchorOnce(signature, { volume: PREVIEW_VOLUME, pan: 0, lang });
+}
+
+/**
  * Run one full round-trip of `createMemorizationTest().start()`'s plan: play the
  * signature `plan.rounds` times on `plan.pan`, with `plan.gapsMs[i]` of silence between
  * plays (there is one fewer gap than rounds — the loop below simply has nothing to wait

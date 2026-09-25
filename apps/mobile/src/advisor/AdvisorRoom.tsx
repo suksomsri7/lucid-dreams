@@ -10,8 +10,11 @@ import { useRouter } from 'expo-router';
 import { FlatList, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import type { AnchorSignature } from '@lucid/engine';
+
 import { prefetchFullAnchor } from '../audio/anchorRemote';
 import { playBrandAnchor } from '../audio/brand';
+import { buildAnchorSignature, getAnchorSeed, playAnchorPreview } from '../audio/player';
 import { getPlatform } from '../platform';
 import { useT, type Locale, type TranslateParams, type TranslationKey } from '../i18n';
 import {
@@ -27,9 +30,25 @@ import {
   spacing,
   typeScale,
 } from '../ui';
+import { TypingBubble } from '../ui/TypingBubble';
 import { PlanCardCompact } from './PlanCardCompact';
 import { useAdvisor } from './useAdvisor';
 import type { DreamPlan, Message } from './types';
+
+/**
+ * WO L3.10 (R1 hotfix #2): first tap has to download the full anchor file (`ensureFullAnchorUri`,
+ * ~1–4 s per the WO) inside the single `playAnchorPreview` promise below — there is no
+ * intermediate signal between "downloading" and "now playing", so the loading spinner is shown
+ * for this long before the row switches to the "playing" glyph. Generous on purpose: better to
+ * show "still loading" a little past the real download than flip to "playing" before sound has
+ * actually started.
+ */
+const ANCHOR_LOADING_TO_PLAYING_MS = 900;
+
+/** Safety net only — `playOneShot` (`platform/ios/IosAudioPlayer.ts`) already resolves on its own
+ * once the clip finishes (or after its own internal timeout), so this should never actually fire;
+ * it exists so a future platform/player bug can't leave the ▶ row stuck disabled forever. */
+const ANCHOR_SAFETY_TIMEOUT_MS = 11000;
 
 /** `Math.max(insets.bottom, 12) + 14 + 64` — the exact geometry `FloatingTabBar` positions itself with. */
 function tabBarTopClearance(safeAreaBottom: number): number {
@@ -66,6 +85,54 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
   // conversation), so the very first render never auto-scrolls away from the top.
   const scrolledThrough = useRef(advisor.messages.length);
 
+  // WO L3.10 (R1 hotfix #2 bug 1): the plan card's "▶" row. `signature` is built once
+  // (seed + `locale`) and reused for every tap — the same signature `app/plan/index.tsx`
+  // builds, so the first tap here can already be a cache hit if the plan screen (or a
+  // previous tap in this room) already downloaded the file.
+  const [anchorSignature, setAnchorSignature] = useState<AnchorSignature | null>(null);
+  const [anchorStatus, setAnchorStatus] = useState<'idle' | 'loading' | 'playing'>('idle');
+  const anchorTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const seed = await getAnchorSeed();
+      if (!cancelled) setAnchorSignature(buildAnchorSignature(seed, locale));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
+
+  useEffect(
+    () => () => {
+      for (const timer of anchorTimers.current) clearTimeout(timer);
+    },
+    [],
+  );
+
+  function handlePlayAnchor(): void {
+    if (!anchorSignature || anchorStatus !== 'idle') return;
+    setAnchorStatus('loading');
+    const toPlaying = setTimeout(
+      () => setAnchorStatus((prev) => (prev === 'loading' ? 'playing' : prev)),
+      ANCHOR_LOADING_TO_PLAYING_MS,
+    );
+    const safety = setTimeout(() => setAnchorStatus('idle'), ANCHOR_SAFETY_TIMEOUT_MS);
+    anchorTimers.current.push(toPlaying, safety);
+    void playAnchorPreview(anchorSignature, locale)
+      .catch((error) => {
+        // WO: never alert on a preview failure (no headphones, system volume 0, …) — log only.
+        // eslint-disable-next-line no-console -- intentional, WO-mandated fallback (no alert)
+        console.warn('[advisor] anchor preview failed', error);
+      })
+      .finally(() => {
+        clearTimeout(toPlaying);
+        clearTimeout(safety);
+        setAnchorStatus('idle');
+      });
+  }
+
   // Fable parity review round 2: top-anchored per mockup 02 (AI pill + first bubble +
   // theme chips start right under the nav, empty space below, composer pinned at the
   // bottom) — a plain top-anchored list, not `inverted`. Scroll to the newest content
@@ -80,6 +147,16 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
     const timer = setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
     return () => clearTimeout(timer);
   }, [advisor.messages.length]);
+
+  // WO L3.10: the typing bubble is appended below the message list (`ListFooterComponent`),
+  // not as a `Message` in `advisor.messages` — scroll to it the same way a new message
+  // scrolls into view, since it appears the instant a chip/send is tapped, before any
+  // reply has actually landed in `advisor.messages`.
+  useEffect(() => {
+    if (!advisor.busy) return;
+    const timer = setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+    return () => clearTimeout(timer);
+  }, [advisor.busy]);
 
   useEffect(() => {
     const subscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -208,8 +285,11 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
               night={isNight}
               locale={locale}
               t={t}
+              busy={advisor.busy}
               onChipPress={handleChipPress}
               onStart={handleStart}
+              onPlayAnchor={anchorSignature ? handlePlayAnchor : undefined}
+              anchorStatus={anchorStatus}
             />
           )}
           ListHeaderComponent={
@@ -222,6 +302,18 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
                   <Icon name="spark" size={13} color={colors.acc} />
                 </View>
                 <Text style={[typeScale.sub, { color: isNight ? night.mut : colors.mut }]}>{t('advisor.aiName')}</Text>
+              </View>
+            ) : null
+          }
+          ListFooterComponent={
+            // WO L3.10 (R1 hotfix #2 bug 2): the "AI is thinking" signal — rendered in the
+            // same slot a real AI `Bubble` would occupy, for exactly as long as `useAdvisor()`
+            // is waiting on a reply. `?fixture=advisor-thinking` (`src/dev/fixtures.ts`'s
+            // `readFixtureParam() === 'advisor-thinking'`, read by `useAdvisor.ts`) freezes
+            // this true for QC.
+            advisor.busy ? (
+              <View style={styles.messageBlock}>
+                <TypingBubble night={isNight} testID="advisor-typing" />
               </View>
             ) : null
           }
@@ -238,8 +330,11 @@ export function AdvisorRoom({ night: isNight = false, testID }: AdvisorRoomProps
           value={draft}
           onChangeText={setDraft}
           placeholder={composerPlaceholder}
-          onMicPress={handleMicPress}
-          onSend={handleSend}
+          // WO L3.10: send + mic are unavailable while `busy` — omitting the handler (rather
+          // than `Composer`'s own `disabled` prop, which also stops the text input from being
+          // editable) is what keeps typing allowed while a reply is in flight, per the WO.
+          onMicPress={advisor.busy ? undefined : handleMicPress}
+          onSend={advisor.busy ? undefined : handleSend}
           micActive={micActive}
           night={isNight}
           inputRef={inputRef}
@@ -256,15 +351,32 @@ interface MessageRowProps {
   night: boolean;
   locale: Locale;
   t: (key: TranslationKey, params?: TranslateParams) => string;
+  /** WO L3.10: true while `useAdvisor()` is waiting on a reply — every chip row locks, not just the one tapped. */
+  busy: boolean;
   onChipPress: (key: string) => void;
   onStart: () => void;
+  onPlayAnchor?: () => void;
+  anchorStatus: 'idle' | 'loading' | 'playing';
 }
 
-function MessageRow({ message, plan, night: isNight, t, onChipPress, onStart }: MessageRowProps) {
+function MessageRow({
+  message,
+  plan,
+  night: isNight,
+  t,
+  busy,
+  onChipPress,
+  onStart,
+  onPlayAnchor,
+  anchorStatus,
+}: MessageRowProps) {
   // Once any chip in the row has been picked, the whole row stops accepting taps — it
   // stays on screen as a record of what was chosen (DESIGN §3.3: each question is
   // answered once, mockup 03's "sea turtle" (🐢) chip stays highlighted, not re-selectable).
-  const rowLocked = message.chips?.some((chip) => chip.selected) ?? false;
+  // WO L3.10: `|| busy` locks *every* chip row (not just the tapped one) the instant a
+  // reply is in flight — this is the fix for the R1 report of 9 duplicate user bubbles
+  // from repeated taps during the ~4 s wait.
+  const rowLocked = (message.chips?.some((chip) => chip.selected) ?? false) || busy;
 
   return (
     <View style={styles.messageBlock}>
@@ -277,7 +389,8 @@ function MessageRow({ message, plan, night: isNight, t, onChipPress, onStart }: 
               label={chip.label}
               tone={chip.selected ? 'on' : 'default'}
               night={isNight}
-              onPress={rowLocked ? undefined : () => onChipPress(chip.key)}
+              disabled={rowLocked || busy}
+              onPress={rowLocked || busy ? undefined : () => onChipPress(chip.key)}
               testID={`advisor-chip-${chip.key}`}
             />
           ))}
@@ -285,7 +398,13 @@ function MessageRow({ message, plan, night: isNight, t, onChipPress, onStart }: 
       ) : null}
       {message.planCompact && plan ? (
         <View style={styles.planBlock}>
-          <PlanCardCompact plan={plan} night={isNight} testID="advisor-plan-card" />
+          <PlanCardCompact
+            plan={plan}
+            night={isNight}
+            onPlayAnchor={onPlayAnchor}
+            anchorStatus={anchorStatus}
+            testID="advisor-plan-card"
+          />
           <Button label={t('advisor.startTonight')} tone="pri" block onPress={onStart} testID="advisor-start-button" />
         </View>
       ) : null}
